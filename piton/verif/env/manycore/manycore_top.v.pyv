@@ -531,6 +531,7 @@ system system(
 //    end // initial begin
 
 `ifndef PITON_PICO
+`ifndef PITON_TINYRV2
 `ifndef PITON_ARIANE
     sas_intf  sas_intf(/*AUTOINST*/
         // Inputs
@@ -538,14 +539,17 @@ system system(
         .rst_l     (`CORE_REF0.reset_l));       // Templated
 `endif
 `endif
+`endif
 
 `ifndef PITON_PICO
+`ifndef PITON_TINYRV2
 `ifndef PITON_ARIANE
     // create sas tasks
     sas_tasks sas_tasks(/*AUTOINST*/
         // Inputs
         .clk      (`CHIP_INT_CLK),      // Templated
         .rst_l        (`CORE_REF0.reset_l));       // Templated
+`endif
 `endif
 `endif
 

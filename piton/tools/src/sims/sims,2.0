@@ -204,6 +204,7 @@ Getopt::Long::Configure ('no_auto_abbrev') ;
         'stub_mask' => "",
         'sys' => "",
         'tg_seed' => -1,
+        'tinyrv2' => 0,
         'tmp_dir' => ".",
         'toplevel' => [],
         'tarcopy' => 0,
@@ -319,6 +320,7 @@ GetOptions (\%opt,
             'model_dir=s',
             'parallel!',
             'ariane!',
+            'tinyrv2!',
             'pico!',
             'pico_het!',
             'regress!',
@@ -2134,8 +2136,8 @@ sub assemble_diag
     if ($opt{asm_diag_name} =~ /\.pal/)        { $diag_name = "diag.pal"  ; }
     elsif ($opt{asm_diag_name} =~ /\.s\.gz/)   { $diag_name = "diag.s.gz" ; }
     elsif ($opt{precompiled} and $opt{ariane}) { $diag_name = "diag.exe"  ; }
-    elsif (($opt{pico} | $opt{ariane}) and ($opt{asm_diag_name} =~ /\.S/)) { $diag_name = "diag.S" ; }
-    elsif (($opt{pico} | $opt{ariane}) and ($opt{asm_diag_name} =~ /\.c/)) { $diag_name = "diag.c" ; }
+    elsif (($opt{pico} | $opt{ariane} | $opt{tinyrv2}) and ($opt{asm_diag_name} =~ /\.S/)) { $diag_name = "diag.S" ; }
+    elsif (($opt{pico} | $opt{ariane} | $opt{tinyrv2}) and ($opt{asm_diag_name} =~ /\.c/)) { $diag_name = "diag.c" ; }
     else { $diag_name = "diag.s" ; }
 
     # copy diagnostic to run area
@@ -2176,8 +2178,8 @@ sub assemble_diag
       close (DIAGIN) ;
     }
 
-    if ($opt{pico}) {
-      # RISCV flow for RV32IM (PICORV32)
+    if ($opt{pico} or $opt{tinyrv2}) {
+      # RISCV flow for RV32IM (PICORV32 or TINYRV32)
       print "$prg: assembling 32bit riscv diag (RV32IM)\n" ;
       my $cmd = "rv32_as " ;
       #$cmd .= join (" ", @{$opt{midas_args}}) ;
@@ -2630,6 +2632,8 @@ sub parse_args
   }
 
   die ("DIE. -ariane and -pico/-pico_het cannot be set simultaneously") if ($opt{ariane} && ($opt{pico} || $opt{pico_het})) ;
+  die ("DIE. -pico and -tinyrv2 cannot be set simultaneously") if ($opt{tinyrv2} && ($opt{pico} || $opt{pico_het})) ;
+  die ("DIE. -ariane and -tinyrv2 cannot be set simultaneously") if ($opt{ariane} && ($opt{tinyrv2})) ;
   die ("DIE. -pico and -pico_het cannot both be set") if ($opt{pico} && $opt{pico_het}) ;
   $ENV{PITON_PICO}     = $opt{pico};
   $ENV{PITON_PICO_HET} = $opt{pico_het};
@@ -2640,7 +2644,7 @@ sub parse_args
   push (@{$opt{config_rtl}}, "WT_DCACHE")      if ($opt{ariane});
 
 
-  if ($opt{pico} or $opt{pico_het} or $opt{ariane}) {
+  if ($opt{pico} or $opt{pico_het} or $opt{ariane} or $opt{tinyrv2}) {
     push (@{$opt{config_rtl}}, "NO_MRA_VAL") ;
     push (@{$opt{config_rtl}}, "NO_SLAM_RANDOM") ;
   }
@@ -2674,6 +2678,8 @@ sub parse_args
         push (@{$opt{config_rtl}}, "RTL_PICO" . $i);
     } elsif ($opt{ariane}) {
         push (@{$opt{config_rtl}}, "RTL_ARIANE" . $i);
+    } elsif ($opt{tinyrv2}) {
+        push (@{$opt{config_rtl}}, "RTL_TINYRV2" . $i);
     } else {
         push (@{$opt{config_rtl}}, "RTL_SPARC" . $i);
     }

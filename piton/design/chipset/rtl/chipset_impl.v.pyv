@@ -1078,6 +1078,10 @@ ciop_fake_iob ciop_fake_iob(
           .spc0_inst_done    ( `ARIANE_CORE0.piton_pc_vld   ),
           .pc_w0             ( `ARIANE_CORE0.piton_pc[48:0] ),
         `endif
+        `ifdef RTL_TINYRV20
+          .spc0_inst_done    ( 1'b1  ),
+          .pc_w0             ( 49'b0 ),
+        `endif
         '''
 
         for i in range (NUM_TILES): # extend this later
@@ -1085,9 +1089,11 @@ ciop_fake_iob ciop_fake_iob(
             text2 = text;
             text2 = text2.replace("PICO_CORE0", "PICO_CORE" + `i`);
             text2 = text2.replace("ARIANE_CORE0", "ARIANE_CORE" + `i`);
+            text2 = text2.replace("TINYRV2_CORE0", "TINYRV2_CORE" + `i`);
             text2 = text2.replace("RTL_ARIANE0", "RTL_ARIANE" + `i`);
             text2 = text2.replace("RTL_SPARC0", "RTL_SPARC" + `i`);
             text2 = text2.replace("RTL_PICO0", "RTL_PICO" + `i`);
+            text2 = text2.replace("RTL_TINYRV20", "RTL_TINYRV2" + `i`);
             text2 = text2.replace("spc0_inst_done", "spc" + `i` + "_inst_done");
             text2 = text2.replace("pc_w0", "pc_w" + `i`);
             text2 = text2.replace("PCPATH0", "PCPATH" + `i`);

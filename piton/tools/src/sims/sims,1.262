@@ -242,6 +242,7 @@ Getopt::Long::Configure ('no_auto_abbrev') ;
         'tap_diag_root' => [],
 	'tcl_tap' => 0,
 	'tcl_tap_diag' => "",
+        'tinyrv2' => 0,
         'tg_seed' => -1,
         'tmp_dir' => ".",
         'tarcopy' => 0,
@@ -5221,6 +5222,7 @@ sub parse_args
 	    'tcl_tap!',
 	    'tcl_tap_diag=s',
             'tg_seed=i',
+            'tinyrv2!',
             'tmp_dir=s',
             'tarcopy!',
             'tpt_diag_name=s',
@@ -5450,8 +5452,10 @@ sub parse_args
   die ("DIE. -pico and -pico_het cannot both be set") if ($opt{pico} && $opt{pico_het}) ;
   $ENV{PITON_PICO}=$opt{pico};
   $ENV{PITON_PICO_HET}=$opt{pico_het};
+  $ENV{PITON_TINYRV2}=$opt{tinyrv2};
   push (@{$opt{config_rtl}}, "PITON_PICO") if ($opt{pico});
   push (@{$opt{config_rtl}}, "PITON_PICO_HET") if ($opt{pico_het});
+  push (@{$opt{config_rtl}}, "PITON_TINYRV2") if ($opt{tinyrv2});
 
   # conveniently sets up the tile RTL defines for manycore model
   if ($opt{x_tiles} && $opt{y_tiles}) {
@@ -5462,7 +5466,10 @@ sub parse_args
     for (my $i = 0; $i < ($opt{x_tiles} * $opt{y_tiles}); $i++) {
         if ($opt{pico} || ($opt{pico_het} && ($i % 2 == 1))) {
             push (@{$opt{config_rtl}}, "RTL_PICO" . $i);
-	}
+	    }
+        elsif ($opt{tinyrv2}) {
+            push (@{$opt{config_rtl}}, "RTL_TINYRV2" . $i);
+        }
         else {
             push (@{$opt{config_rtl}}, "RTL_SPARC" . $i);
         }
@@ -5494,7 +5501,10 @@ sub parse_args
         # print "$i\n";
         if ($opt{pico} || ($opt{pico_het} && ($i % 2 == 1))) {
             push (@{$opt{config_rtl}}, "RTL_PICO" . $i);
-	}
+	    }
+        elsif ($opt{tinyrv2}) {
+            push (@{$opt{config_rtl}}, "RTL_TINYRV2" . $i);
+        }
         else {
             push (@{$opt{config_rtl}}, "RTL_SPARC" . $i);
         }
