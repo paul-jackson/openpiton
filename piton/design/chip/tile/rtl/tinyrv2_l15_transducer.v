@@ -30,13 +30,12 @@ module tinyrv2_l15_transducer (
     input                           rst_n,
 
     // tinyrv2 -> Transducer
-    input [66:0]                    tinyrv2_transducer_imemreq_msg,
+    input [76:0]                    tinyrv2_transducer_imemreq_msg,
     input                           tinyrv2_transducer_imemreq_val,
     input                           tinyrv2_transducer_imemresp_rdy,
-    input [66:0]                    tinyrv2_transducer_dmemreq_msg,
+    input [76:0]                    tinyrv2_transducer_dmemreq_msg,
     input                           tinyrv2_transducer_dmemreq_val,
     input                           tinyrv2_transducer_dmemresp_rdy,
-    input  [31:0]                   tinyrv2_transducer_csr_status,
 
     // L1.5 -> Transducer
     input                           l15_transducer_ack,
@@ -72,10 +71,10 @@ module tinyrv2_l15_transducer (
    
     // Transducer -> tinyrv2
     output reg                      transducer_tinyrv2_imemreq_rdy,
-    output reg [66:0]               transducer_tinyrv2_imemresp_msg,
+    output reg [46:0]               transducer_tinyrv2_imemresp_msg,
     output reg                      transducer_tinyrv2_imemresp_val,
     output reg                      transducer_tinyrv2_dmemreq_rdy,
-    output reg [66:0]               transducer_tinyrv2_dmemresp_msg,
+    output reg [46:0]               transducer_tinyrv2_dmemresp_msg,
     output reg                      transducer_tinyrv2_dmemresp_val,
     
     output                          transducer_l15_req_ack,
@@ -100,7 +99,7 @@ module tinyrv2_l15_transducer (
     
     // Taking requests from tinyrv2 core
     reg         cur_memreq_type;
-    reg  [66:0] my_tinyrv2_memreq_msg;
+    reg  [76:0] my_tinyrv2_memreq_msg;
     wire [1:0]  tinyrv2_memreq_len;
     wire        tinyrv2_memreq_type;
     wire [31:0] tinyrv2_memreq_addr;
@@ -128,11 +127,11 @@ module tinyrv2_l15_transducer (
       // Reset to idle state. Refuse instruction requests from core until interrupt is received.
       if (!rst_n) begin
         transducer_tinyrv2_imemreq_rdy <= 1'b0;
-        transducer_tinyrv2_imemresp_msg <= 35'b000_0000000_00000_00000_000_00000_0010011;
+        transducer_tinyrv2_imemresp_msg <= 47'b0;
         transducer_tinyrv2_imemresp_val <= 1'b0;
 
         transducer_tinyrv2_dmemreq_rdy <= 1'b0;
-        transducer_tinyrv2_dmemresp_msg <= 35'b0;
+        transducer_tinyrv2_dmemresp_msg <= 47'b0;
         transducer_tinyrv2_dmemresp_val <= 1'b0;
 
         tinyrv2_memresp_val            <= 1'b0;
@@ -179,7 +178,7 @@ module tinyrv2_l15_transducer (
       // When l15 responds with a store ack or load return, pass the message to the core
       else if (tinyrv2_memresp_val) begin
         if (cur_memreq_type == D_TYPE) begin
-          transducer_tinyrv2_imemresp_msg <= 35'b000_0000000_00000_00000_000_00000_0010011;
+          transducer_tinyrv2_imemresp_msg <= 47'b0;
           transducer_tinyrv2_imemresp_val <= 1'b0;
             
           transducer_tinyrv2_dmemresp_msg <= tinyrv2_memresp_msg;
@@ -189,7 +188,7 @@ module tinyrv2_l15_transducer (
           transducer_tinyrv2_imemresp_msg <= tinyrv2_memresp_msg;
           transducer_tinyrv2_imemresp_val <= 1'b1;
 
-          transducer_tinyrv2_dmemresp_msg <= 35'b0;
+          transducer_tinyrv2_dmemresp_msg <= 47'b0;
           transducer_tinyrv2_dmemresp_val <= 1'b0;
         end
         transducer_tinyrv2_imemreq_rdy <= 1'b0;
@@ -216,7 +215,7 @@ module tinyrv2_l15_transducer (
       end
     end
  
-    assign  tinyrv2_memreq_type  = my_tinyrv2_memreq_msg[66];
+    assign  tinyrv2_memreq_type  = my_tinyrv2_memreq_msg[73];
     assign  tinyrv2_memreq_addr  = my_tinyrv2_memreq_msg[65:34];
     assign  tinyrv2_memreq_len   = my_tinyrv2_memreq_msg[33:32];
     assign  tinyrv2_memreq_data  = my_tinyrv2_memreq_msg[31:0];
@@ -355,7 +354,7 @@ module tinyrv2_l15_transducer (
     assign  transducer_l15_req_ack = l15_transducer_val;
     assign  tinyrv2_memresp_type     = l15_transducer_returntype == 4'b0000 ? 1'b0 : 1'b1;
     assign  tinyrv2_memresp_len      = tinyrv2_memreq_len;
-    assign  tinyrv2_memresp_msg      = {tinyrv2_memresp_type, tinyrv2_memresp_len, tinyrv2_memresp_data};
+    assign  tinyrv2_memresp_msg      = {2'b0, tinyrv2_memresp_type, 8'b0, 2'b0, tinyrv2_memresp_len, tinyrv2_memresp_data};
     
     
     // Keep track of whether we have received the wakeup interrupt

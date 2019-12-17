@@ -1058,22 +1058,24 @@ end else if (TILE_TYPE == `TINYRV2_RV32_TILE) begin : g_core
     //////////////////
     // Tinyrv2 Core //
     //////////////////
-    wire [66:0]  tinyrv2_transducer_imemreq_msg;
+    wire [76:0]  tinyrv2_transducer_imemreq_msg;
     wire         tinyrv2_transducer_imemreq_val;
     wire         transducer_tinyrv2_imemreq_rdy;
-    wire [31:0]  transducer_tinyrv2_imemresp_msg;
+    wire [46:0]  transducer_tinyrv2_imemresp_msg;
     wire         transducer_tinyrv2_imemresp_val;
-    wire [66:0]  tinyrv2_transducer_dmemreq_msg;
+    wire         tinyrv2_transducer_imemresp_rdy;
+    wire [76:0]  tinyrv2_transducer_dmemreq_msg;
     wire         tinyrv2_transducer_dmemreq_val;
     wire         transducer_tinyrv2_dmemreq_rdy;
-    wire [31:0]  transducer_tinyrv2_dmemresp_msg;
+    wire [46:0]  transducer_tinyrv2_dmemresp_msg;
     wire         transducer_tinyrv2_dmemresp_val;
-    wire [31:0]  tinyrv2_transducer_csr_status;
+    wire         tinyrv2_transducer_dmemresp_rdy;
     wire         tinyrv2_int;
 
-    riscv_Core core(
+    tinyrv2_core core(
         .clk           (clk_gated),
-        .reset_l       (rst_n_f),
+        .reset         (~rst_n_f),
+
         .tinyrv2_int   (tinyrv2_int),
 
         .imemreq_msg   (tinyrv2_transducer_imemreq_msg),
@@ -1082,6 +1084,7 @@ end else if (TILE_TYPE == `TINYRV2_RV32_TILE) begin : g_core
 
         .imemresp_msg  (transducer_tinyrv2_imemresp_msg),
         .imemresp_val  (transducer_tinyrv2_imemresp_val),
+        .imemresp_rdy  (tinyrv2_transducer_imemresp_rdy),
 
         .dmemreq_msg   (tinyrv2_transducer_dmemreq_msg),
         .dmemreq_val   (tinyrv2_transducer_dmemreq_val),
@@ -1089,8 +1092,7 @@ end else if (TILE_TYPE == `TINYRV2_RV32_TILE) begin : g_core
 
         .dmemresp_msg  (transducer_tinyrv2_dmemresp_msg),
         .dmemresp_val  (transducer_tinyrv2_dmemresp_val),
-
-        .csr_status    (tinyrv2_transducer_csr_status)
+        .dmemresp_rdy  (tinyrv2_transducer_dmemresp_val)
     );
 
     pico_reset pico_reset(
