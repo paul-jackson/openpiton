@@ -2638,10 +2638,12 @@ sub parse_args
   $ENV{PITON_PICO}     = $opt{pico};
   $ENV{PITON_PICO_HET} = $opt{pico_het};
   $ENV{PITON_ARIANE}   = $opt{ariane};
+  $ENV{PITON_TINYRV2}  = $opt{tinyrv2};
   push (@{$opt{config_rtl}}, "PITON_PICO")     if ($opt{pico});
   push (@{$opt{config_rtl}}, "PITON_PICO_HET") if ($opt{pico_het});
   push (@{$opt{config_rtl}}, "PITON_ARIANE")   if ($opt{ariane});
   push (@{$opt{config_rtl}}, "WT_DCACHE")      if ($opt{ariane});
+  push (@{$opt{config_rtl}}, "PITON_TINYRV2")  if ($opt{tinyrv2});
 
 
   if ($opt{pico} or $opt{pico_het} or $opt{ariane} or $opt{tinyrv2}) {

@@ -1,13047 +1,4785 @@
 //-----------------------------------------------------------------------------
-// ProcVRTL_0x1fe53ce8896a97
+// ProcPRTL_0xfd37d69f510b9a8
 //-----------------------------------------------------------------------------
-// PyMTL: dump_vcd = True
-// PyMTL: proc.ProcRTL {"num_cores": 1}
+// PyMTL: dump_vcd = False
+// PyMTL: proc.ProcPRTL {"num_cores": 1}
 // PyMTL: verilator_xinit = zeros
 `default_nettype none
-module tinyrv2_core
+module tinyrv2_proc
 (
   input  wire [   0:0] clk,
   output wire [   0:0] commit_inst,
   input  wire [  31:0] core_id,
-  input wire           tinyrv2_int, // not used
-
   output wire [  76:0] dmemreq_msg,
   input  wire [   0:0] dmemreq_rdy,
   output wire [   0:0] dmemreq_val,
-
   input  wire [  46:0] dmemresp_msg,
   output wire [   0:0] dmemresp_rdy,
   input  wire [   0:0] dmemresp_val,
-
   output wire [  76:0] imemreq_msg,
   input  wire [   0:0] imemreq_rdy,
   output wire [   0:0] imemreq_val,
-
   input  wire [  46:0] imemresp_msg,
   output wire [   0:0] imemresp_rdy,
   input  wire [   0:0] imemresp_val,
-
   input  wire [  31:0] mngr2proc_msg,
   output wire [   0:0] mngr2proc_rdy,
   input  wire [   0:0] mngr2proc_val,
-
   output wire [  31:0] proc2mngr_msg,
   input  wire [   0:0] proc2mngr_rdy,
   output wire [   0:0] proc2mngr_val,
-
-  input  wire [   0:0] reset,
+  input  wire [   0:0] reset_l,
   output wire [   0:0] stats_en,
-
   output wire [  37:0] xcelreq_msg,
   input  wire [   0:0] xcelreq_rdy,
   output wire [   0:0] xcelreq_val,
-
   input  wire [  32:0] xcelresp_msg,
   output wire [   0:0] xcelresp_rdy,
   input  wire [   0:0] xcelresp_val
 );
 
-  // Imported Verilog source from:
-  // /work/global/lc873/work/play_ground/coding2019/project-group02/sim/proc/ProcVRTL.v
+  wire reset = ~reset_l;
 
-  proc_ProcVRTL#(
-    .p_num_cores ( 1 )
-  )  verilog_module
+  // wire declarations
+  wire   [   0:0] imemresp_drop;
+
+
+  // ctrl temporaries
+  wire   [   0:0] ctrl$clk;
+  wire   [   0:0] ctrl$imemresp_val;
+  wire   [   0:0] ctrl$proc2mngr_rdy;
+  wire   [   0:0] ctrl$br_cond_ltu_X;
+  wire   [   0:0] ctrl$imul_req_rdy_D;
+  wire   [   0:0] ctrl$mngr2proc_val;
+  wire   [   0:0] ctrl$br_cond_lt_X;
+  wire   [   0:0] ctrl$xcelreq_rdy;
+  wire   [  31:0] ctrl$inst_D;
+  wire   [   0:0] ctrl$dmemreq_rdy;
+  wire   [   0:0] ctrl$imul_resp_val_X;
+  wire   [   0:0] ctrl$imemreq_rdy;
+  wire   [   0:0] ctrl$xcelresp_val;
+  wire   [   0:0] ctrl$reset;
+  wire   [   0:0] ctrl$dmemresp_val;
+  wire   [   0:0] ctrl$br_cond_eq_X;
+  wire   [   2:0] ctrl$imm_type_D;
+  wire   [   0:0] ctrl$dmemreq_val;
+  wire   [   0:0] ctrl$mngr2proc_rdy;
+  wire   [   1:0] ctrl$op1_byp_sel_D;
+  wire   [   0:0] ctrl$dmemresp_rdy;
+  wire   [   0:0] ctrl$reg_en_X;
+  wire   [   0:0] ctrl$xcelreq_val;
+  wire   [   1:0] ctrl$wb_result_sel_M;
+  wire   [   0:0] ctrl$reg_en_D;
+  wire   [   0:0] ctrl$reg_en_F;
+  wire   [   0:0] ctrl$reg_en_M;
+  wire   [   0:0] ctrl$reg_en_W;
+  wire   [   3:0] ctrl$alu_fn_X;
+  wire   [   0:0] ctrl$xcelreq_msg_type;
+  wire   [   1:0] ctrl$ex_result_sel_X;
+  wire   [   1:0] ctrl$csrr_sel_D;
+  wire   [   0:0] ctrl$imul_resp_rdy_X;
+  wire   [   1:0] ctrl$op2_byp_sel_D;
+  wire   [   0:0] ctrl$rf_wen_W;
+  wire   [   2:0] ctrl$dmemreq_msg_type;
+  wire   [   4:0] ctrl$rf_waddr_W;
+  wire   [   1:0] ctrl$pc_sel_F;
+  wire   [   0:0] ctrl$proc2mngr_val;
+  wire   [   0:0] ctrl$imul_req_val_D;
+  wire   [   0:0] ctrl$commit_inst;
+  wire   [   0:0] ctrl$imemreq_val;
+  wire   [   0:0] ctrl$imemresp_drop;
+  wire   [   0:0] ctrl$op1_sel_D;
+  wire   [   0:0] ctrl$xcelresp_rdy;
+  wire   [   0:0] ctrl$stats_en_wen_W;
+  wire   [   0:0] ctrl$imemresp_rdy;
+  wire   [   1:0] ctrl$op2_sel_D;
+
+  ProcCtrlPRTL_0x3dfd24416cd48613 ctrl
   (
-    .clk           ( clk ),
-    .commit_inst   ( commit_inst ),
-    .core_id       ( core_id ),
-    .dmemreq_msg   ( dmemreq_msg ),
-    .dmemreq_rdy   ( dmemreq_rdy ),
-    .dmemreq_val   ( dmemreq_val ),
-    .dmemresp_msg  ( dmemresp_msg ),
-    .dmemresp_rdy  ( dmemresp_rdy ),
-    .dmemresp_val  ( dmemresp_val ),
-    .imemreq_msg   ( imemreq_msg ),
-    .imemreq_rdy   ( imemreq_rdy ),
-    .imemreq_val   ( imemreq_val ),
-    .imemresp_msg  ( imemresp_msg ),
-    .imemresp_rdy  ( imemresp_rdy ),
-    .imemresp_val  ( imemresp_val ),
-    .mngr2proc_msg ( mngr2proc_msg ),
-    .mngr2proc_rdy ( mngr2proc_rdy ),
-    .mngr2proc_val ( mngr2proc_val ),
-    .proc2mngr_msg ( proc2mngr_msg ),
-    .proc2mngr_rdy ( proc2mngr_rdy ),
-    .proc2mngr_val ( proc2mngr_val ),
-    .reset         ( reset ),
-    .stats_en      ( stats_en ),
-    .xcelreq_msg   ( xcelreq_msg ),
-    .xcelreq_rdy   ( xcelreq_rdy ),
-    .xcelreq_val   ( xcelreq_val ),
-    .xcelresp_msg  ( xcelresp_msg ),
-    .xcelresp_rdy  ( xcelresp_rdy ),
-    .xcelresp_val  ( xcelresp_val )
+    .clk              ( ctrl$clk ),
+    .imemresp_val     ( ctrl$imemresp_val ),
+    .proc2mngr_rdy    ( ctrl$proc2mngr_rdy ),
+    .br_cond_ltu_X    ( ctrl$br_cond_ltu_X ),
+    .imul_req_rdy_D   ( ctrl$imul_req_rdy_D ),
+    .mngr2proc_val    ( ctrl$mngr2proc_val ),
+    .br_cond_lt_X     ( ctrl$br_cond_lt_X ),
+    .xcelreq_rdy      ( ctrl$xcelreq_rdy ),
+    .inst_D           ( ctrl$inst_D ),
+    .dmemreq_rdy      ( ctrl$dmemreq_rdy ),
+    .imul_resp_val_X  ( ctrl$imul_resp_val_X ),
+    .imemreq_rdy      ( ctrl$imemreq_rdy ),
+    .xcelresp_val     ( ctrl$xcelresp_val ),
+    .reset            ( ctrl$reset ),
+    .dmemresp_val     ( ctrl$dmemresp_val ),
+    .br_cond_eq_X     ( ctrl$br_cond_eq_X ),
+    .imm_type_D       ( ctrl$imm_type_D ),
+    .dmemreq_val      ( ctrl$dmemreq_val ),
+    .mngr2proc_rdy    ( ctrl$mngr2proc_rdy ),
+    .op1_byp_sel_D    ( ctrl$op1_byp_sel_D ),
+    .dmemresp_rdy     ( ctrl$dmemresp_rdy ),
+    .reg_en_X         ( ctrl$reg_en_X ),
+    .xcelreq_val      ( ctrl$xcelreq_val ),
+    .wb_result_sel_M  ( ctrl$wb_result_sel_M ),
+    .reg_en_D         ( ctrl$reg_en_D ),
+    .reg_en_F         ( ctrl$reg_en_F ),
+    .reg_en_M         ( ctrl$reg_en_M ),
+    .reg_en_W         ( ctrl$reg_en_W ),
+    .alu_fn_X         ( ctrl$alu_fn_X ),
+    .xcelreq_msg_type ( ctrl$xcelreq_msg_type ),
+    .ex_result_sel_X  ( ctrl$ex_result_sel_X ),
+    .csrr_sel_D       ( ctrl$csrr_sel_D ),
+    .imul_resp_rdy_X  ( ctrl$imul_resp_rdy_X ),
+    .op2_byp_sel_D    ( ctrl$op2_byp_sel_D ),
+    .rf_wen_W         ( ctrl$rf_wen_W ),
+    .dmemreq_msg_type ( ctrl$dmemreq_msg_type ),
+    .rf_waddr_W       ( ctrl$rf_waddr_W ),
+    .pc_sel_F         ( ctrl$pc_sel_F ),
+    .proc2mngr_val    ( ctrl$proc2mngr_val ),
+    .imul_req_val_D   ( ctrl$imul_req_val_D ),
+    .commit_inst      ( ctrl$commit_inst ),
+    .imemreq_val      ( ctrl$imemreq_val ),
+    .imemresp_drop    ( ctrl$imemresp_drop ),
+    .op1_sel_D        ( ctrl$op1_sel_D ),
+    .xcelresp_rdy     ( ctrl$xcelresp_rdy ),
+    .stats_en_wen_W   ( ctrl$stats_en_wen_W ),
+    .imemresp_rdy     ( ctrl$imemresp_rdy ),
+    .op2_sel_D        ( ctrl$op2_sel_D )
   );
 
-endmodule // ProcVRTL_0x1fe53ce8896a97
+  // imemresp_drop_unit temporaries
+  wire   [   0:0] imemresp_drop_unit$out_rdy;
+  wire   [  31:0] imemresp_drop_unit$in__msg;
+  wire   [   0:0] imemresp_drop_unit$in__val;
+  wire   [   0:0] imemresp_drop_unit$clk;
+  wire   [   0:0] imemresp_drop_unit$reset;
+  wire   [   0:0] imemresp_drop_unit$drop;
+  wire   [  31:0] imemresp_drop_unit$out_msg;
+  wire   [   0:0] imemresp_drop_unit$out_val;
+  wire   [   0:0] imemresp_drop_unit$in__rdy;
+
+  DropUnitPRTL_0x219cef4ae91b957 imemresp_drop_unit
+  (
+    .out_rdy ( imemresp_drop_unit$out_rdy ),
+    .in__msg ( imemresp_drop_unit$in__msg ),
+    .in__val ( imemresp_drop_unit$in__val ),
+    .clk     ( imemresp_drop_unit$clk ),
+    .reset   ( imemresp_drop_unit$reset ),
+    .drop    ( imemresp_drop_unit$drop ),
+    .out_msg ( imemresp_drop_unit$out_msg ),
+    .out_val ( imemresp_drop_unit$out_val ),
+    .in__rdy ( imemresp_drop_unit$in__rdy )
+  );
+
+  // imemreq_queue temporaries
+  wire   [   0:0] imemreq_queue$clk;
+  wire   [  76:0] imemreq_queue$enq_msg;
+  wire   [   0:0] imemreq_queue$enq_val;
+  wire   [   0:0] imemreq_queue$reset;
+  wire   [   0:0] imemreq_queue$deq_rdy;
+  wire   [   0:0] imemreq_queue$enq_rdy;
+  wire   [   0:0] imemreq_queue$empty;
+  wire   [   0:0] imemreq_queue$full;
+  wire   [  76:0] imemreq_queue$deq_msg;
+  wire   [   0:0] imemreq_queue$deq_val;
+
+  TwoElementBypassQueue_0x371fd9c705010e2 imemreq_queue
+  (
+    .clk     ( imemreq_queue$clk ),
+    .enq_msg ( imemreq_queue$enq_msg ),
+    .enq_val ( imemreq_queue$enq_val ),
+    .reset   ( imemreq_queue$reset ),
+    .deq_rdy ( imemreq_queue$deq_rdy ),
+    .enq_rdy ( imemreq_queue$enq_rdy ),
+    .empty   ( imemreq_queue$empty ),
+    .full    ( imemreq_queue$full ),
+    .deq_msg ( imemreq_queue$deq_msg ),
+    .deq_val ( imemreq_queue$deq_val )
+  );
+
+  // xcelreq_queue temporaries
+  wire   [   0:0] xcelreq_queue$clk;
+  wire   [  37:0] xcelreq_queue$enq_msg;
+  wire   [   0:0] xcelreq_queue$enq_val;
+  wire   [   0:0] xcelreq_queue$reset;
+  wire   [   0:0] xcelreq_queue$deq_rdy;
+  wire   [   0:0] xcelreq_queue$enq_rdy;
+  wire   [   0:0] xcelreq_queue$full;
+  wire   [  37:0] xcelreq_queue$deq_msg;
+  wire   [   0:0] xcelreq_queue$deq_val;
+
+  SingleElementBypassQueue_0x371f9f91cd6eedb xcelreq_queue
+  (
+    .clk     ( xcelreq_queue$clk ),
+    .enq_msg ( xcelreq_queue$enq_msg ),
+    .enq_val ( xcelreq_queue$enq_val ),
+    .reset   ( xcelreq_queue$reset ),
+    .deq_rdy ( xcelreq_queue$deq_rdy ),
+    .enq_rdy ( xcelreq_queue$enq_rdy ),
+    .full    ( xcelreq_queue$full ),
+    .deq_msg ( xcelreq_queue$deq_msg ),
+    .deq_val ( xcelreq_queue$deq_val )
+  );
+
+  // dpath temporaries
+  wire   [   2:0] dpath$imm_type_D;
+  wire   [   0:0] dpath$clk;
+  wire   [   0:0] dpath$reg_en_W;
+  wire   [  31:0] dpath$core_id;
+  wire   [   1:0] dpath$op1_byp_sel_D;
+  wire   [   0:0] dpath$reg_en_X;
+  wire   [   1:0] dpath$wb_result_sel_M;
+  wire   [   0:0] dpath$reg_en_D;
+  wire   [   0:0] dpath$reg_en_F;
+  wire   [   0:0] dpath$reg_en_M;
+  wire   [   3:0] dpath$alu_fn_X;
+  wire   [   1:0] dpath$ex_result_sel_X;
+  wire   [   1:0] dpath$csrr_sel_D;
+  wire   [   0:0] dpath$imul_resp_rdy_X;
+  wire   [   1:0] dpath$op2_byp_sel_D;
+  wire   [   0:0] dpath$rf_wen_W;
+  wire   [   4:0] dpath$rf_waddr_W;
+  wire   [   0:0] dpath$stats_en_wen_W;
+  wire   [  31:0] dpath$mngr2proc_data;
+  wire   [   0:0] dpath$reset;
+  wire   [   1:0] dpath$pc_sel_F;
+  wire   [   0:0] dpath$imul_req_val_D;
+  wire   [   0:0] dpath$op1_sel_D;
+  wire   [  31:0] dpath$xcelresp_msg_data;
+  wire   [  31:0] dpath$imemresp_msg_data;
+  wire   [  31:0] dpath$dmemresp_msg_data;
+  wire   [   1:0] dpath$op2_sel_D;
+  wire   [   0:0] dpath$stats_en;
+  wire   [   0:0] dpath$br_cond_ltu_X;
+  wire   [   0:0] dpath$imul_req_rdy_D;
+  wire   [  31:0] dpath$dmemreq_msg_data;
+  wire   [  31:0] dpath$proc2mngr_data;
+  wire   [   0:0] dpath$br_cond_lt_X;
+  wire   [  31:0] dpath$inst_D;
+  wire   [   0:0] dpath$imul_resp_val_X;
+  wire   [  31:0] dpath$dmemreq_msg_addr;
+  wire   [   4:0] dpath$xcelreq_msg_raddr;
+  wire   [   0:0] dpath$br_cond_eq_X;
+  wire   [  31:0] dpath$xcelreq_msg_data;
+  wire   [  76:0] dpath$imemreq_msg;
+
+  ProcDpathPRTL_0x4a10d55468bee90e dpath
+  (
+    .imm_type_D        ( dpath$imm_type_D ),
+    .clk               ( dpath$clk ),
+    .reg_en_W          ( dpath$reg_en_W ),
+    .core_id           ( dpath$core_id ),
+    .op1_byp_sel_D     ( dpath$op1_byp_sel_D ),
+    .reg_en_X          ( dpath$reg_en_X ),
+    .wb_result_sel_M   ( dpath$wb_result_sel_M ),
+    .reg_en_D          ( dpath$reg_en_D ),
+    .reg_en_F          ( dpath$reg_en_F ),
+    .reg_en_M          ( dpath$reg_en_M ),
+    .alu_fn_X          ( dpath$alu_fn_X ),
+    .ex_result_sel_X   ( dpath$ex_result_sel_X ),
+    .csrr_sel_D        ( dpath$csrr_sel_D ),
+    .imul_resp_rdy_X   ( dpath$imul_resp_rdy_X ),
+    .op2_byp_sel_D     ( dpath$op2_byp_sel_D ),
+    .rf_wen_W          ( dpath$rf_wen_W ),
+    .rf_waddr_W        ( dpath$rf_waddr_W ),
+    .stats_en_wen_W    ( dpath$stats_en_wen_W ),
+    .mngr2proc_data    ( dpath$mngr2proc_data ),
+    .reset             ( dpath$reset ),
+    .pc_sel_F          ( dpath$pc_sel_F ),
+    .imul_req_val_D    ( dpath$imul_req_val_D ),
+    .op1_sel_D         ( dpath$op1_sel_D ),
+    .xcelresp_msg_data ( dpath$xcelresp_msg_data ),
+    .imemresp_msg_data ( dpath$imemresp_msg_data ),
+    .dmemresp_msg_data ( dpath$dmemresp_msg_data ),
+    .op2_sel_D         ( dpath$op2_sel_D ),
+    .stats_en          ( dpath$stats_en ),
+    .br_cond_ltu_X     ( dpath$br_cond_ltu_X ),
+    .imul_req_rdy_D    ( dpath$imul_req_rdy_D ),
+    .dmemreq_msg_data  ( dpath$dmemreq_msg_data ),
+    .proc2mngr_data    ( dpath$proc2mngr_data ),
+    .br_cond_lt_X      ( dpath$br_cond_lt_X ),
+    .inst_D            ( dpath$inst_D ),
+    .imul_resp_val_X   ( dpath$imul_resp_val_X ),
+    .dmemreq_msg_addr  ( dpath$dmemreq_msg_addr ),
+    .xcelreq_msg_raddr ( dpath$xcelreq_msg_raddr ),
+    .br_cond_eq_X      ( dpath$br_cond_eq_X ),
+    .xcelreq_msg_data  ( dpath$xcelreq_msg_data ),
+    .imemreq_msg       ( dpath$imemreq_msg )
+  );
+
+  // proc2mngr_queue temporaries
+  wire   [   0:0] proc2mngr_queue$clk;
+  wire   [  31:0] proc2mngr_queue$enq_msg;
+  wire   [   0:0] proc2mngr_queue$enq_val;
+  wire   [   0:0] proc2mngr_queue$reset;
+  wire   [   0:0] proc2mngr_queue$deq_rdy;
+  wire   [   0:0] proc2mngr_queue$enq_rdy;
+  wire   [   0:0] proc2mngr_queue$full;
+  wire   [  31:0] proc2mngr_queue$deq_msg;
+  wire   [   0:0] proc2mngr_queue$deq_val;
+
+  SingleElementBypassQueue_0x371f9f91c7b6145 proc2mngr_queue
+  (
+    .clk     ( proc2mngr_queue$clk ),
+    .enq_msg ( proc2mngr_queue$enq_msg ),
+    .enq_val ( proc2mngr_queue$enq_val ),
+    .reset   ( proc2mngr_queue$reset ),
+    .deq_rdy ( proc2mngr_queue$deq_rdy ),
+    .enq_rdy ( proc2mngr_queue$enq_rdy ),
+    .full    ( proc2mngr_queue$full ),
+    .deq_msg ( proc2mngr_queue$deq_msg ),
+    .deq_val ( proc2mngr_queue$deq_val )
+  );
+
+  // dmemreq_queue temporaries
+  wire   [   0:0] dmemreq_queue$clk;
+  wire   [  76:0] dmemreq_queue$enq_msg;
+  wire   [   0:0] dmemreq_queue$enq_val;
+  wire   [   0:0] dmemreq_queue$reset;
+  wire   [   0:0] dmemreq_queue$deq_rdy;
+  wire   [   0:0] dmemreq_queue$enq_rdy;
+  wire   [   0:0] dmemreq_queue$full;
+  wire   [  76:0] dmemreq_queue$deq_msg;
+  wire   [   0:0] dmemreq_queue$deq_val;
+
+  SingleElementBypassQueue_0x371fd9c705010e2 dmemreq_queue
+  (
+    .clk     ( dmemreq_queue$clk ),
+    .enq_msg ( dmemreq_queue$enq_msg ),
+    .enq_val ( dmemreq_queue$enq_val ),
+    .reset   ( dmemreq_queue$reset ),
+    .deq_rdy ( dmemreq_queue$deq_rdy ),
+    .enq_rdy ( dmemreq_queue$enq_rdy ),
+    .full    ( dmemreq_queue$full ),
+    .deq_msg ( dmemreq_queue$deq_msg ),
+    .deq_val ( dmemreq_queue$deq_val )
+  );
+
+  // signal connections
+  assign commit_inst                  = ctrl$commit_inst;
+  assign commit_inst                  = ctrl$commit_inst;
+  assign ctrl$br_cond_eq_X            = dpath$br_cond_eq_X;
+  assign ctrl$br_cond_lt_X            = dpath$br_cond_lt_X;
+  assign ctrl$br_cond_ltu_X           = dpath$br_cond_ltu_X;
+  assign ctrl$clk                     = clk;
+  assign ctrl$dmemreq_rdy             = dmemreq_queue$enq_rdy;
+  assign ctrl$dmemresp_val            = dmemresp_val;
+  assign ctrl$imemreq_rdy             = imemreq_queue$enq_rdy;
+  assign ctrl$imemresp_val            = imemresp_drop_unit$out_val;
+  assign ctrl$imul_req_rdy_D          = dpath$imul_req_rdy_D;
+  assign ctrl$imul_resp_val_X         = dpath$imul_resp_val_X;
+  assign ctrl$inst_D                  = dpath$inst_D;
+  assign ctrl$mngr2proc_val           = mngr2proc_val;
+  assign ctrl$proc2mngr_rdy           = proc2mngr_queue$enq_rdy;
+  assign ctrl$reset                   = reset;
+  assign ctrl$xcelreq_rdy             = xcelreq_queue$enq_rdy;
+  assign ctrl$xcelresp_val            = xcelresp_val;
+  assign dmemreq_msg                  = dmemreq_queue$deq_msg;
+  assign dmemreq_queue$clk            = clk;
+  assign dmemreq_queue$deq_rdy        = dmemreq_rdy;
+  assign dmemreq_queue$enq_msg[31:0]  = dpath$dmemreq_msg_data;
+  assign dmemreq_queue$enq_msg[65:34] = dpath$dmemreq_msg_addr;
+  assign dmemreq_queue$enq_msg[76:74] = ctrl$dmemreq_msg_type;
+  assign dmemreq_queue$enq_val        = ctrl$dmemreq_val;
+  assign dmemreq_queue$reset          = reset;
+  assign dmemreq_val                  = dmemreq_queue$deq_val;
+  assign dmemresp_rdy                 = ctrl$dmemresp_rdy;
+  assign dpath$alu_fn_X               = ctrl$alu_fn_X;
+  assign dpath$clk                    = clk;
+  assign dpath$core_id                = core_id;
+  assign dpath$core_id                = core_id;
+  assign dpath$csrr_sel_D             = ctrl$csrr_sel_D;
+  assign dpath$dmemresp_msg_data      = dmemresp_msg[31:0];
+  assign dpath$ex_result_sel_X        = ctrl$ex_result_sel_X;
+  assign dpath$imemresp_msg_data      = imemresp_drop_unit$out_msg;
+  assign dpath$imm_type_D             = ctrl$imm_type_D;
+  assign dpath$imul_req_val_D         = ctrl$imul_req_val_D;
+  assign dpath$imul_resp_rdy_X        = ctrl$imul_resp_rdy_X;
+  assign dpath$mngr2proc_data         = mngr2proc_msg;
+  assign dpath$op1_byp_sel_D          = ctrl$op1_byp_sel_D;
+  assign dpath$op1_sel_D              = ctrl$op1_sel_D;
+  assign dpath$op2_byp_sel_D          = ctrl$op2_byp_sel_D;
+  assign dpath$op2_sel_D              = ctrl$op2_sel_D;
+  assign dpath$pc_sel_F               = ctrl$pc_sel_F;
+  assign dpath$reg_en_D               = ctrl$reg_en_D;
+  assign dpath$reg_en_F               = ctrl$reg_en_F;
+  assign dpath$reg_en_M               = ctrl$reg_en_M;
+  assign dpath$reg_en_W               = ctrl$reg_en_W;
+  assign dpath$reg_en_X               = ctrl$reg_en_X;
+  assign dpath$reset                  = reset;
+  assign dpath$rf_waddr_W             = ctrl$rf_waddr_W;
+  assign dpath$rf_wen_W               = ctrl$rf_wen_W;
+  assign dpath$stats_en_wen_W         = ctrl$stats_en_wen_W;
+  assign dpath$wb_result_sel_M        = ctrl$wb_result_sel_M;
+  assign dpath$xcelresp_msg_data      = xcelresp_msg[31:0];
+  assign imemreq_msg                  = imemreq_queue$deq_msg;
+  assign imemreq_queue$clk            = clk;
+  assign imemreq_queue$deq_rdy        = imemreq_rdy;
+  assign imemreq_queue$enq_msg        = dpath$imemreq_msg;
+  assign imemreq_queue$enq_val        = ctrl$imemreq_val;
+  assign imemreq_queue$reset          = reset;
+  assign imemreq_val                  = imemreq_queue$deq_val;
+  assign imemresp_drop                = ctrl$imemresp_drop;
+  assign imemresp_drop_unit$clk       = clk;
+  assign imemresp_drop_unit$drop      = imemresp_drop;
+  assign imemresp_drop_unit$in__msg   = imemresp_msg[31:0];
+  assign imemresp_drop_unit$in__val   = imemresp_val;
+  assign imemresp_drop_unit$out_rdy   = ctrl$imemresp_rdy;
+  assign imemresp_drop_unit$reset     = reset;
+  assign imemresp_rdy                 = imemresp_drop_unit$in__rdy;
+  assign mngr2proc_rdy                = ctrl$mngr2proc_rdy;
+  assign proc2mngr_msg                = proc2mngr_queue$deq_msg;
+  assign proc2mngr_queue$clk          = clk;
+  assign proc2mngr_queue$deq_rdy      = proc2mngr_rdy;
+  assign proc2mngr_queue$enq_msg      = dpath$proc2mngr_data;
+  assign proc2mngr_queue$enq_val      = ctrl$proc2mngr_val;
+  assign proc2mngr_queue$reset        = reset;
+  assign proc2mngr_val                = proc2mngr_queue$deq_val;
+  assign stats_en                     = dpath$stats_en;
+  assign stats_en                     = dpath$stats_en;
+  assign xcelreq_msg                  = xcelreq_queue$deq_msg;
+  assign xcelreq_queue$clk            = clk;
+  assign xcelreq_queue$deq_rdy        = xcelreq_rdy;
+  assign xcelreq_queue$enq_msg[31:0]  = dpath$xcelreq_msg_data;
+  assign xcelreq_queue$enq_msg[36:32] = dpath$xcelreq_msg_raddr;
+  assign xcelreq_queue$enq_msg[37:37] = ctrl$xcelreq_msg_type;
+  assign xcelreq_queue$enq_val        = ctrl$xcelreq_val;
+  assign xcelreq_queue$reset          = reset;
+  assign xcelreq_val                  = xcelreq_queue$deq_val;
+  assign xcelresp_rdy                 = ctrl$xcelresp_rdy;
+
+
+
+endmodule // ProcPRTL_0xfd37d69f510b9a8
 `default_nettype wire
 
-`line 1 "proc/ProcVRTL.v" 0
-//=========================================================================
-// 5-Stage Simple Pipelined Processor
-//=========================================================================
-
-`ifndef PROC_PROC_V
-`define PROC_PROC_V
-
-`line 1 "vc/mem-msgs.v" 0
-//========================================================================
-// vc-mem-msgs : Memory Request/Response Messages
-//========================================================================
-// The memory request/response messages are used to interact with various
-// memories. They are parameterized by the number of bits in the address,
-// data, and opaque field.
-
-`ifndef VC_MEM_MSGS_V
-`define VC_MEM_MSGS_V
-
-`line 1 "vc/trace.v" 0
-//========================================================================
-// Line Tracing
-//========================================================================
-
-`ifndef VC_TRACE_V
-`define VC_TRACE_V
-
-// NOTE: This macro is declared outside of the module to allow some vc
-// modules to see it and use it in their own params. Verilog does not
-// allow other modules to hierarchically reference the nbits localparam
-// inside this module in constant expressions (e.g., localparams).
-
-`define VC_TRACE_NCHARS 512
-`define VC_TRACE_NBITS  512*8
-
-`ifndef SYNTHESIS
-
-module vc_Trace
+//-----------------------------------------------------------------------------
+// ProcCtrlPRTL_0x3dfd24416cd48613
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: proc.ProcCtrlPRTL {}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module ProcCtrlPRTL_0x3dfd24416cd48613
 (
-  input logic clk,
-  input logic reset
+  output reg  [   3:0] alu_fn_X,
+  input  wire [   0:0] br_cond_eq_X,
+  input  wire [   0:0] br_cond_lt_X,
+  input  wire [   0:0] br_cond_ltu_X,
+  input  wire [   0:0] clk,
+  output reg  [   0:0] commit_inst,
+  output reg  [   1:0] csrr_sel_D,
+  output reg  [   2:0] dmemreq_msg_type,
+  input  wire [   0:0] dmemreq_rdy,
+  output reg  [   0:0] dmemreq_val,
+  output reg  [   0:0] dmemresp_rdy,
+  input  wire [   0:0] dmemresp_val,
+  output reg  [   1:0] ex_result_sel_X,
+  input  wire [   0:0] imemreq_rdy,
+  output reg  [   0:0] imemreq_val,
+  output reg  [   0:0] imemresp_drop,
+  output reg  [   0:0] imemresp_rdy,
+  input  wire [   0:0] imemresp_val,
+  output reg  [   2:0] imm_type_D,
+  input  wire [   0:0] imul_req_rdy_D,
+  output reg  [   0:0] imul_req_val_D,
+  output reg  [   0:0] imul_resp_rdy_X,
+  input  wire [   0:0] imul_resp_val_X,
+  input  wire [  31:0] inst_D,
+  output reg  [   0:0] mngr2proc_rdy,
+  input  wire [   0:0] mngr2proc_val,
+  output reg  [   1:0] op1_byp_sel_D,
+  output reg  [   0:0] op1_sel_D,
+  output reg  [   1:0] op2_byp_sel_D,
+  output reg  [   1:0] op2_sel_D,
+  output reg  [   1:0] pc_sel_F,
+  input  wire [   0:0] proc2mngr_rdy,
+  output reg  [   0:0] proc2mngr_val,
+  output reg  [   0:0] reg_en_D,
+  output reg  [   0:0] reg_en_F,
+  output reg  [   0:0] reg_en_M,
+  output reg  [   0:0] reg_en_W,
+  output reg  [   0:0] reg_en_X,
+  input  wire [   0:0] reset,
+  output reg  [   4:0] rf_waddr_W,
+  output reg  [   0:0] rf_wen_W,
+  output reg  [   0:0] stats_en_wen_W,
+  output reg  [   1:0] wb_result_sel_M,
+  output reg  [   0:0] xcelreq_msg_type,
+  input  wire [   0:0] xcelreq_rdy,
+  output reg  [   0:0] xcelreq_val,
+  output reg  [   0:0] xcelresp_rdy,
+  input  wire [   0:0] xcelresp_val
 );
 
-  integer len0;
-  integer len1;
-  integer idx0;
-  integer idx1;
-
-  // NOTE: If you change these, then you also need to change the
-  // hard-coded constant in the declaration of the trace function at the
-  // bottom of this file.
-  // NOTE: You would also need to change the VC_TRACE_NBITS and
-  // VC_TRACE_NCHARS macro at the top of this file.
-
-  localparam nchars = 512;
-  localparam nbits  = 512*8;
-
-  // This is the actual trace storage used when displaying a trace
-
-  logic [nbits-1:0] storage;
-
-  // Meant to be accesible from outside module
-
-  integer cycles_next = 0;
-  integer cycles      = 0;
-
-  // Get trace level from command line
-
-  logic [3:0] level;
-
-`ifndef VERILATOR
-  initial begin
-    if ( !$value$plusargs( "trace=%d", level ) ) begin
-      level = 0;
-    end
-  end
-`else
-  initial begin
-    level = 1;
-  end
-`endif // !`ifndef VERILATOR
-
-  // Track cycle count
-
-  always_ff @( posedge clk ) begin
-    cycles <= ( reset ) ? 0 : cycles_next;
-  end
-
-  //----------------------------------------------------------------------
-  // append_str
-  //----------------------------------------------------------------------
-  // Appends a string to the trace.
-
-  task append_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len0 = 1;
-    while ( str[len0*8+:8] != 0 ) begin
-      len0 = len0 + 1;
-    end
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = len0-1; idx1 >= 0; idx1 = idx1 - 1 )
-    begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8 +: 8 ];
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_str_ljust
-  //----------------------------------------------------------------------
-  // Appends a left-justified string to the trace.
-
-  task append_str_ljust
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    idx0 = trace[31:0];
-    idx1 = nchars;
-
-    while ( str[ idx1*8-1 -: 8 ] != 0 ) begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8-1 -: 8 ];
-      idx0 = idx0 - 1;
-      idx1 = idx1 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_chars
-  //----------------------------------------------------------------------
-  // Appends the given number of characters to the trace.
-
-  task append_chars
-  (
-    inout logic   [nbits-1:0] trace,
-    input logic         [7:0] char,
-    input integer             num
-  );
-  begin
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = 0;
-          idx1 < num;
-          idx1 = idx1 + 1 )
-    begin
-      trace[idx0*8+:8] = char;
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_val_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val signal.
-
-  task append_val_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( val )
-      append_str( trace, str );
-    else if ( !val )
-      append_chars( trace, " ", len1 );
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // val_rdy_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val/rdy signals.
-
-  task append_val_rdy_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic             rdy,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( rdy && val ) begin
-      append_str( trace, str );
-    end
-    else if ( rdy && !val ) begin
-      append_chars( trace, " ", len1 );
-    end
-    else if ( !rdy && val ) begin
-      append_str( trace, "#" );
-      append_chars( trace, " ", len1-1 );
-    end
-    else if ( !rdy && !val ) begin
-      append_str( trace, "." );
-      append_chars( trace, " ", len1-1 );
-    end
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-//------------------------------------------------------------------------
-// VC_TRACE_NBITS_TO_NCHARS
-//------------------------------------------------------------------------
-// Macro to determine number of characters for a net
-
-`define VC_TRACE_NBITS_TO_NCHARS( nbits_ ) ((nbits_+3)/4)
-
-//------------------------------------------------------------------------
-// VC_TRACE_BEGIN
-//------------------------------------------------------------------------
-
-//`define VC_TRACE_BEGIN                                                  \
-//  export "DPI-C" task line_trace;                                       \
-//  vc_Trace vc_trace(clk,reset);                                         \
-//  task line_trace( inout bit [(512*8)-1:0] trace_str );
-
-`ifndef VERILATOR
-`define VC_TRACE_BEGIN                                                  \
-  vc_Trace vc_trace(clk,reset);                                         \
-                                                                        \
-  task display_trace;                                                   \
-  begin                                                                 \
-                                                                        \
-    if ( vc_trace.level > 0 ) begin                                     \
-      vc_trace.storage[15:0] = vc_trace.nchars-1;                       \
-                                                                        \
-      line_trace( vc_trace.storage );                                   \
-                                                                        \
-      $write( "%4d: ", vc_trace.cycles );                               \
-                                                                        \
-      vc_trace.idx0 = vc_trace.storage[15:0];                           \
-      for ( vc_trace.idx1 = vc_trace.nchars-1;                          \
-            vc_trace.idx1 > vc_trace.idx0;                              \
-            vc_trace.idx1 = vc_trace.idx1 - 1 )                         \
-      begin                                                             \
-        $write( "%s", vc_trace.storage[vc_trace.idx1*8+:8] );           \
-      end                                                               \
-      $write("\n");                                                     \
-                                                                        \
-    end                                                                 \
-                                                                        \
-    vc_trace.cycles_next = vc_trace.cycles + 1;                         \
-                                                                        \
-  end                                                                   \
-  endtask                                                               \
-                                                                        \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`else
-`define VC_TRACE_BEGIN                                                  \
-  export "DPI-C" task line_trace;                                       \
-  vc_Trace vc_trace(clk,reset);                                         \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`endif
-
-//------------------------------------------------------------------------
-// VC_TRACE_END
-//------------------------------------------------------------------------
-
-`define VC_TRACE_END \
-  endtask
-
-`endif /* VC_TRACE_V */
-
-
-`line 12 "vc/mem-msgs.v" 0
-
-//========================================================================
-// Memory Request Message
-//========================================================================
-// Memory request messages can either be for a read or write. Read
-// requests include an opaque field, the address, and the number of bytes
-// to read, while write requests include an opaque field, the address,
-// the number of bytes to write, and the actual data to write.
-//
-// Message Format:
-//
-//    3b    p_opaque_nbits  p_addr_nbits       calc   p_data_nbits
-//  +------+---------------+------------------+------+------------------+
-//  | type | opaque        | addr             | len  | data             |
-//  +------+---------------+------------------+------+------------------+
-//
-// The message type is parameterized by the number of bits in the opaque
-// field, address field, and data field. Note that the size of the length
-// field is caclulated from the number of bits in the data field, and
-// that the length field is expressed in _bytes_. If the value of the
-// length field is zero, then the read or write should be for the full
-// width of the data field.
-//
-// For example, if the opaque field is 8 bits, the address is 32 bits and
-// the data is also 32 bits, then the message format is as follows:
-//
-//   76  74 73           66 65              34 33  32 31               0
-//  +------+---------------+------------------+------+------------------+
-//  | type | opaque        | addr             | len  | data             |
-//  +------+---------------+------------------+------+------------------+
-//
-// The length field is two bits. A length value of one means read or write
-// a single byte, a length value of two means read or write two bytes, and
-// so on. A length value of zero means read or write all four bytes. Note
-// that not all memories will necessarily support any alignment and/or any
-// value for the length field.
-//
-// The opaque field is reserved for use by a specific implementation. All
-// memories should guarantee that every response includes the opaque
-// field corresponding to the request that generated the response.
-
-//------------------------------------------------------------------------
-// Memory Request Struct: Using a packed struct to represent the message
-//------------------------------------------------------------------------
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [31:0] addr;
-  logic [1:0]  len;
-  logic [31:0] data;
-} mem_req_4B_t;
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [31:0] addr;
-  logic [2:0]  len;
-  logic [63:0] data;
-} mem_req_8B_t;
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [31:0] addr;
-  logic [3:0]  len;
-  logic [127:0] data;
-} mem_req_16B_t;
-
-// memory request type values
-`define VC_MEM_REQ_MSG_TYPE_READ     3'd0
-`define VC_MEM_REQ_MSG_TYPE_WRITE    3'd1
-
-// write no-refill
-`define VC_MEM_REQ_MSG_TYPE_WRITE_INIT 3'd2
-`define VC_MEM_REQ_MSG_TYPE_AMO_ADD    3'd3
-`define VC_MEM_REQ_MSG_TYPE_AMO_AND    3'd4
-`define VC_MEM_REQ_MSG_TYPE_AMO_OR     3'd5
-`define VC_MEM_REQ_MSG_TYPE_X          3'dx
-
-//------------------------------------------------------------------------
-// Memory Request Message: Trace message
-//------------------------------------------------------------------------
-
-`ifndef SYNTHESIS
-
-module vc_MemReqMsg4BTrace
-(
-  input logic         clk,
-  input logic         reset,
-  input logic         val,
-  input logic         rdy,
-  input mem_req_4B_t  msg
-);
-
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [31:0]  addr;
-  assign addr   = msg.addr;
-  logic [1:0]   len;
-  assign len    = msg.len;
-  logic [31:0]  data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits = $bits(mem_req_4B_t);
-  localparam c_read      = `VC_MEM_REQ_MSG_TYPE_READ;
-  localparam c_write     = `VC_MEM_REQ_MSG_TYPE_WRITE;
-  localparam c_write_init  = `VC_MEM_REQ_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( msg.type_ === `VC_MEM_REQ_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( msg.type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( vc_trace.level == 1 ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 2 ) begin
-      $sformat( str, "%s:%x", type_str, msg.addr );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_read ) begin
-        $sformat( str, "%s:%x:%x %s", type_str, msg.opaque, msg.addr,
-                  {8{" "}} );
-      end
-      else
-        $sformat( str, "%s:%x:%x:%x", type_str, msg.opaque, msg.addr, msg.data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-
-module vc_MemReqMsg8BTrace
-(
-  input logic         clk,
-  input logic         reset,
-  input logic         val,
-  input logic         rdy,
-  input mem_req_8B_t  msg
-);
-
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [31:0]  addr;
-  assign addr   = msg.addr;
-  logic [2:0]   len;
-  assign len    = msg.len;
-  logic [63:0]  data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_req_8B_t);
-  localparam c_read       = `VC_MEM_REQ_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_REQ_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_REQ_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( msg.type_ === `VC_MEM_REQ_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( msg.type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( vc_trace.level == 1 ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 2 ) begin
-      $sformat( str, "%s:%x", type_str, msg.addr );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_read ) begin
-        $sformat( str, "%s:%x:%x %s", type_str, msg.opaque, msg.addr,
-                  {16{" "}} );
-      end
-      else
-        $sformat( str, "%s:%x:%x:%x", type_str, msg.opaque, msg.addr, msg.data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-
-module vc_MemReqMsg16BTrace
-(
-  input logic         clk,
-  input logic         reset,
-  input logic         val,
-  input logic         rdy,
-  input mem_req_16B_t  msg
-);
-
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [31:0]  addr;
-  assign addr   = msg.addr;
-  logic [3:0]   len;
-  assign len    = msg.len;
-  logic [127:0]  data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_req_16B_t);
-  localparam c_read       = `VC_MEM_REQ_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_REQ_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_REQ_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( msg.type_ === `VC_MEM_REQ_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( msg.type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( vc_trace.level == 1 ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 2 ) begin
-      $sformat( str, "%s:%x", type_str, msg.addr );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_read ) begin
-        $sformat( str, "%s:%x:%x %s", type_str, msg.opaque, msg.addr,
-                  {32{" "}} );
-      end
-      else
-        $sformat( str, "%s:%x:%x:%x", type_str, msg.opaque, msg.addr, msg.data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-
-`endif
-
-//========================================================================
-// Memory Response Message
-//========================================================================
-// Memory request messages can either be for a read or write. Read
-// responses include an opaque field, the actual data, and the number of
-// bytes, while write responses currently include just the opaque field.
-//
-// Message Format:
-//
-//    3b    p_opaque_nbits   2b    calc   p_data_nbits
-//  +------+---------------+------+------+------------------+
-//  | type | opaque        | test | len  | data             |
-//  +------+---------------+------+------+------------------+
-//
-// The message type is parameterized by the number of bits in the opaque
-// field and data field. Note that the size of the length field is
-// caclulated from the number of bits in the data field, and that the
-// length field is expressed in _bytes_. If the value of the length field
-// is zero, then the read or write should be for the full width of the
-// data field.
-//
-// For example, if the opaque field is 8 bits and the data is 32 bits,
-// then the message format is as follows:
-//
-//   46  44 43           36 35  34 33  32 31               0
-//  +------+---------------+------+------+------------------+
-//  | type | opaque        | test | len  | data             |
-//  +------+---------------+------+------+------------------+
-//
-// The length field is two bits. A length value of one means one byte was
-// read, a length value of two means two bytes were read, and so on. A
-// length value of zero means all four bytes were read. Note that not all
-// memories will necessarily support any alignment and/or any value for
-// the length field.
-//
-// The opaque field is reserved for use by a specific implementation. All
-// memories should guarantee that every response includes the opaque
-// field corresponding to the request that generated the response.
-
-//------------------------------------------------------------------------
-// Memory Request Struct: Using a packed struct to represent the message
-//------------------------------------------------------------------------
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [1:0]  test;
-  logic [1:0]  len;
-  logic [31:0] data;
-} mem_resp_4B_t;
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [1:0]  test;
-  logic [2:0]  len;
-  logic [63:0] data;
-} mem_resp_8B_t;
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [1:0]  test;
-  logic [3:0]  len;
-  logic [127:0] data;
-} mem_resp_16B_t;
-
-// Values for the type field
-
-`define VC_MEM_RESP_MSG_TYPE_READ     3'd0
-`define VC_MEM_RESP_MSG_TYPE_WRITE    3'd1
-
-// write no-refill
-`define VC_MEM_RESP_MSG_TYPE_WRITE_INIT 3'd2
-`define VC_MEM_RESP_MSG_TYPE_AMO_ADD    3'd3
-`define VC_MEM_RESP_MSG_TYPE_AMO_AND    3'd4
-`define VC_MEM_RESP_MSG_TYPE_AMO_OR     3'd5
-`define VC_MEM_RESP_MSG_TYPE_X          3'dx
-
-//------------------------------------------------------------------------
-// Memory Response Message: Trace message
-//------------------------------------------------------------------------
-
-`ifndef SYNTHESIS
-
-module vc_MemRespMsg4BTrace
-(
-  input logic          clk,
-  input logic          reset,
-  input logic          val,
-  input logic          rdy,
-  input mem_resp_4B_t  msg
-);
-
-  // unpack message fields -- makes them visible in gtkwave
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [1:0]   test;
-  assign test   = msg.test;
-  logic [1:0]   len;
-  assign len    = msg.len;
-  logic [31:0]  data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_resp_4B_t);
-  localparam c_read       = `VC_MEM_RESP_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_RESP_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_RESP_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( type_ === `VC_MEM_RESP_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( (vc_trace.level == 1) || (vc_trace.level == 2) ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_write || type_ == c_write_init ) begin
-        $sformat( str, "%s:%x %s", type_str, opaque,
-                  {8{" "}} );
-      end
-      else
-        $sformat( str, "%s:%x:%x", type_str, opaque, data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-
-module vc_MemRespMsg8BTrace
-(
-  input logic          clk,
-  input logic          reset,
-  input logic          val,
-  input logic          rdy,
-  input mem_resp_8B_t  msg
-);
-
-  // unpack message fields -- makes them visible in gtkwave
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [1:0]   test;
-  assign test   = msg.test;
-  logic [2:0]   len;
-  assign len    = msg.len;
-  logic [63:0]  data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_resp_8B_t);
-  localparam c_read       = `VC_MEM_RESP_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_RESP_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_RESP_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( type_ === `VC_MEM_RESP_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( (vc_trace.level == 1) || (vc_trace.level == 2) ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_write || type_ == c_write_init ) begin
-        $sformat( str, "%s:%x %s", type_str, opaque,
-                  {16{" "}} );
-      end
-      else
-        $sformat( str, "%s:%x:%x", type_str, opaque, data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-
-module vc_MemRespMsg16BTrace
-(
-  input logic          clk,
-  input logic          reset,
-  input logic          val,
-  input logic          rdy,
-  input mem_resp_16B_t msg
-);
-
-  // unpack message fields -- makes them visible in gtkwave
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [1:0]   test;
-  assign test   = msg.test;
-  logic [3:0]   len;
-  assign len    = msg.len;
-  logic [127:0] data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_resp_16B_t);
-  localparam c_read       = `VC_MEM_RESP_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_RESP_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_RESP_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( type_ === `VC_MEM_RESP_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( (vc_trace.level == 1) || (vc_trace.level == 2) ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_write || type_ == c_write_init ) begin
-        $sformat( str, "%s:%x %s", type_str, opaque,
-                  {32{" "}} );
-      end
-      else
-        $sformat( str, "%s:%x:%x", type_str, opaque, data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-`endif
-
-`endif /* VC_MEM_MSGS_V */
-
-
-`line 9 "proc/ProcVRTL.v" 0
-`line 1 "vc/queues.v" 0
-//========================================================================
-// Verilog Components: Queues
-//========================================================================
-
-`ifndef VC_QUEUES_V
-`define VC_QUEUES_V
-
-`line 1 "vc/regs.v" 0
-//========================================================================
-// Verilog Components: Registers
-//========================================================================
-
-// Note that we place the register output earlier in the port list since
-// this is one place we might actually want to use positional port
-// binding like this:
-//
-//  logic [p_nbits-1:0] result_B;
-//  vc_Reg#(p_nbits) result_AB( clk, result_B, result_A );
-
-`ifndef VC_REGS_V
-`define VC_REGS_V
-
-//------------------------------------------------------------------------
-// Postive-edge triggered flip-flop
-//------------------------------------------------------------------------
-
-module vc_Reg
-#(
-  parameter p_nbits = 1
-)(
-  input  logic               clk, // Clock input
-  output logic [p_nbits-1:0] q,   // Data output
-  input  logic [p_nbits-1:0] d    // Data input
-);
-
-  always_ff @( posedge clk )
-    q <= d;
-
-endmodule
-
-//------------------------------------------------------------------------
-// Postive-edge triggered flip-flop with reset
-//------------------------------------------------------------------------
-
-module vc_ResetReg
-#(
-  parameter p_nbits       = 1,
-  parameter p_reset_value = 0
-)(
-  input  logic               clk,   // Clock input
-  input  logic               reset, // Sync reset input
-  output logic [p_nbits-1:0] q,     // Data output
-  input  logic [p_nbits-1:0] d      // Data input
-);
-
-  always_ff @( posedge clk )
-    q <= reset ? p_reset_value : d;
-
-endmodule
-
-//------------------------------------------------------------------------
-// Postive-edge triggered flip-flop with enable
-//------------------------------------------------------------------------
-
-module vc_EnReg
-#(
-  parameter p_nbits = 1
-)(
-  input  logic               clk,   // Clock input
-  input  logic               reset, // Sync reset input
-  output logic [p_nbits-1:0] q,     // Data output
-  input  logic [p_nbits-1:0] d,     // Data input
-  input  logic               en     // Enable input
-);
-
-  always_ff @( posedge clk )
-    if ( en )
-      q <= d;
-
-  // Assertions
-
-  `ifndef SYNTHESIS
-
-  /*
-  always_ff @( posedge clk )
-    if ( !reset )
-      `VC_ASSERT_NOT_X( en );
-  */
-
-  `endif /* SYNTHESIS */
-
-endmodule
-
-//------------------------------------------------------------------------
-// Postive-edge triggered flip-flop with enable and reset
-//------------------------------------------------------------------------
-
-module vc_EnResetReg
-#(
-  parameter p_nbits       = 1,
-  parameter p_reset_value = 0
-)(
-  input  logic               clk,   // Clock input
-  input  logic               reset, // Sync reset input
-  output logic [p_nbits-1:0] q,     // Data output
-  input  logic [p_nbits-1:0] d,     // Data input
-  input  logic               en     // Enable input
-);
-
-  always_ff @( posedge clk )
-    if ( reset || en )
-      q <= reset ? p_reset_value : d;
-
-  // Assertions
-
-  `ifndef SYNTHESIS
-
-  /*
-  always_ff @( posedge clk )
-    if ( !reset )
-      `VC_ASSERT_NOT_X( en );
-  */
-
-  `endif /* SYNTHESIS */
-
-endmodule
-
-`endif /* VC_REGS_V */
-
-
-`line 9 "vc/queues.v" 0
-`line 1 "vc/muxes.v" 0
-//========================================================================
-// Verilog Components: Muxes
-//========================================================================
-
-`ifndef VC_MUXES_V
-`define VC_MUXES_V
-
-//------------------------------------------------------------------------
-// 2 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux2
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1,
-  input  logic               sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      1'd0 : out = in0;
-      1'd1 : out = in1;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 3 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux3
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2,
-  input  logic         [1:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      2'd0 : out = in0;
-      2'd1 : out = in1;
-      2'd2 : out = in2;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 4 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux4
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3,
-  input  logic         [1:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      2'd0 : out = in0;
-      2'd1 : out = in1;
-      2'd2 : out = in2;
-      2'd3 : out = in3;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 5 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux5
-#(
- parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3, in4,
-  input  logic         [2:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      3'd0 : out = in0;
-      3'd1 : out = in1;
-      3'd2 : out = in2;
-      3'd3 : out = in3;
-      3'd4 : out = in4;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 6 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux6
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3, in4, in5,
-  input  logic         [2:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      3'd0 : out = in0;
-      3'd1 : out = in1;
-      3'd2 : out = in2;
-      3'd3 : out = in3;
-      3'd4 : out = in4;
-      3'd5 : out = in5;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 7 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux7
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3, in4, in5, in6,
-  input  logic         [2:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      3'd0 : out = in0;
-      3'd1 : out = in1;
-      3'd2 : out = in2;
-      3'd3 : out = in3;
-      3'd4 : out = in4;
-      3'd5 : out = in5;
-      3'd6 : out = in6;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 8 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux8
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3, in4, in5, in6, in7,
-  input  logic         [2:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      3'd0 : out = in0;
-      3'd1 : out = in1;
-      3'd2 : out = in2;
-      3'd3 : out = in3;
-      3'd4 : out = in4;
-      3'd5 : out = in5;
-      3'd6 : out = in6;
-      3'd7 : out = in7;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-`endif /* VC_MUXES_V */
-
-
-`line 10 "vc/queues.v" 0
-`line 1 "vc/regfiles.v" 0
-//========================================================================
-// Verilog Components: Register Files
-//========================================================================
-
-`ifndef VC_REGFILES_V
-`define VC_REGFILES_V
-
-//------------------------------------------------------------------------
-// 1r1w register file
-//------------------------------------------------------------------------
-
-module vc_Regfile_1r1w
-#(
-  parameter p_data_nbits  = 1,
-  parameter p_num_entries = 2,
-
-  // Local constants not meant to be set from outside the module
-  parameter c_addr_nbits  = $clog2(p_num_entries)
-)(
-  input  logic                    clk,
-  input  logic                    reset,
-
-  // Read port (combinational read)
-
-  input  logic [c_addr_nbits-1:0] read_addr,
-  output logic [p_data_nbits-1:0] read_data,
-
-  // Write port (sampled on the rising clock edge)
-
-  input  logic                    write_en,
-  input  logic [c_addr_nbits-1:0] write_addr,
-  input  logic [p_data_nbits-1:0] write_data
-);
-
-  logic [p_data_nbits-1:0] rfile[p_num_entries-1:0];
-
-  // Combinational read
-
-  assign read_data = rfile[read_addr];
-
-  // Write on positive clock edge
-
-  always_ff @( posedge clk )
-    if ( write_en )
-      rfile[write_addr] <= write_data;
-
-  // Assertions
-
-  /*
-  always_ff @( posedge clk ) begin
-    if ( !reset ) begin
-      `VC_ASSERT_NOT_X( write_en );
-
-      // If write_en is one, then write address better be less than the
-      // number of entries and definitely cannot be X's.
-
-      if ( write_en ) begin
-        `VC_ASSERT_NOT_X( write_addr );
-        `VC_ASSERT( write_addr < p_num_entries );
-      end
-
-    end
-  end
-  */
-
-endmodule
-
-//------------------------------------------------------------------------
-// 1r1w register file with reset
-//------------------------------------------------------------------------
-
-module vc_ResetRegfile_1r1w
-#(
-  parameter p_data_nbits  = 1,
-  parameter p_num_entries = 2,
-  parameter p_reset_value = 0,
-
-  // Local constants not meant to be set from outside the module
-  parameter c_addr_nbits  = $clog2(p_num_entries)
-)(
-  input  logic                    clk,
-  input  logic                    reset,
-
-  // Read port (combinational read)
-
-  input  logic [c_addr_nbits-1:0] read_addr,
-  output logic [p_data_nbits-1:0] read_data,
-
-  // Write port (sampled on the rising clock edge)
-
-  input  logic                    write_en,
-  input  logic [c_addr_nbits-1:0] write_addr,
-  input  logic [p_data_nbits-1:0] write_data
-);
-
-  logic [p_data_nbits-1:0] rfile[p_num_entries-1:0];
-
-  // Combinational read
-
-  assign read_data = rfile[read_addr];
-
-  // Write on positive clock edge. We have to use a generate statement to
-  // allow us to include the reset logic for each individual register.
-
-  genvar i;
-  generate
-    for ( i = 0; i < p_num_entries; i = i+1 )
-    begin : wport
-      always_ff @( posedge clk )
-        if ( reset )
-          rfile[i] <= p_reset_value;
-        else if ( write_en && (i[c_addr_nbits-1:0] == write_addr) )
-          rfile[i] <= write_data;
-    end
-  endgenerate
-
-  // Assertions
-
-  /*
-  always_ff @( posedge clk ) begin
-    if ( !reset ) begin
-      `VC_ASSERT_NOT_X( write_en );
-
-      // If write_en is one, then write address better be less than the
-      // number of entries and definitely cannot be X's.
-
-      if ( write_en ) begin
-        `VC_ASSERT_NOT_X( write_addr );
-        `VC_ASSERT( write_addr < p_num_entries );
-      end
-
-    end
-  end
-  */
-
-endmodule
-
-//------------------------------------------------------------------------
-// 2r1w register file
-//------------------------------------------------------------------------
-
-module vc_Regfile_2r1w
-#(
-  parameter p_data_nbits  = 1,
-  parameter p_num_entries = 2,
-
-  // Local constants not meant to be set from outside the module
-  parameter c_addr_nbits  = $clog2(p_num_entries)
-)(
-  input  logic                   clk,
-  input  logic                   reset,
-
-  // Read port 0 (combinational read)
-
-  input  logic [c_addr_nbits-1:0] read_addr0,
-  output logic [p_data_nbits-1:0] read_data0,
-
-  // Read port 1 (combinational read)
-
-  input  logic [c_addr_nbits-1:0] read_addr1,
-  output logic [p_data_nbits-1:0] read_data1,
-
-  // Write port (sampled on the rising clock edge)
-
-  input  logic                    write_en,
-  input  logic [c_addr_nbits-1:0] write_addr,
-  input  logic [p_data_nbits-1:0] write_data
-);
-
-  logic [p_data_nbits-1:0] rfile[p_num_entries-1:0];
-
-  // Combinational read
-
-  assign read_data0 = rfile[read_addr0];
-  assign read_data1 = rfile[read_addr1];
-
-  // Write on positive clock edge
-
-  always_ff @( posedge clk )
-    if ( write_en )
-      rfile[write_addr] <= write_data;
-
-  // Assertions
-
-  /*
-  always_ff @( posedge clk ) begin
-    if ( !reset ) begin
-      `VC_ASSERT_NOT_X( write_en );
-
-      // If write_en is one, then write address better be less than the
-      // number of entries and definitely cannot be X's.
-
-      if ( write_en ) begin
-        `VC_ASSERT_NOT_X( write_addr );
-        `VC_ASSERT( write_addr < p_num_entries );
-      end
-
-    end
-  end
-  */
-
-endmodule
-
-//------------------------------------------------------------------------
-// 2r2w register file
-//------------------------------------------------------------------------
-
-module vc_Regfile_2r2w
-#(
-  parameter p_data_nbits  = 1,
-  parameter p_num_entries = 2,
-
-  // Local constants not meant to be set from outside the module
-  parameter c_addr_nbits  = $clog2(p_num_entries)
-)(
-  input  logic                    clk,
-  input  logic                    reset,
-
-  // Read port 0 (combinational read)
-
-  input  logic [c_addr_nbits-1:0] read_addr0,
-  output logic [p_data_nbits-1:0] read_data0,
-
-  // Read port 1 (combinational read)
-
-  input  logic [c_addr_nbits-1:0] read_addr1,
-  output logic [p_data_nbits-1:0] read_data1,
-
-  // Write port (sampled on the rising clock edge)
-
-  input  logic                    write_en0,
-  input  logic [c_addr_nbits-1:0] write_addr0,
-  input  logic [p_data_nbits-1:0] write_data0,
-
-  // Write port (sampled on the rising clock edge)
-
-  input  logic                    write_en1,
-  input  logic [c_addr_nbits-1:0] write_addr1,
-  input  logic [p_data_nbits-1:0] write_data1
-);
-
-  logic [p_data_nbits-1:0] rfile[p_num_entries-1:0];
-
-  // Combinational read
-
-  assign read_data0 = rfile[read_addr0];
-  assign read_data1 = rfile[read_addr1];
-
-  // Write on positive clock edge
-
-  always_ff @( posedge clk ) begin
-
-    if ( write_en0 )
-      rfile[write_addr0] <= write_data0;
-
-    if ( write_en1 )
-      rfile[write_addr1] <= write_data1;
-
-  end
-
-  // Assertions
-
-  /*
-  always_ff @( posedge clk ) begin
-    if ( !reset ) begin
-      `VC_ASSERT_NOT_X( write_en0 );
-      `VC_ASSERT_NOT_X( write_en1 );
-
-      // If write_en is one, then write address better be less than the
-      // number of entries and definitely cannot be X's.
-
-      if ( write_en0 ) begin
-        `VC_ASSERT_NOT_X( write_addr0 );
-        `VC_ASSERT( write_addr0 < p_num_entries );
-      end
-
-      if ( write_en1 ) begin
-        `VC_ASSERT_NOT_X( write_addr1 );
-        `VC_ASSERT( write_addr1 < p_num_entries );
-      end
-
-      // It is invalid to use the same write address for both write ports
-
-      if ( write_en0 && write_en1 ) begin
-        `VC_ASSERT( write_addr0 != write_addr1 );
-      end
-
-    end
-  end
-  */
-
-endmodule
-
-//------------------------------------------------------------------------
-// Register file specialized for r0 == 0
-//------------------------------------------------------------------------
-
-module vc_Regfile_2r1w_zero
-(
-  input  logic        clk,
-  input  logic        reset,
-
-  input  logic  [4:0] rd_addr0,
-  output logic [31:0] rd_data0,
-
-  input  logic  [4:0] rd_addr1,
-  output logic [31:0] rd_data1,
-
-  input  logic        wr_en,
-  input  logic  [4:0] wr_addr,
-  input  logic [31:0] wr_data
-);
-
-  // these wires are to be hooked up to the actual register file read
-  // ports
-
-  logic [31:0] rf_read_data0;
-  logic [31:0] rf_read_data1;
-
-  vc_Regfile_2r1w
-  #(
-    .p_data_nbits  (32),
-    .p_num_entries (32)
-  )
-  rfile
-  (
-    .clk         (clk),
-    .reset       (reset),
-    .read_addr0  (rd_addr0),
-    .read_data0  (rf_read_data0),
-    .read_addr1  (rd_addr1),
-    .read_data1  (rf_read_data1),
-    .write_en    (wr_en),
-    .write_addr  (wr_addr),
-    .write_data  (wr_data)
-  );
-
-  // we pick 0 value when either read address is 0
-  assign rd_data0 = ( rd_addr0 == 5'd0 ) ? 32'd0 : rf_read_data0;
-  assign rd_data1 = ( rd_addr1 == 5'd0 ) ? 32'd0 : rf_read_data1;
-
-endmodule
-
-`endif /* VC_REGFILES_V */
-
-
-`line 11 "vc/queues.v" 0
-`line 1 "vc/trace.v" 0
-//========================================================================
-// Line Tracing
-//========================================================================
-
-`ifndef VC_TRACE_V
-`define VC_TRACE_V
-
-// NOTE: This macro is declared outside of the module to allow some vc
-// modules to see it and use it in their own params. Verilog does not
-// allow other modules to hierarchically reference the nbits localparam
-// inside this module in constant expressions (e.g., localparams).
-
-`define VC_TRACE_NCHARS 512
-`define VC_TRACE_NBITS  512*8
-
-`ifndef SYNTHESIS
-
-module vc_Trace
-(
-  input logic clk,
-  input logic reset
-);
-
-  integer len0;
-  integer len1;
-  integer idx0;
-  integer idx1;
-
-  // NOTE: If you change these, then you also need to change the
-  // hard-coded constant in the declaration of the trace function at the
-  // bottom of this file.
-  // NOTE: You would also need to change the VC_TRACE_NBITS and
-  // VC_TRACE_NCHARS macro at the top of this file.
-
-  localparam nchars = 512;
-  localparam nbits  = 512*8;
-
-  // This is the actual trace storage used when displaying a trace
-
-  logic [nbits-1:0] storage;
-
-  // Meant to be accesible from outside module
-
-  integer cycles_next = 0;
-  integer cycles      = 0;
-
-  // Get trace level from command line
-
-  logic [3:0] level;
-
-`ifndef VERILATOR
-  initial begin
-    if ( !$value$plusargs( "trace=%d", level ) ) begin
-      level = 0;
-    end
-  end
-`else
-  initial begin
-    level = 1;
-  end
-`endif // !`ifndef VERILATOR
-
-  // Track cycle count
-
-  always_ff @( posedge clk ) begin
-    cycles <= ( reset ) ? 0 : cycles_next;
-  end
-
-  //----------------------------------------------------------------------
-  // append_str
-  //----------------------------------------------------------------------
-  // Appends a string to the trace.
-
-  task append_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len0 = 1;
-    while ( str[len0*8+:8] != 0 ) begin
-      len0 = len0 + 1;
-    end
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = len0-1; idx1 >= 0; idx1 = idx1 - 1 )
-    begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8 +: 8 ];
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_str_ljust
-  //----------------------------------------------------------------------
-  // Appends a left-justified string to the trace.
-
-  task append_str_ljust
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    idx0 = trace[31:0];
-    idx1 = nchars;
-
-    while ( str[ idx1*8-1 -: 8 ] != 0 ) begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8-1 -: 8 ];
-      idx0 = idx0 - 1;
-      idx1 = idx1 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_chars
-  //----------------------------------------------------------------------
-  // Appends the given number of characters to the trace.
-
-  task append_chars
-  (
-    inout logic   [nbits-1:0] trace,
-    input logic         [7:0] char,
-    input integer             num
-  );
-  begin
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = 0;
-          idx1 < num;
-          idx1 = idx1 + 1 )
-    begin
-      trace[idx0*8+:8] = char;
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_val_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val signal.
-
-  task append_val_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( val )
-      append_str( trace, str );
-    else if ( !val )
-      append_chars( trace, " ", len1 );
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // val_rdy_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val/rdy signals.
-
-  task append_val_rdy_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic             rdy,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( rdy && val ) begin
-      append_str( trace, str );
-    end
-    else if ( rdy && !val ) begin
-      append_chars( trace, " ", len1 );
-    end
-    else if ( !rdy && val ) begin
-      append_str( trace, "#" );
-      append_chars( trace, " ", len1-1 );
-    end
-    else if ( !rdy && !val ) begin
-      append_str( trace, "." );
-      append_chars( trace, " ", len1-1 );
-    end
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-//------------------------------------------------------------------------
-// VC_TRACE_NBITS_TO_NCHARS
-//------------------------------------------------------------------------
-// Macro to determine number of characters for a net
-
-`define VC_TRACE_NBITS_TO_NCHARS( nbits_ ) ((nbits_+3)/4)
-
-//------------------------------------------------------------------------
-// VC_TRACE_BEGIN
-//------------------------------------------------------------------------
-
-//`define VC_TRACE_BEGIN                                                  \
-//  export "DPI-C" task line_trace;                                       \
-//  vc_Trace vc_trace(clk,reset);                                         \
-//  task line_trace( inout bit [(512*8)-1:0] trace_str );
-
-`ifndef VERILATOR
-`define VC_TRACE_BEGIN                                                  \
-  vc_Trace vc_trace(clk,reset);                                         \
-                                                                        \
-  task display_trace;                                                   \
-  begin                                                                 \
-                                                                        \
-    if ( vc_trace.level > 0 ) begin                                     \
-      vc_trace.storage[15:0] = vc_trace.nchars-1;                       \
-                                                                        \
-      line_trace( vc_trace.storage );                                   \
-                                                                        \
-      $write( "%4d: ", vc_trace.cycles );                               \
-                                                                        \
-      vc_trace.idx0 = vc_trace.storage[15:0];                           \
-      for ( vc_trace.idx1 = vc_trace.nchars-1;                          \
-            vc_trace.idx1 > vc_trace.idx0;                              \
-            vc_trace.idx1 = vc_trace.idx1 - 1 )                         \
-      begin                                                             \
-        $write( "%s", vc_trace.storage[vc_trace.idx1*8+:8] );           \
-      end                                                               \
-      $write("\n");                                                     \
-                                                                        \
-    end                                                                 \
-                                                                        \
-    vc_trace.cycles_next = vc_trace.cycles + 1;                         \
-                                                                        \
-  end                                                                   \
-  endtask                                                               \
-                                                                        \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`else
-`define VC_TRACE_BEGIN                                                  \
-  export "DPI-C" task line_trace;                                       \
-  vc_Trace vc_trace(clk,reset);                                         \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`endif
-
-//------------------------------------------------------------------------
-// VC_TRACE_END
-//------------------------------------------------------------------------
-
-`define VC_TRACE_END \
-  endtask
-
-`endif /* VC_TRACE_V */
-
-
-`line 12 "vc/queues.v" 0
-
-//------------------------------------------------------------------------
-// Defines
-//------------------------------------------------------------------------
-
-`define VC_QUEUE_NORMAL   4'b0000
-`define VC_QUEUE_PIPE     4'b0001
-`define VC_QUEUE_BYPASS   4'b0010
-
-//------------------------------------------------------------------------
-// Single-Element Queue Control Logic
-//------------------------------------------------------------------------
-// This is the control logic for a single-elment queue. It is designed to
-// be attached to a storage element with a write enable. Additionally, it
-// includes the ability to statically enable pipeline and/or bypass
-// behavior. Pipeline behavior is when the deq_rdy signal is
-// combinationally wired to the enq_rdy signal allowing elements to be
-// dequeued and enqueued in the same cycle when the queue is full. Bypass
-// behavior is when the enq_val signal is combinationally wired to the
-// deq_val signal allowing elements to bypass the storage element if the
-// storage element is empty.
-
-module vc_QueueCtrl1
-#(
-  parameter p_type = `VC_QUEUE_NORMAL
-)(
-  input  logic clk,
-  input  logic reset,
-
-  input  logic enq_val,        // Enqueue data is valid
-  output logic enq_rdy,        // Ready for producer to do an enqueue
-
-  output logic deq_val,        // Dequeue data is valid
-  input  logic deq_rdy,        // Consumer is ready to do a dequeue
-
-  output logic write_en,       // Write en signal to wire up to storage element
-  output logic bypass_mux_sel, // Used to control bypass mux for bypass queues
-  output logic num_free_entries // Either zero or one
-);
-
-  // Status register
-
-  logic full;
-  logic full_next;
-
-  always_ff @(posedge clk) begin
-    full <= reset ? 1'b0 : full_next;
-  end
-
-  assign num_free_entries = full ? 1'b0 : 1'b1;
-
-  // Determine if pipeline or bypass behavior is enabled
-
-  localparam c_pipe_en   = |( p_type & `VC_QUEUE_PIPE   );
-  localparam c_bypass_en = |( p_type & `VC_QUEUE_BYPASS );
-
-  // We enq/deq only when they are both ready and valid
-
-  logic  do_enq;
-  assign do_enq = enq_rdy && enq_val;
-
-  logic  do_deq;
-  assign do_deq = deq_rdy && deq_val;
-
-  // Determine if we have pipeline or bypass behaviour and
-  // set the write enable accordingly.
-
-  logic  empty;
-  assign empty = ~full;
-
-  logic  do_pipe;
-  assign do_pipe = c_pipe_en   && full  && do_enq && do_deq;
-
-  logic  do_bypass;
-  assign do_bypass = c_bypass_en && empty && do_enq && do_deq;
-
-  assign write_en = do_enq && ~do_bypass;
-
-  // Regardless of the type of queue or whether or not we are actually
-  // doing a bypass, if the queue is empty then we select the enq bits,
-  // otherwise we select the output of the queue state elements.
-
-  assign bypass_mux_sel = empty;
-
-  // Ready signals are calculated from full register. If pipeline
-  // behavior is enabled, then the enq_rdy signal is also calculated
-  // combinationally from the deq_rdy signal. If bypass behavior is
-  // enabled then the deq_val signal is also calculated combinationally
-  // from the enq_val signal.
-
-  assign enq_rdy  = ~full  || ( c_pipe_en   && full  && deq_rdy );
-  assign deq_val  = ~empty || ( c_bypass_en && empty && enq_val );
-
-  // Control logic for the full register input
-
-  assign full_next = ( do_deq && ~do_pipe )   ? 1'b0
-                   : ( do_enq && ~do_bypass ) ? 1'b1
-                   :                            full;
-
-endmodule
-
-//------------------------------------------------------------------------
-// Single-Element Queue Datapath
-//------------------------------------------------------------------------
-// This is the datpath for single element queues. It includes a register
-// and a bypass mux if needed.
-
-module vc_QueueDpath1
-#(
-  parameter p_type      = `VC_QUEUE_NORMAL,
-  parameter p_msg_nbits = 1
-)(
-  input  logic                   clk,
-  input  logic                   reset,
-  input  logic                   write_en,
-  input  logic                   bypass_mux_sel,
-  input  logic [p_msg_nbits-1:0] enq_msg,
-  output logic [p_msg_nbits-1:0] deq_msg
-);
-
-  // Queue storage
-
-  logic [p_msg_nbits-1:0] qstore;
-
-  vc_EnReg#(p_msg_nbits) qstore_reg
-  (
-    .clk   (clk),
-    .reset (reset),
-    .en    (write_en),
-    .d     (enq_msg),
-    .q     (qstore)
-  );
-
-  // Bypass muxing
-
-  generate
-  if ( |(p_type & `VC_QUEUE_BYPASS ) )
-
-    vc_Mux2#(p_msg_nbits) bypass_mux
-    (
-      .in0 (qstore),
-      .in1 (enq_msg),
-      .sel (bypass_mux_sel),
-      .out (deq_msg)
-    );
-
-  else
-    assign deq_msg = qstore;
-  endgenerate
-
-endmodule
-
-//------------------------------------------------------------------------
-// Multi-Element Queue Control Logic
-//------------------------------------------------------------------------
-// This is the control logic for a multi-elment queue. It is designed to
-// be attached to a Regfile storage element. Additionally, it includes
-// the ability to statically enable pipeline and/or bypass behavior.
-// Pipeline behavior is when the deq_rdy signal is combinationally wired
-// to the enq_rdy signal allowing elements to be dequeued and enqueued in
-// the same cycle when the queue is full. Bypass behavior is when the
-// enq_val signal is cominationally wired to the deq_val signal allowing
-// elements to bypass the storage element if the storage element is
-// empty.
-
-module vc_QueueCtrl
-#(
-  parameter p_type     = `VC_QUEUE_NORMAL,
-  parameter p_num_msgs = 2,
-
-  // Local constants not meant to be set from outside the module
-  parameter c_addr_nbits = $clog2(p_num_msgs)
-)(
-  input  logic                    clk, reset,
-
-  input  logic                    enq_val,        // Enqueue data is valid
-  output logic                    enq_rdy,        // Ready for producer to enqueue
-
-  output logic                    deq_val,        // Dequeue data is valid
-  input  logic                    deq_rdy,        // Consumer is ready to dequeue
-
-  output logic                    write_en,       // Wen to wire to regfile
-  output logic [c_addr_nbits-1:0] write_addr,     // Waddr to wire to regfile
-  output logic [c_addr_nbits-1:0] read_addr,      // Raddr to wire to regfile
-  output logic                    bypass_mux_sel, // Control mux for bypass queues
-  output logic [c_addr_nbits:0]   num_free_entries // Num of free entries in queue
-);
-
-  // Enqueue and dequeue pointers
-
-  logic [c_addr_nbits-1:0] enq_ptr;
-  logic [c_addr_nbits-1:0] enq_ptr_next;
-
-  vc_ResetReg#(c_addr_nbits) enq_ptr_reg
-  (
-    .clk     (clk),
-    .reset   (reset),
-    .d       (enq_ptr_next),
-    .q       (enq_ptr)
-  );
-
-  logic [c_addr_nbits-1:0] deq_ptr;
-  logic [c_addr_nbits-1:0] deq_ptr_next;
-
-  vc_ResetReg#(c_addr_nbits) deq_ptr_reg
-  (
-    .clk   (clk),
-    .reset (reset),
-    .d     (deq_ptr_next),
-    .q     (deq_ptr)
-  );
-
-  assign write_addr = enq_ptr;
-  assign read_addr  = deq_ptr;
-
-  // Extra state to tell difference between full and empty
-
-  logic full;
-  logic full_next;
-
-  vc_ResetReg#(1) full_reg
-  (
-    .clk   (clk),
-    .reset (reset),
-    .d     (full_next),
-    .q     (full)
-  );
-
-  // Determine if pipeline or bypass behavior is enabled
-
-  localparam c_pipe_en   = |( p_type & `VC_QUEUE_PIPE   );
-  localparam c_bypass_en = |( p_type & `VC_QUEUE_BYPASS );
-
-  // We enq/deq only when they are both ready and valid
-
-  logic  do_enq;
-  assign do_enq = enq_rdy && enq_val;
-
-  logic  do_deq;
-  assign do_deq = deq_rdy && deq_val;
-
-  // Determine if we have pipeline or bypass behaviour and
-  // set the write enable accordingly.
-
-  logic  empty;
-  assign empty = ~full && (enq_ptr == deq_ptr);
-
-  logic  do_pipe;
-  assign do_pipe = c_pipe_en   && full  && do_enq && do_deq;
-
-  logic  do_bypass;
-  assign do_bypass = c_bypass_en && empty && do_enq && do_deq;
-
-  assign write_en = do_enq && ~do_bypass;
-
-  // Regardless of the type of queue or whether or not we are actually
-  // doing a bypass, if the queue is empty then we select the enq bits,
-  // otherwise we select the output of the queue state elements.
-
-  assign bypass_mux_sel = empty;
-
-  // Ready signals are calculated from full register. If pipeline
-  // behavior is enabled, then the enq_rdy signal is also calculated
-  // combinationally from the deq_rdy signal. If bypass behavior is
-  // enabled then the deq_val signal is also calculated combinationally
-  // from the enq_val signal.
-
-  assign enq_rdy  = ~full  || ( c_pipe_en   && full  && deq_rdy );
-  assign deq_val  = ~empty || ( c_bypass_en && empty && enq_val );
-
-  // Control logic for the enq/deq pointers and full register
-
-  logic [c_addr_nbits-1:0] deq_ptr_plus1;
-  assign deq_ptr_plus1 = deq_ptr + 1'b1;
-
-  /* verilator lint_off WIDTH */
-
-  logic [c_addr_nbits-1:0] deq_ptr_inc;
-  assign deq_ptr_inc = (deq_ptr_plus1 == p_num_msgs) ? {c_addr_nbits{1'b0}} : deq_ptr_plus1;
-
-  logic [c_addr_nbits-1:0] enq_ptr_plus1;
-  assign enq_ptr_plus1 = enq_ptr + 1'b1;
-
-  logic [c_addr_nbits-1:0] enq_ptr_inc;
-  assign enq_ptr_inc = (enq_ptr_plus1 == p_num_msgs) ? {c_addr_nbits{1'b0}} : enq_ptr_plus1;
-
-  /* verilator lint_on WIDTH */
-
-  assign deq_ptr_next
-    = ( do_deq && ~do_bypass ) ? ( deq_ptr_inc ) : deq_ptr;
-
-  assign enq_ptr_next
-    = ( do_enq && ~do_bypass ) ? ( enq_ptr_inc ) : enq_ptr;
-
-  assign full_next
-    = ( do_enq && ~do_deq && ( enq_ptr_inc == deq_ptr ) ) ? 1'b1
-    : ( do_deq && full && ~do_pipe )                      ? 1'b0
-    :                                                       full;
-
-  // Number of free entries
-
-  assign num_free_entries
-    = full                ? {(c_addr_nbits+1){1'b0}}
-    : empty               ? p_num_msgs[c_addr_nbits:0]
-    : (enq_ptr > deq_ptr) ? p_num_msgs[c_addr_nbits:0] - (enq_ptr - deq_ptr)
-    : (deq_ptr > enq_ptr) ? deq_ptr - enq_ptr
-    :                       {(c_addr_nbits+1){1'bx}};
-
-endmodule
-
-//------------------------------------------------------------------------
-// Multi-Element Queue Datapath
-//------------------------------------------------------------------------
-// This is the datpath for multi-element queues. It includes a register
-// and a bypass mux if needed.
-
-module vc_QueueDpath
-#(
-  parameter p_type      = `VC_QUEUE_NORMAL,
-  parameter p_msg_nbits = 4,
-  parameter p_num_msgs  = 2,
-
-  // Local constants not meant to be set from outside the module
-  parameter c_addr_nbits = $clog2(p_num_msgs)
-)(
-  input  logic                    clk,
-  input  logic                    reset,
-  input  logic                    write_en,
-  input  logic                    bypass_mux_sel,
-  input  logic [c_addr_nbits-1:0] write_addr,
-  input  logic [c_addr_nbits-1:0] read_addr,
-  input  logic [p_msg_nbits-1:0]  enq_msg,
-  output logic [p_msg_nbits-1:0]  deq_msg
-);
-
-  // Queue storage
-
-  logic [p_msg_nbits-1:0] read_data;
-
-  vc_Regfile_1r1w#(p_msg_nbits,p_num_msgs) qstore
-  (
-    .clk        (clk),
-    .reset      (reset),
-    .read_addr  (read_addr),
-    .read_data  (read_data),
-    .write_en   (write_en),
-    .write_addr (write_addr),
-    .write_data (enq_msg)
-  );
-
-  // Bypass muxing
-
-  generate
-  if ( |(p_type & `VC_QUEUE_BYPASS ) )
-
-    vc_Mux2#(p_msg_nbits) bypass_mux
-    (
-      .in0 (read_data),
-      .in1 (enq_msg),
-      .sel (bypass_mux_sel),
-      .out (deq_msg)
-    );
-
-  else
-    assign deq_msg = read_data;
-  endgenerate
-
-endmodule
-
-//------------------------------------------------------------------------
-// Queue
-//------------------------------------------------------------------------
-
-module vc_Queue
-#(
-  parameter p_type      = `VC_QUEUE_NORMAL,
-  parameter p_msg_nbits = 1,
-  parameter p_num_msgs  = 2,
-
-  // parameters not meant to be set outside this module
-  parameter c_addr_nbits = $clog2(p_num_msgs)
-)(
-  input  logic                   clk,
-  input  logic                   reset,
-
-  input  logic                   enq_val,
-  output logic                   enq_rdy,
-  input  logic [p_msg_nbits-1:0] enq_msg,
-
-  output logic                   deq_val,
-  input  logic                   deq_rdy,
-  output logic [p_msg_nbits-1:0] deq_msg,
-
-  output logic [c_addr_nbits:0]  num_free_entries
-);
-
-
-  generate
-  if ( p_num_msgs == 1 )
-  begin
-
-    logic write_en;
-    logic bypass_mux_sel;
-
-    vc_QueueCtrl1#(p_type) ctrl
-    (
-      .clk              (clk),
-      .reset            (reset),
-      .enq_val          (enq_val),
-      .enq_rdy          (enq_rdy),
-      .deq_val          (deq_val),
-      .deq_rdy          (deq_rdy),
-      .write_en         (write_en),
-      .bypass_mux_sel   (bypass_mux_sel),
-      .num_free_entries (num_free_entries)
-    );
-
-    vc_QueueDpath1#(p_type,p_msg_nbits) dpath
-    (
-      .clk            (clk),
-      .reset          (reset),
-      .write_en       (write_en),
-      .bypass_mux_sel (bypass_mux_sel),
-      .enq_msg        (enq_msg),
-      .deq_msg        (deq_msg)
-    );
-
-  end
-  else
-  begin
-
-    logic                    write_en;
-    logic                    bypass_mux_sel;
-    logic [c_addr_nbits-1:0] write_addr;
-    logic [c_addr_nbits-1:0] read_addr;
-
-    vc_QueueCtrl#(p_type,p_num_msgs) ctrl
-    (
-      .clk              (clk),
-      .reset            (reset),
-      .enq_val          (enq_val),
-      .enq_rdy          (enq_rdy),
-      .deq_val          (deq_val),
-      .deq_rdy          (deq_rdy),
-      .write_en         (write_en),
-      .write_addr       (write_addr),
-      .read_addr        (read_addr),
-      .bypass_mux_sel   (bypass_mux_sel),
-      .num_free_entries (num_free_entries)
-    );
-
-    vc_QueueDpath#(p_type,p_msg_nbits,p_num_msgs) dpath
-    (
-      .clk              (clk),
-      .reset            (reset),
-      .write_en         (write_en),
-      .bypass_mux_sel   (bypass_mux_sel),
-      .write_addr       (write_addr),
-      .read_addr        (read_addr),
-      .enq_msg          (enq_msg),
-      .deq_msg          (deq_msg)
-    );
-
-  end
-  endgenerate
-
-  // Assertions
-
-  /*
-  always_ff @( posedge clk ) begin
-    if ( !reset ) begin
-      `VC_ASSERT_NOT_X( enq_val );
-      `VC_ASSERT_NOT_X( enq_rdy );
-      `VC_ASSERT_NOT_X( deq_val );
-      `VC_ASSERT_NOT_X( deq_rdy );
-    end
-  end
-  */
-
-  // Line Tracing
-
-  //  logic [`VC_TRACE_NBITS_TO_NCHARS(p_msg_nbits)*8-1:0] str;
-  //
-  //  `VC_TRACE_BEGIN
-  //  begin
-  //
-  //    $sformat( str, "%x", enq_msg );
-  //    vc_trace.append_val_rdy_str( trace_str, enq_val, enq_rdy, str );
-  //
-  //    vc_trace.append_str( trace_str, "(" );
-  //    $sformat( str, "%x", p_num_msgs-num_free_entries );
-  //    vc_trace.append_str( trace_str, str );
-  //    vc_trace.append_str( trace_str, ")" );
-  //
-  //    $sformat( str, "%x", deq_msg );
-  //    vc_trace.append_val_rdy_str( trace_str, deq_val, deq_rdy, str );
-
-  // end
-  // endtask
-
-endmodule
-
-`endif /* VC_QUEUES_V */
-
-
-`line 10 "proc/ProcVRTL.v" 0
-`line 1 "vc/trace.v" 0
-//========================================================================
-// Line Tracing
-//========================================================================
-
-`ifndef VC_TRACE_V
-`define VC_TRACE_V
-
-// NOTE: This macro is declared outside of the module to allow some vc
-// modules to see it and use it in their own params. Verilog does not
-// allow other modules to hierarchically reference the nbits localparam
-// inside this module in constant expressions (e.g., localparams).
-
-`define VC_TRACE_NCHARS 512
-`define VC_TRACE_NBITS  512*8
-
-`ifndef SYNTHESIS
-
-module vc_Trace
-(
-  input logic clk,
-  input logic reset
-);
-
-  integer len0;
-  integer len1;
-  integer idx0;
-  integer idx1;
-
-  // NOTE: If you change these, then you also need to change the
-  // hard-coded constant in the declaration of the trace function at the
-  // bottom of this file.
-  // NOTE: You would also need to change the VC_TRACE_NBITS and
-  // VC_TRACE_NCHARS macro at the top of this file.
-
-  localparam nchars = 512;
-  localparam nbits  = 512*8;
-
-  // This is the actual trace storage used when displaying a trace
-
-  logic [nbits-1:0] storage;
-
-  // Meant to be accesible from outside module
-
-  integer cycles_next = 0;
-  integer cycles      = 0;
-
-  // Get trace level from command line
-
-  logic [3:0] level;
-
-`ifndef VERILATOR
-  initial begin
-    if ( !$value$plusargs( "trace=%d", level ) ) begin
-      level = 0;
-    end
-  end
-`else
-  initial begin
-    level = 1;
-  end
-`endif // !`ifndef VERILATOR
-
-  // Track cycle count
-
-  always_ff @( posedge clk ) begin
-    cycles <= ( reset ) ? 0 : cycles_next;
-  end
-
-  //----------------------------------------------------------------------
-  // append_str
-  //----------------------------------------------------------------------
-  // Appends a string to the trace.
-
-  task append_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len0 = 1;
-    while ( str[len0*8+:8] != 0 ) begin
-      len0 = len0 + 1;
-    end
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = len0-1; idx1 >= 0; idx1 = idx1 - 1 )
-    begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8 +: 8 ];
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_str_ljust
-  //----------------------------------------------------------------------
-  // Appends a left-justified string to the trace.
-
-  task append_str_ljust
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    idx0 = trace[31:0];
-    idx1 = nchars;
-
-    while ( str[ idx1*8-1 -: 8 ] != 0 ) begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8-1 -: 8 ];
-      idx0 = idx0 - 1;
-      idx1 = idx1 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_chars
-  //----------------------------------------------------------------------
-  // Appends the given number of characters to the trace.
-
-  task append_chars
-  (
-    inout logic   [nbits-1:0] trace,
-    input logic         [7:0] char,
-    input integer             num
-  );
-  begin
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = 0;
-          idx1 < num;
-          idx1 = idx1 + 1 )
-    begin
-      trace[idx0*8+:8] = char;
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_val_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val signal.
-
-  task append_val_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( val )
-      append_str( trace, str );
-    else if ( !val )
-      append_chars( trace, " ", len1 );
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // val_rdy_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val/rdy signals.
-
-  task append_val_rdy_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic             rdy,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( rdy && val ) begin
-      append_str( trace, str );
-    end
-    else if ( rdy && !val ) begin
-      append_chars( trace, " ", len1 );
-    end
-    else if ( !rdy && val ) begin
-      append_str( trace, "#" );
-      append_chars( trace, " ", len1-1 );
-    end
-    else if ( !rdy && !val ) begin
-      append_str( trace, "." );
-      append_chars( trace, " ", len1-1 );
-    end
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-//------------------------------------------------------------------------
-// VC_TRACE_NBITS_TO_NCHARS
-//------------------------------------------------------------------------
-// Macro to determine number of characters for a net
-
-`define VC_TRACE_NBITS_TO_NCHARS( nbits_ ) ((nbits_+3)/4)
-
-//------------------------------------------------------------------------
-// VC_TRACE_BEGIN
-//------------------------------------------------------------------------
-
-//`define VC_TRACE_BEGIN                                                  \
-//  export "DPI-C" task line_trace;                                       \
-//  vc_Trace vc_trace(clk,reset);                                         \
-//  task line_trace( inout bit [(512*8)-1:0] trace_str );
-
-`ifndef VERILATOR
-`define VC_TRACE_BEGIN                                                  \
-  vc_Trace vc_trace(clk,reset);                                         \
-                                                                        \
-  task display_trace;                                                   \
-  begin                                                                 \
-                                                                        \
-    if ( vc_trace.level > 0 ) begin                                     \
-      vc_trace.storage[15:0] = vc_trace.nchars-1;                       \
-                                                                        \
-      line_trace( vc_trace.storage );                                   \
-                                                                        \
-      $write( "%4d: ", vc_trace.cycles );                               \
-                                                                        \
-      vc_trace.idx0 = vc_trace.storage[15:0];                           \
-      for ( vc_trace.idx1 = vc_trace.nchars-1;                          \
-            vc_trace.idx1 > vc_trace.idx0;                              \
-            vc_trace.idx1 = vc_trace.idx1 - 1 )                         \
-      begin                                                             \
-        $write( "%s", vc_trace.storage[vc_trace.idx1*8+:8] );           \
-      end                                                               \
-      $write("\n");                                                     \
-                                                                        \
-    end                                                                 \
-                                                                        \
-    vc_trace.cycles_next = vc_trace.cycles + 1;                         \
-                                                                        \
-  end                                                                   \
-  endtask                                                               \
-                                                                        \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`else
-`define VC_TRACE_BEGIN                                                  \
-  export "DPI-C" task line_trace;                                       \
-  vc_Trace vc_trace(clk,reset);                                         \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`endif
-
-//------------------------------------------------------------------------
-// VC_TRACE_END
-//------------------------------------------------------------------------
-
-`define VC_TRACE_END \
-  endtask
-
-`endif /* VC_TRACE_V */
-
-
-`line 11 "proc/ProcVRTL.v" 0
-
-`line 1 "proc/TinyRV2InstVRTL.v" 0
-//========================================================================
-// TinyRV2 Instruction Type
-//========================================================================
-// Instruction types are similar to message types but are strictly used
-// for communication within a TinyRV2-based processor. Instruction
-// "messages" can be unpacked into the various fields as defined by the
-// TinyRV2 ISA, as well as be constructed from specifying each field
-// explicitly. The 32-bit instruction has different fields depending on
-// the format of the instruction used. The following are the various
-// instruction encoding formats used in the TinyRV2 ISA.
-//
-//  31          25 24   20 19   15 14    12 11          7 6      0
-// | funct7       | rs2   | rs1   | funct3 | rd          | opcode |  R-type
-// | imm[11:0]            | rs1   | funct3 | rd          | opcode |  I-type, I-imm
-// | imm[11:5]    | rs2   | rs1   | funct3 | imm[4:0]    | opcode |  S-type, S-imm
-// | imm[12|10:5] | rs2   | rs1   | funct3 | imm[4:1|11] | opcode |  SB-type,B-imm
-// | imm[31:12]                            | rd          | opcode |  U-type, U-imm
-// | imm[20|10:1|11|19:12]                 | rd          | opcode |  UJ-type,J-imm
-
-`ifndef PROC_TINY_RV2_INST_V
-`define PROC_TINY_RV2_INST_V
-
-`line 1 "vc/trace.v" 0
-//========================================================================
-// Line Tracing
-//========================================================================
-
-`ifndef VC_TRACE_V
-`define VC_TRACE_V
-
-// NOTE: This macro is declared outside of the module to allow some vc
-// modules to see it and use it in their own params. Verilog does not
-// allow other modules to hierarchically reference the nbits localparam
-// inside this module in constant expressions (e.g., localparams).
-
-`define VC_TRACE_NCHARS 512
-`define VC_TRACE_NBITS  512*8
-
-`ifndef SYNTHESIS
-
-module vc_Trace
-(
-  input logic clk,
-  input logic reset
-);
-
-  integer len0;
-  integer len1;
-  integer idx0;
-  integer idx1;
-
-  // NOTE: If you change these, then you also need to change the
-  // hard-coded constant in the declaration of the trace function at the
-  // bottom of this file.
-  // NOTE: You would also need to change the VC_TRACE_NBITS and
-  // VC_TRACE_NCHARS macro at the top of this file.
-
-  localparam nchars = 512;
-  localparam nbits  = 512*8;
-
-  // This is the actual trace storage used when displaying a trace
-
-  logic [nbits-1:0] storage;
-
-  // Meant to be accesible from outside module
-
-  integer cycles_next = 0;
-  integer cycles      = 0;
-
-  // Get trace level from command line
-
-  logic [3:0] level;
-
-`ifndef VERILATOR
-  initial begin
-    if ( !$value$plusargs( "trace=%d", level ) ) begin
-      level = 0;
-    end
-  end
-`else
-  initial begin
-    level = 1;
-  end
-`endif // !`ifndef VERILATOR
-
-  // Track cycle count
-
-  always_ff @( posedge clk ) begin
-    cycles <= ( reset ) ? 0 : cycles_next;
-  end
-
-  //----------------------------------------------------------------------
-  // append_str
-  //----------------------------------------------------------------------
-  // Appends a string to the trace.
-
-  task append_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len0 = 1;
-    while ( str[len0*8+:8] != 0 ) begin
-      len0 = len0 + 1;
-    end
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = len0-1; idx1 >= 0; idx1 = idx1 - 1 )
-    begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8 +: 8 ];
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_str_ljust
-  //----------------------------------------------------------------------
-  // Appends a left-justified string to the trace.
-
-  task append_str_ljust
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    idx0 = trace[31:0];
-    idx1 = nchars;
-
-    while ( str[ idx1*8-1 -: 8 ] != 0 ) begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8-1 -: 8 ];
-      idx0 = idx0 - 1;
-      idx1 = idx1 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_chars
-  //----------------------------------------------------------------------
-  // Appends the given number of characters to the trace.
-
-  task append_chars
-  (
-    inout logic   [nbits-1:0] trace,
-    input logic         [7:0] char,
-    input integer             num
-  );
-  begin
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = 0;
-          idx1 < num;
-          idx1 = idx1 + 1 )
-    begin
-      trace[idx0*8+:8] = char;
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_val_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val signal.
-
-  task append_val_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( val )
-      append_str( trace, str );
-    else if ( !val )
-      append_chars( trace, " ", len1 );
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // val_rdy_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val/rdy signals.
-
-  task append_val_rdy_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic             rdy,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( rdy && val ) begin
-      append_str( trace, str );
-    end
-    else if ( rdy && !val ) begin
-      append_chars( trace, " ", len1 );
-    end
-    else if ( !rdy && val ) begin
-      append_str( trace, "#" );
-      append_chars( trace, " ", len1-1 );
-    end
-    else if ( !rdy && !val ) begin
-      append_str( trace, "." );
-      append_chars( trace, " ", len1-1 );
-    end
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-//------------------------------------------------------------------------
-// VC_TRACE_NBITS_TO_NCHARS
-//------------------------------------------------------------------------
-// Macro to determine number of characters for a net
-
-`define VC_TRACE_NBITS_TO_NCHARS( nbits_ ) ((nbits_+3)/4)
-
-//------------------------------------------------------------------------
-// VC_TRACE_BEGIN
-//------------------------------------------------------------------------
-
-//`define VC_TRACE_BEGIN                                                  \
-//  export "DPI-C" task line_trace;                                       \
-//  vc_Trace vc_trace(clk,reset);                                         \
-//  task line_trace( inout bit [(512*8)-1:0] trace_str );
-
-`ifndef VERILATOR
-`define VC_TRACE_BEGIN                                                  \
-  vc_Trace vc_trace(clk,reset);                                         \
-                                                                        \
-  task display_trace;                                                   \
-  begin                                                                 \
-                                                                        \
-    if ( vc_trace.level > 0 ) begin                                     \
-      vc_trace.storage[15:0] = vc_trace.nchars-1;                       \
-                                                                        \
-      line_trace( vc_trace.storage );                                   \
-                                                                        \
-      $write( "%4d: ", vc_trace.cycles );                               \
-                                                                        \
-      vc_trace.idx0 = vc_trace.storage[15:0];                           \
-      for ( vc_trace.idx1 = vc_trace.nchars-1;                          \
-            vc_trace.idx1 > vc_trace.idx0;                              \
-            vc_trace.idx1 = vc_trace.idx1 - 1 )                         \
-      begin                                                             \
-        $write( "%s", vc_trace.storage[vc_trace.idx1*8+:8] );           \
-      end                                                               \
-      $write("\n");                                                     \
-                                                                        \
-    end                                                                 \
-                                                                        \
-    vc_trace.cycles_next = vc_trace.cycles + 1;                         \
-                                                                        \
-  end                                                                   \
-  endtask                                                               \
-                                                                        \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`else
-`define VC_TRACE_BEGIN                                                  \
-  export "DPI-C" task line_trace;                                       \
-  vc_Trace vc_trace(clk,reset);                                         \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`endif
-
-//------------------------------------------------------------------------
-// VC_TRACE_END
-//------------------------------------------------------------------------
-
-`define VC_TRACE_END \
-  endtask
-
-`endif /* VC_TRACE_V */
-
-
-`line 24 "proc/TinyRV2InstVRTL.v" 0
-
-//------------------------------------------------------------------------
-// Instruction fields
-//------------------------------------------------------------------------
-
-`define RV2ISA_INST_OPCODE  6:0
-`define RV2ISA_INST_RD      11:7
-`define RV2ISA_INST_RS1     19:15
-`define RV2ISA_INST_RS2     24:20
-`define RV2ISA_INST_FUNCT3  14:12
-`define RV2ISA_INST_FUNCT7  31:25
-`define RV2ISA_INST_CSR     31:20
-
-// CUSTOM0 specific
-
-`define RV2ISA_INST_XD      14:14
-`define RV2ISA_INST_XS1     13:13
-`define RV2ISA_INST_XS2     12:12
-
-//------------------------------------------------------------------------
-// Field sizes
-//------------------------------------------------------------------------
-
-`define RV2ISA_INST_NBITS          32
-`define RV2ISA_INST_OPCODE_NBITS   7
-`define RV2ISA_INST_RD_NBITS       5
-`define RV2ISA_INST_RS1_NBITS      5
-`define RV2ISA_INST_RS2_NBITS      5
-`define RV2ISA_INST_FUNCT3_NBITS   3
-`define RV2ISA_INST_FUNCT7_NBITS   7
-`define RV2ISA_INST_CSR_NBITS      12
-
-//------------------------------------------------------------------------
-// Instruction opcodes
-//------------------------------------------------------------------------
-
-// Basic instructions
-
-`define RV2ISA_INST_CSRRX 32'b0111111_?????_?????_010_?????_1110011
-`define RV2ISA_INST_CSRR  32'b???????_?????_?????_010_?????_1110011
-`define RV2ISA_INST_CSRW  32'b???????_?????_?????_001_?????_1110011
-`define RV2ISA_INST_NOP   32'b0000000_00000_00000_000_00000_0010011
-`define RV2ISA_ZERO       32'b0000000_00000_00000_000_00000_0000000
-
-// Register-register arithmetic, logical, and comparison instructions
-
-`define RV2ISA_INST_ADD   32'b0000000_?????_?????_000_?????_0110011
-`define RV2ISA_INST_SUB   32'b0100000_?????_?????_000_?????_0110011
-`define RV2ISA_INST_AND   32'b0000000_?????_?????_111_?????_0110011
-`define RV2ISA_INST_OR    32'b0000000_?????_?????_110_?????_0110011
-`define RV2ISA_INST_XOR   32'b0000000_?????_?????_100_?????_0110011
-`define RV2ISA_INST_SLT   32'b0000000_?????_?????_010_?????_0110011
-`define RV2ISA_INST_SLTU  32'b0000000_?????_?????_011_?????_0110011
-`define RV2ISA_INST_MUL   32'b0000001_?????_?????_000_?????_0110011
-
-// Register-immediate arithmetic, logical, and comparison instructions
-
-`define RV2ISA_INST_ADDI  32'b???????_?????_?????_000_?????_0010011
-`define RV2ISA_INST_ANDI  32'b???????_?????_?????_111_?????_0010011
-`define RV2ISA_INST_ORI   32'b???????_?????_?????_110_?????_0010011
-`define RV2ISA_INST_XORI  32'b???????_?????_?????_100_?????_0010011
-`define RV2ISA_INST_SLTI  32'b???????_?????_?????_010_?????_0010011
-`define RV2ISA_INST_SLTIU 32'b???????_?????_?????_011_?????_0010011
-
-// Shift instructions
-
-`define RV2ISA_INST_SRA   32'b0100000_?????_?????_101_?????_0110011
-`define RV2ISA_INST_SRL   32'b0000000_?????_?????_101_?????_0110011
-`define RV2ISA_INST_SLL   32'b0000000_?????_?????_001_?????_0110011
-`define RV2ISA_INST_SRAI  32'b0100000_?????_?????_101_?????_0010011
-`define RV2ISA_INST_SRLI  32'b0000000_?????_?????_101_?????_0010011
-`define RV2ISA_INST_SLLI  32'b0000000_?????_?????_001_?????_0010011
-
-// Other instructions
-
-`define RV2ISA_INST_LUI   32'b???????_?????_?????_???_?????_0110111
-`define RV2ISA_INST_AUIPC 32'b???????_?????_?????_???_?????_0010111
-
-// Memory instructions
-
-`define RV2ISA_INST_LW    32'b???????_?????_?????_010_?????_0000011
-`define RV2ISA_INST_SW    32'b???????_?????_?????_010_?????_0100011
-
-// Unconditional jump instructions
-
-`define RV2ISA_INST_JAL   32'b???????_?????_?????_???_?????_1101111
-`define RV2ISA_INST_JALR  32'b???????_?????_?????_000_?????_1100111
-
-// Conditional branch instructions
-
-`define RV2ISA_INST_BEQ   32'b???????_?????_?????_000_?????_1100011
-`define RV2ISA_INST_BNE   32'b???????_?????_?????_001_?????_1100011
-`define RV2ISA_INST_BLT   32'b???????_?????_?????_100_?????_1100011
-`define RV2ISA_INST_BGE   32'b???????_?????_?????_101_?????_1100011
-`define RV2ISA_INST_BLTU  32'b???????_?????_?????_110_?????_1100011
-`define RV2ISA_INST_BGEU  32'b???????_?????_?????_111_?????_1100011
-
-// Accelerator custom0
-
-`define RV2ISA_INST_CUST0 32'b???????_?????_?????_???_?????_0001011
-
-//------------------------------------------------------------------------
-// Coprocessor registers
-//------------------------------------------------------------------------
-
-`define RV2ISA_CPR_PROC2MNGR  12'h7C0
-`define RV2ISA_CPR_MNGR2PROC  12'hFC0
-`define RV2ISA_CPR_COREID     12'hF14
-`define RV2ISA_CPR_NUMCORES   12'hFC1
-`define RV2ISA_CPR_STATS_EN   12'h7C1
-
-//------------------------------------------------------------------------
-// Helper Tasks
-//------------------------------------------------------------------------
-
-module rv2isa_InstTasks();
-
-  //----------------------------------------------------------------------
-  // Immediate decoding -- only outputs signals at the width required for
-  // line tracing
-  //----------------------------------------------------------------------
-  function [11:0] imm_i( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // I-type immediate
-    imm_i = { inst[31], inst[30:25], inst[24:21], inst[20] };
-  end
-  endfunction
-
-  function [4:0] imm_shamt( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // I-type immediate, specialized for shift amounts
-    imm_shamt = { inst[24:21], inst[20] };
-  end
-  endfunction
-
-  function [11:0] imm_s( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // S-type immediate
-    imm_s = { inst[31], inst[30:25], inst[11:8], inst[7] };
-  end
-  endfunction
-
-  function [12:0] imm_b( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // B-type immediate
-    imm_b = { inst[31], inst[7], inst[30:25], inst[11:8], 1'b0 };
-  end
-  endfunction
-
-  function [19:0] imm_u_sh12( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // U-type immediate, shifted right by 12
-    imm_u_sh12 = { inst[31], inst[30:20], inst[19:12] };
-  end
-  endfunction
-
-  function [20:0] imm_j( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // J-type immediate
-    imm_j = { inst[31], inst[19:12], inst[20], inst[30:25], inst[24:21], 1'b0 };
-  end
-  endfunction
-
-  //----------------------------------------------------------------------
-  // Disasm
-  //----------------------------------------------------------------------
-
-  reg [3*8-1:0]                     rs1_str;
-  reg [3*8-1:0]                     rs2_str;
-  reg [3*8-1:0]                     rd_str;
-  reg [9*8-1:0]                     csr_str;
-  reg [2*8-1:0]                     funct_str;
-
-  logic [`RV2ISA_INST_RS1_NBITS-1:0] rs1;
-  logic [`RV2ISA_INST_RS2_NBITS-1:0] rs2;
-  logic [`RV2ISA_INST_RD_NBITS-1:0]  rd;
-  logic [`RV2ISA_INST_CSR_NBITS-1:0] csr;
-  logic [`RV2ISA_INST_FUNCT7_NBITS-1:0] funct;
-
-  function [25*8-1:0] disasm( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-
-    // Unpack the fields
-
-    rs1      = inst[`RV2ISA_INST_RS1];
-    rs2      = inst[`RV2ISA_INST_RS2];
-    rd       = inst[`RV2ISA_INST_RD];
-    csr      = inst[`RV2ISA_INST_CSR];
-    // xcel
-    funct    = inst[`RV2ISA_INST_FUNCT7];
-
-    // Create fixed-width register specifiers
-
-    if ( rs1 <= 9 )
-      $sformat( rs1_str, "x0%0d", rs1 );
-    else
-      $sformat( rs1_str, "x%d",  rs1 );
-
-    if ( rs2 <= 9 )
-      $sformat( rs2_str, "x0%0d", rs2 );
-    else
-      $sformat( rs2_str, "x%d",  rs2 );
-
-    if ( rd <= 9 )
-      $sformat( rd_str, "x0%0d", rd );
-    else
-      $sformat( rd_str, "x%d",  rd );
-
-    // if ( csr == `RV2ISA_CPR_PROC2MNGR )
-      // $sformat( csr_str, "proc2mngr" );
-    // else if ( csr == `RV2ISA_CPR_MNGR2PROC )
-      // $sformat( csr_str, "mngr2proc" );
-    // else if ( csr == `RV2ISA_CPR_COREID )
-      // $sformat( csr_str, "coreid   " );
-    // else if ( csr == `RV2ISA_CPR_NUMCORES )
-      // $sformat( csr_str, "numcores " );
-    // else if ( csr == `RV2ISA_CPR_STATS_EN )
-      // $sformat( csr_str, "stats_en " );
-    // else
-    $sformat( csr_str, "    0x%x", csr );
-
-    $sformat( funct_str, "%x", funct[1:0]);
-
-    // Actual disassembly
-
-    casez ( inst )
-      `RV2ISA_INST_CSRR  : $sformat( disasm, "csrr   %s, %s  ",        rd_str,  csr_str );
-      `RV2ISA_INST_CSRW  : $sformat( disasm, "csrw   %s, %s  ",        csr_str, rs1_str );
-      `RV2ISA_INST_NOP   : $sformat( disasm, "nop                    " );
-      `RV2ISA_ZERO       : $sformat( disasm, "                       " );
-
-      `RV2ISA_INST_ADD   : $sformat( disasm, "add    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_SUB   : $sformat( disasm, "sub    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_AND   : $sformat( disasm, "and    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_OR    : $sformat( disasm, "or     %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_XOR   : $sformat( disasm, "xor    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_SLT   : $sformat( disasm, "slt    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_SLTU  : $sformat( disasm, "sltu   %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_MUL   : $sformat( disasm, "mul    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-
-      `RV2ISA_INST_ADDI  : $sformat( disasm, "addi   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_ANDI  : $sformat( disasm, "andi   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_ORI   : $sformat( disasm, "ori    %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_XORI  : $sformat( disasm, "xori   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_SLTI  : $sformat( disasm, "slti   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_SLTIU : $sformat( disasm, "sltiu  %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-
-      `RV2ISA_INST_SRA   : $sformat( disasm, "sra    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SRL   : $sformat( disasm, "srl    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SLL   : $sformat( disasm, "sll    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SRAI  : $sformat( disasm, "srai   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SRLI  : $sformat( disasm, "srli   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SLLI  : $sformat( disasm, "slli   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-
-      `RV2ISA_INST_LUI   : $sformat( disasm, "lui    %s, 0x%x    ",    rd_str,  imm_u_sh12(inst));
-      `RV2ISA_INST_AUIPC : $sformat( disasm, "auipc  %s, 0x%x    ",    rd_str,  imm_u_sh12(inst));
-
-      `RV2ISA_INST_LW    : $sformat( disasm, "lw     %s, 0x%x(%s) ",   rd_str,  imm_i(inst), rs1_str );
-      `RV2ISA_INST_SW    : $sformat( disasm, "sw     %s, 0x%x(%s) ",   rs2_str, imm_s(inst), rs1_str );
-
-      `RV2ISA_INST_JAL   : $sformat( disasm, "jal    %s, 0x%x   ",     rd_str, imm_j(inst) );
-      `RV2ISA_INST_JALR  : $sformat( disasm, "jalr   %s, %s, 0x%x ",   rd_str, rs1_str, imm_i(inst) );
-
-      `RV2ISA_INST_BEQ   : $sformat( disasm, "beq    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BNE   : $sformat( disasm, "bne    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BLT   : $sformat( disasm, "blt    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BGE   : $sformat( disasm, "bge    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BLTU  : $sformat( disasm, "bltu   %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BGEU  : $sformat( disasm, "bgeu   %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-
-      `RV2ISA_INST_CUST0 : $sformat( disasm, "cust0 %s, %s, %s, %s", rd_str, rs1_str, rs2_str, funct_str );
-      default            : $sformat( disasm, "illegal inst           " );
-    endcase
-
-  end
-  endfunction
-
-  //----------------------------------------------------------------------
-  // Disasm Tiny
-  //----------------------------------------------------------------------
-
-  function [4*8-1:0] disasm_tiny( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-
-    casez ( inst )
-      `RV2ISA_INST_CSRR  : disasm_tiny = "csrr";
-      `RV2ISA_INST_CSRW  : disasm_tiny = "csrw";
-      `RV2ISA_INST_NOP   : disasm_tiny = "nop ";
-
-      `RV2ISA_INST_ADD   : disasm_tiny = "add ";
-      `RV2ISA_INST_SUB   : disasm_tiny = "sub ";
-      `RV2ISA_INST_AND   : disasm_tiny = "and ";
-      `RV2ISA_INST_OR    : disasm_tiny = "or  ";
-      `RV2ISA_INST_XOR   : disasm_tiny = "xor ";
-      `RV2ISA_INST_SLT   : disasm_tiny = "slt ";
-      `RV2ISA_INST_SLTU  : disasm_tiny = "sltu";
-      `RV2ISA_INST_MUL   : disasm_tiny = "mul ";
-
-      `RV2ISA_INST_ADDI  : disasm_tiny = "addi";
-      `RV2ISA_INST_ANDI  : disasm_tiny = "andi";
-      `RV2ISA_INST_ORI   : disasm_tiny = "ori ";
-      `RV2ISA_INST_XORI  : disasm_tiny = "xori";
-      `RV2ISA_INST_SLTI  : disasm_tiny = "slti";
-      `RV2ISA_INST_SLTIU : disasm_tiny = "sltI";
-
-      `RV2ISA_INST_SRA   : disasm_tiny = "sra ";
-      `RV2ISA_INST_SRL   : disasm_tiny = "srl ";
-      `RV2ISA_INST_SLL   : disasm_tiny = "sll ";
-      `RV2ISA_INST_SRAI  : disasm_tiny = "srai";
-      `RV2ISA_INST_SRLI  : disasm_tiny = "srli";
-      `RV2ISA_INST_SLLI  : disasm_tiny = "slli";
-
-      `RV2ISA_INST_LUI   : disasm_tiny = "lui ";
-      `RV2ISA_INST_AUIPC : disasm_tiny = "auiP";
-
-      `RV2ISA_INST_LW    : disasm_tiny = "lw  ";
-      `RV2ISA_INST_SW    : disasm_tiny = "sw  ";
-
-      `RV2ISA_INST_JAL   : disasm_tiny = "jal ";
-      `RV2ISA_INST_JALR  : disasm_tiny = "jalr";
-
-      `RV2ISA_INST_BEQ   : disasm_tiny = "beq ";
-      `RV2ISA_INST_BNE   : disasm_tiny = "bne ";
-      `RV2ISA_INST_BLT   : disasm_tiny = "blt ";
-      `RV2ISA_INST_BGE   : disasm_tiny = "bge ";
-      `RV2ISA_INST_BLTU  : disasm_tiny = "bltu";
-      `RV2ISA_INST_BGEU  : disasm_tiny = "bgeu";
-
-      `RV2ISA_INST_CUST0 : disasm_tiny = "cus0";
-
-      default            : disasm_tiny = "????";
-    endcase
-
-  end
-  endfunction
-
-endmodule
-
-//------------------------------------------------------------------------
-// Unpack instruction
-//------------------------------------------------------------------------
-
-module rv2isa_InstUnpack
-(
-  // Packed message
-
-  input  [`RV2ISA_INST_NBITS-1:0]        inst,
-
-  // Packed fields
-
-  output [`RV2ISA_INST_OPCODE_NBITS-1:0] opcode,
-  output [`RV2ISA_INST_RD_NBITS-1:0]     rd,
-  output [`RV2ISA_INST_RS1_NBITS-1:0]    rs1,
-  output [`RV2ISA_INST_RS2_NBITS-1:0]    rs2,
-  output [`RV2ISA_INST_FUNCT3_NBITS-1:0] funct3,
-  output [`RV2ISA_INST_FUNCT7_NBITS-1:0] funct7,
-  output [`RV2ISA_INST_CSR_NBITS-1:0]    csr
-);
-
-  assign opcode   = inst[`RV2ISA_INST_OPCODE];
-  assign rd       = inst[`RV2ISA_INST_RD];
-  assign rs1      = inst[`RV2ISA_INST_RS1];
-  assign rs2      = inst[`RV2ISA_INST_RS2];
-  assign funct3   = inst[`RV2ISA_INST_FUNCT3];
-  assign csr      = inst[`RV2ISA_INST_CSR];
-
-endmodule
-
-//------------------------------------------------------------------------
-// Convert message to string
-//------------------------------------------------------------------------
-
-`ifndef SYNTHESIS
-
-module rv2isa_InstTrace
-(
-  input                          clk,
-  input                          reset,
-  input [`RV2ISA_INST_NBITS-1:0] inst
-);
-
-  rv2isa_InstTasks rv2isa();
-
-  `VC_TRACE_BEGIN
-  begin
-    vc_trace.append_str( trace_str, rv2isa.disasm( inst ) );
-    vc_trace.append_str( trace_str, " | " );
-    vc_trace.append_str( trace_str, rv2isa.disasm_tiny( inst ) );
-  end
-  `VC_TRACE_END
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-`endif /* PROC_TINY_RV2_INST_V */
-
-
-`line 13 "proc/ProcVRTL.v" 0
-`line 1 "proc/ProcCtrlVRTL.v" 0
-//=========================================================================
-// 5-Stage Stalling Pipelined Processor Control
-//=========================================================================
-
-`ifndef PROC_PROC_CTRL_V
-`define PROC_PROC_CTRL_V
-
-`line 1 "vc/mem-msgs.v" 0
-//========================================================================
-// vc-mem-msgs : Memory Request/Response Messages
-//========================================================================
-// The memory request/response messages are used to interact with various
-// memories. They are parameterized by the number of bits in the address,
-// data, and opaque field.
-
-`ifndef VC_MEM_MSGS_V
-`define VC_MEM_MSGS_V
-
-`line 1 "vc/trace.v" 0
-//========================================================================
-// Line Tracing
-//========================================================================
-
-`ifndef VC_TRACE_V
-`define VC_TRACE_V
-
-// NOTE: This macro is declared outside of the module to allow some vc
-// modules to see it and use it in their own params. Verilog does not
-// allow other modules to hierarchically reference the nbits localparam
-// inside this module in constant expressions (e.g., localparams).
-
-`define VC_TRACE_NCHARS 512
-`define VC_TRACE_NBITS  512*8
-
-`ifndef SYNTHESIS
-
-module vc_Trace
-(
-  input logic clk,
-  input logic reset
-);
-
-  integer len0;
-  integer len1;
-  integer idx0;
-  integer idx1;
-
-  // NOTE: If you change these, then you also need to change the
-  // hard-coded constant in the declaration of the trace function at the
-  // bottom of this file.
-  // NOTE: You would also need to change the VC_TRACE_NBITS and
-  // VC_TRACE_NCHARS macro at the top of this file.
-
-  localparam nchars = 512;
-  localparam nbits  = 512*8;
-
-  // This is the actual trace storage used when displaying a trace
-
-  logic [nbits-1:0] storage;
-
-  // Meant to be accesible from outside module
-
-  integer cycles_next = 0;
-  integer cycles      = 0;
-
-  // Get trace level from command line
-
-  logic [3:0] level;
-
-`ifndef VERILATOR
-  initial begin
-    if ( !$value$plusargs( "trace=%d", level ) ) begin
-      level = 0;
-    end
-  end
-`else
-  initial begin
-    level = 1;
-  end
-`endif // !`ifndef VERILATOR
-
-  // Track cycle count
-
-  always_ff @( posedge clk ) begin
-    cycles <= ( reset ) ? 0 : cycles_next;
-  end
-
-  //----------------------------------------------------------------------
-  // append_str
-  //----------------------------------------------------------------------
-  // Appends a string to the trace.
-
-  task append_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len0 = 1;
-    while ( str[len0*8+:8] != 0 ) begin
-      len0 = len0 + 1;
-    end
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = len0-1; idx1 >= 0; idx1 = idx1 - 1 )
-    begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8 +: 8 ];
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_str_ljust
-  //----------------------------------------------------------------------
-  // Appends a left-justified string to the trace.
-
-  task append_str_ljust
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    idx0 = trace[31:0];
-    idx1 = nchars;
-
-    while ( str[ idx1*8-1 -: 8 ] != 0 ) begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8-1 -: 8 ];
-      idx0 = idx0 - 1;
-      idx1 = idx1 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_chars
-  //----------------------------------------------------------------------
-  // Appends the given number of characters to the trace.
-
-  task append_chars
-  (
-    inout logic   [nbits-1:0] trace,
-    input logic         [7:0] char,
-    input integer             num
-  );
-  begin
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = 0;
-          idx1 < num;
-          idx1 = idx1 + 1 )
-    begin
-      trace[idx0*8+:8] = char;
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_val_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val signal.
-
-  task append_val_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( val )
-      append_str( trace, str );
-    else if ( !val )
-      append_chars( trace, " ", len1 );
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // val_rdy_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val/rdy signals.
-
-  task append_val_rdy_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic             rdy,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( rdy && val ) begin
-      append_str( trace, str );
-    end
-    else if ( rdy && !val ) begin
-      append_chars( trace, " ", len1 );
-    end
-    else if ( !rdy && val ) begin
-      append_str( trace, "#" );
-      append_chars( trace, " ", len1-1 );
-    end
-    else if ( !rdy && !val ) begin
-      append_str( trace, "." );
-      append_chars( trace, " ", len1-1 );
-    end
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-//------------------------------------------------------------------------
-// VC_TRACE_NBITS_TO_NCHARS
-//------------------------------------------------------------------------
-// Macro to determine number of characters for a net
-
-`define VC_TRACE_NBITS_TO_NCHARS( nbits_ ) ((nbits_+3)/4)
-
-//------------------------------------------------------------------------
-// VC_TRACE_BEGIN
-//------------------------------------------------------------------------
-
-//`define VC_TRACE_BEGIN                                                  \
-//  export "DPI-C" task line_trace;                                       \
-//  vc_Trace vc_trace(clk,reset);                                         \
-//  task line_trace( inout bit [(512*8)-1:0] trace_str );
-
-`ifndef VERILATOR
-`define VC_TRACE_BEGIN                                                  \
-  vc_Trace vc_trace(clk,reset);                                         \
-                                                                        \
-  task display_trace;                                                   \
-  begin                                                                 \
-                                                                        \
-    if ( vc_trace.level > 0 ) begin                                     \
-      vc_trace.storage[15:0] = vc_trace.nchars-1;                       \
-                                                                        \
-      line_trace( vc_trace.storage );                                   \
-                                                                        \
-      $write( "%4d: ", vc_trace.cycles );                               \
-                                                                        \
-      vc_trace.idx0 = vc_trace.storage[15:0];                           \
-      for ( vc_trace.idx1 = vc_trace.nchars-1;                          \
-            vc_trace.idx1 > vc_trace.idx0;                              \
-            vc_trace.idx1 = vc_trace.idx1 - 1 )                         \
-      begin                                                             \
-        $write( "%s", vc_trace.storage[vc_trace.idx1*8+:8] );           \
-      end                                                               \
-      $write("\n");                                                     \
-                                                                        \
-    end                                                                 \
-                                                                        \
-    vc_trace.cycles_next = vc_trace.cycles + 1;                         \
-                                                                        \
-  end                                                                   \
-  endtask                                                               \
-                                                                        \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`else
-`define VC_TRACE_BEGIN                                                  \
-  export "DPI-C" task line_trace;                                       \
-  vc_Trace vc_trace(clk,reset);                                         \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`endif
-
-//------------------------------------------------------------------------
-// VC_TRACE_END
-//------------------------------------------------------------------------
-
-`define VC_TRACE_END \
-  endtask
-
-`endif /* VC_TRACE_V */
-
-
-`line 12 "vc/mem-msgs.v" 0
-
-//========================================================================
-// Memory Request Message
-//========================================================================
-// Memory request messages can either be for a read or write. Read
-// requests include an opaque field, the address, and the number of bytes
-// to read, while write requests include an opaque field, the address,
-// the number of bytes to write, and the actual data to write.
-//
-// Message Format:
-//
-//    3b    p_opaque_nbits  p_addr_nbits       calc   p_data_nbits
-//  +------+---------------+------------------+------+------------------+
-//  | type | opaque        | addr             | len  | data             |
-//  +------+---------------+------------------+------+------------------+
-//
-// The message type is parameterized by the number of bits in the opaque
-// field, address field, and data field. Note that the size of the length
-// field is caclulated from the number of bits in the data field, and
-// that the length field is expressed in _bytes_. If the value of the
-// length field is zero, then the read or write should be for the full
-// width of the data field.
-//
-// For example, if the opaque field is 8 bits, the address is 32 bits and
-// the data is also 32 bits, then the message format is as follows:
-//
-//   76  74 73           66 65              34 33  32 31               0
-//  +------+---------------+------------------+------+------------------+
-//  | type | opaque        | addr             | len  | data             |
-//  +------+---------------+------------------+------+------------------+
-//
-// The length field is two bits. A length value of one means read or write
-// a single byte, a length value of two means read or write two bytes, and
-// so on. A length value of zero means read or write all four bytes. Note
-// that not all memories will necessarily support any alignment and/or any
-// value for the length field.
-//
-// The opaque field is reserved for use by a specific implementation. All
-// memories should guarantee that every response includes the opaque
-// field corresponding to the request that generated the response.
-
-//------------------------------------------------------------------------
-// Memory Request Struct: Using a packed struct to represent the message
-//------------------------------------------------------------------------
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [31:0] addr;
-  logic [1:0]  len;
-  logic [31:0] data;
-} mem_req_4B_t;
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [31:0] addr;
-  logic [2:0]  len;
-  logic [63:0] data;
-} mem_req_8B_t;
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [31:0] addr;
-  logic [3:0]  len;
-  logic [127:0] data;
-} mem_req_16B_t;
-
-// memory request type values
-`define VC_MEM_REQ_MSG_TYPE_READ     3'd0
-`define VC_MEM_REQ_MSG_TYPE_WRITE    3'd1
-
-// write no-refill
-`define VC_MEM_REQ_MSG_TYPE_WRITE_INIT 3'd2
-`define VC_MEM_REQ_MSG_TYPE_AMO_ADD    3'd3
-`define VC_MEM_REQ_MSG_TYPE_AMO_AND    3'd4
-`define VC_MEM_REQ_MSG_TYPE_AMO_OR     3'd5
-`define VC_MEM_REQ_MSG_TYPE_X          3'dx
-
-//------------------------------------------------------------------------
-// Memory Request Message: Trace message
-//------------------------------------------------------------------------
-
-`ifndef SYNTHESIS
-
-module vc_MemReqMsg4BTrace
-(
-  input logic         clk,
-  input logic         reset,
-  input logic         val,
-  input logic         rdy,
-  input mem_req_4B_t  msg
-);
-
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [31:0]  addr;
-  assign addr   = msg.addr;
-  logic [1:0]   len;
-  assign len    = msg.len;
-  logic [31:0]  data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits = $bits(mem_req_4B_t);
-  localparam c_read      = `VC_MEM_REQ_MSG_TYPE_READ;
-  localparam c_write     = `VC_MEM_REQ_MSG_TYPE_WRITE;
-  localparam c_write_init  = `VC_MEM_REQ_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( msg.type_ === `VC_MEM_REQ_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( msg.type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( vc_trace.level == 1 ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 2 ) begin
-      $sformat( str, "%s:%x", type_str, msg.addr );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_read ) begin
-        $sformat( str, "%s:%x:%x %s", type_str, msg.opaque, msg.addr,
-                  {8{" "}} );
-      end
-      else
-        $sformat( str, "%s:%x:%x:%x", type_str, msg.opaque, msg.addr, msg.data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-
-module vc_MemReqMsg8BTrace
-(
-  input logic         clk,
-  input logic         reset,
-  input logic         val,
-  input logic         rdy,
-  input mem_req_8B_t  msg
-);
-
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [31:0]  addr;
-  assign addr   = msg.addr;
-  logic [2:0]   len;
-  assign len    = msg.len;
-  logic [63:0]  data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_req_8B_t);
-  localparam c_read       = `VC_MEM_REQ_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_REQ_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_REQ_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( msg.type_ === `VC_MEM_REQ_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( msg.type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( vc_trace.level == 1 ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 2 ) begin
-      $sformat( str, "%s:%x", type_str, msg.addr );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_read ) begin
-        $sformat( str, "%s:%x:%x %s", type_str, msg.opaque, msg.addr,
-                  {16{" "}} );
-      end
-      else
-        $sformat( str, "%s:%x:%x:%x", type_str, msg.opaque, msg.addr, msg.data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-
-module vc_MemReqMsg16BTrace
-(
-  input logic         clk,
-  input logic         reset,
-  input logic         val,
-  input logic         rdy,
-  input mem_req_16B_t  msg
-);
-
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [31:0]  addr;
-  assign addr   = msg.addr;
-  logic [3:0]   len;
-  assign len    = msg.len;
-  logic [127:0]  data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_req_16B_t);
-  localparam c_read       = `VC_MEM_REQ_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_REQ_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_REQ_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( msg.type_ === `VC_MEM_REQ_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( msg.type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( vc_trace.level == 1 ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 2 ) begin
-      $sformat( str, "%s:%x", type_str, msg.addr );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_read ) begin
-        $sformat( str, "%s:%x:%x %s", type_str, msg.opaque, msg.addr,
-                  {32{" "}} );
-      end
-      else
-        $sformat( str, "%s:%x:%x:%x", type_str, msg.opaque, msg.addr, msg.data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-
-`endif
-
-//========================================================================
-// Memory Response Message
-//========================================================================
-// Memory request messages can either be for a read or write. Read
-// responses include an opaque field, the actual data, and the number of
-// bytes, while write responses currently include just the opaque field.
-//
-// Message Format:
-//
-//    3b    p_opaque_nbits   2b    calc   p_data_nbits
-//  +------+---------------+------+------+------------------+
-//  | type | opaque        | test | len  | data             |
-//  +------+---------------+------+------+------------------+
-//
-// The message type is parameterized by the number of bits in the opaque
-// field and data field. Note that the size of the length field is
-// caclulated from the number of bits in the data field, and that the
-// length field is expressed in _bytes_. If the value of the length field
-// is zero, then the read or write should be for the full width of the
-// data field.
-//
-// For example, if the opaque field is 8 bits and the data is 32 bits,
-// then the message format is as follows:
-//
-//   46  44 43           36 35  34 33  32 31               0
-//  +------+---------------+------+------+------------------+
-//  | type | opaque        | test | len  | data             |
-//  +------+---------------+------+------+------------------+
-//
-// The length field is two bits. A length value of one means one byte was
-// read, a length value of two means two bytes were read, and so on. A
-// length value of zero means all four bytes were read. Note that not all
-// memories will necessarily support any alignment and/or any value for
-// the length field.
-//
-// The opaque field is reserved for use by a specific implementation. All
-// memories should guarantee that every response includes the opaque
-// field corresponding to the request that generated the response.
-
-//------------------------------------------------------------------------
-// Memory Request Struct: Using a packed struct to represent the message
-//------------------------------------------------------------------------
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [1:0]  test;
-  logic [1:0]  len;
-  logic [31:0] data;
-} mem_resp_4B_t;
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [1:0]  test;
-  logic [2:0]  len;
-  logic [63:0] data;
-} mem_resp_8B_t;
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [1:0]  test;
-  logic [3:0]  len;
-  logic [127:0] data;
-} mem_resp_16B_t;
-
-// Values for the type field
-
-`define VC_MEM_RESP_MSG_TYPE_READ     3'd0
-`define VC_MEM_RESP_MSG_TYPE_WRITE    3'd1
-
-// write no-refill
-`define VC_MEM_RESP_MSG_TYPE_WRITE_INIT 3'd2
-`define VC_MEM_RESP_MSG_TYPE_AMO_ADD    3'd3
-`define VC_MEM_RESP_MSG_TYPE_AMO_AND    3'd4
-`define VC_MEM_RESP_MSG_TYPE_AMO_OR     3'd5
-`define VC_MEM_RESP_MSG_TYPE_X          3'dx
-
-//------------------------------------------------------------------------
-// Memory Response Message: Trace message
-//------------------------------------------------------------------------
-
-`ifndef SYNTHESIS
-
-module vc_MemRespMsg4BTrace
-(
-  input logic          clk,
-  input logic          reset,
-  input logic          val,
-  input logic          rdy,
-  input mem_resp_4B_t  msg
-);
-
-  // unpack message fields -- makes them visible in gtkwave
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [1:0]   test;
-  assign test   = msg.test;
-  logic [1:0]   len;
-  assign len    = msg.len;
-  logic [31:0]  data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_resp_4B_t);
-  localparam c_read       = `VC_MEM_RESP_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_RESP_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_RESP_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( type_ === `VC_MEM_RESP_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( (vc_trace.level == 1) || (vc_trace.level == 2) ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_write || type_ == c_write_init ) begin
-        $sformat( str, "%s:%x %s", type_str, opaque,
-                  {8{" "}} );
-      end
-      else
-        $sformat( str, "%s:%x:%x", type_str, opaque, data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-
-module vc_MemRespMsg8BTrace
-(
-  input logic          clk,
-  input logic          reset,
-  input logic          val,
-  input logic          rdy,
-  input mem_resp_8B_t  msg
-);
-
-  // unpack message fields -- makes them visible in gtkwave
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [1:0]   test;
-  assign test   = msg.test;
-  logic [2:0]   len;
-  assign len    = msg.len;
-  logic [63:0]  data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_resp_8B_t);
-  localparam c_read       = `VC_MEM_RESP_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_RESP_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_RESP_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( type_ === `VC_MEM_RESP_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( (vc_trace.level == 1) || (vc_trace.level == 2) ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_write || type_ == c_write_init ) begin
-        $sformat( str, "%s:%x %s", type_str, opaque,
-                  {16{" "}} );
-      end
-      else
-        $sformat( str, "%s:%x:%x", type_str, opaque, data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-
-module vc_MemRespMsg16BTrace
-(
-  input logic          clk,
-  input logic          reset,
-  input logic          val,
-  input logic          rdy,
-  input mem_resp_16B_t msg
-);
-
-  // unpack message fields -- makes them visible in gtkwave
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [1:0]   test;
-  assign test   = msg.test;
-  logic [3:0]   len;
-  assign len    = msg.len;
-  logic [127:0] data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_resp_16B_t);
-  localparam c_read       = `VC_MEM_RESP_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_RESP_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_RESP_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( type_ === `VC_MEM_RESP_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( (vc_trace.level == 1) || (vc_trace.level == 2) ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_write || type_ == c_write_init ) begin
-        $sformat( str, "%s:%x %s", type_str, opaque,
-                  {32{" "}} );
-      end
-      else
-        $sformat( str, "%s:%x:%x", type_str, opaque, data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-`endif
-
-`endif /* VC_MEM_MSGS_V */
-
-
-`line 9 "proc/ProcCtrlVRTL.v" 0
-`line 1 "vc/trace.v" 0
-//========================================================================
-// Line Tracing
-//========================================================================
-
-`ifndef VC_TRACE_V
-`define VC_TRACE_V
-
-// NOTE: This macro is declared outside of the module to allow some vc
-// modules to see it and use it in their own params. Verilog does not
-// allow other modules to hierarchically reference the nbits localparam
-// inside this module in constant expressions (e.g., localparams).
-
-`define VC_TRACE_NCHARS 512
-`define VC_TRACE_NBITS  512*8
-
-`ifndef SYNTHESIS
-
-module vc_Trace
-(
-  input logic clk,
-  input logic reset
-);
-
-  integer len0;
-  integer len1;
-  integer idx0;
-  integer idx1;
-
-  // NOTE: If you change these, then you also need to change the
-  // hard-coded constant in the declaration of the trace function at the
-  // bottom of this file.
-  // NOTE: You would also need to change the VC_TRACE_NBITS and
-  // VC_TRACE_NCHARS macro at the top of this file.
-
-  localparam nchars = 512;
-  localparam nbits  = 512*8;
-
-  // This is the actual trace storage used when displaying a trace
-
-  logic [nbits-1:0] storage;
-
-  // Meant to be accesible from outside module
-
-  integer cycles_next = 0;
-  integer cycles      = 0;
-
-  // Get trace level from command line
-
-  logic [3:0] level;
-
-`ifndef VERILATOR
-  initial begin
-    if ( !$value$plusargs( "trace=%d", level ) ) begin
-      level = 0;
-    end
-  end
-`else
-  initial begin
-    level = 1;
-  end
-`endif // !`ifndef VERILATOR
-
-  // Track cycle count
-
-  always_ff @( posedge clk ) begin
-    cycles <= ( reset ) ? 0 : cycles_next;
-  end
-
-  //----------------------------------------------------------------------
-  // append_str
-  //----------------------------------------------------------------------
-  // Appends a string to the trace.
-
-  task append_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len0 = 1;
-    while ( str[len0*8+:8] != 0 ) begin
-      len0 = len0 + 1;
-    end
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = len0-1; idx1 >= 0; idx1 = idx1 - 1 )
-    begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8 +: 8 ];
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_str_ljust
-  //----------------------------------------------------------------------
-  // Appends a left-justified string to the trace.
-
-  task append_str_ljust
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    idx0 = trace[31:0];
-    idx1 = nchars;
-
-    while ( str[ idx1*8-1 -: 8 ] != 0 ) begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8-1 -: 8 ];
-      idx0 = idx0 - 1;
-      idx1 = idx1 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_chars
-  //----------------------------------------------------------------------
-  // Appends the given number of characters to the trace.
-
-  task append_chars
-  (
-    inout logic   [nbits-1:0] trace,
-    input logic         [7:0] char,
-    input integer             num
-  );
-  begin
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = 0;
-          idx1 < num;
-          idx1 = idx1 + 1 )
-    begin
-      trace[idx0*8+:8] = char;
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_val_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val signal.
-
-  task append_val_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( val )
-      append_str( trace, str );
-    else if ( !val )
-      append_chars( trace, " ", len1 );
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // val_rdy_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val/rdy signals.
-
-  task append_val_rdy_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic             rdy,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( rdy && val ) begin
-      append_str( trace, str );
-    end
-    else if ( rdy && !val ) begin
-      append_chars( trace, " ", len1 );
-    end
-    else if ( !rdy && val ) begin
-      append_str( trace, "#" );
-      append_chars( trace, " ", len1-1 );
-    end
-    else if ( !rdy && !val ) begin
-      append_str( trace, "." );
-      append_chars( trace, " ", len1-1 );
-    end
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-//------------------------------------------------------------------------
-// VC_TRACE_NBITS_TO_NCHARS
-//------------------------------------------------------------------------
-// Macro to determine number of characters for a net
-
-`define VC_TRACE_NBITS_TO_NCHARS( nbits_ ) ((nbits_+3)/4)
-
-//------------------------------------------------------------------------
-// VC_TRACE_BEGIN
-//------------------------------------------------------------------------
-
-//`define VC_TRACE_BEGIN                                                  \
-//  export "DPI-C" task line_trace;                                       \
-//  vc_Trace vc_trace(clk,reset);                                         \
-//  task line_trace( inout bit [(512*8)-1:0] trace_str );
-
-`ifndef VERILATOR
-`define VC_TRACE_BEGIN                                                  \
-  vc_Trace vc_trace(clk,reset);                                         \
-                                                                        \
-  task display_trace;                                                   \
-  begin                                                                 \
-                                                                        \
-    if ( vc_trace.level > 0 ) begin                                     \
-      vc_trace.storage[15:0] = vc_trace.nchars-1;                       \
-                                                                        \
-      line_trace( vc_trace.storage );                                   \
-                                                                        \
-      $write( "%4d: ", vc_trace.cycles );                               \
-                                                                        \
-      vc_trace.idx0 = vc_trace.storage[15:0];                           \
-      for ( vc_trace.idx1 = vc_trace.nchars-1;                          \
-            vc_trace.idx1 > vc_trace.idx0;                              \
-            vc_trace.idx1 = vc_trace.idx1 - 1 )                         \
-      begin                                                             \
-        $write( "%s", vc_trace.storage[vc_trace.idx1*8+:8] );           \
-      end                                                               \
-      $write("\n");                                                     \
-                                                                        \
-    end                                                                 \
-                                                                        \
-    vc_trace.cycles_next = vc_trace.cycles + 1;                         \
-                                                                        \
-  end                                                                   \
-  endtask                                                               \
-                                                                        \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`else
-`define VC_TRACE_BEGIN                                                  \
-  export "DPI-C" task line_trace;                                       \
-  vc_Trace vc_trace(clk,reset);                                         \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`endif
-
-//------------------------------------------------------------------------
-// VC_TRACE_END
-//------------------------------------------------------------------------
-
-`define VC_TRACE_END \
-  endtask
-
-`endif /* VC_TRACE_V */
-
-
-`line 10 "proc/ProcCtrlVRTL.v" 0
-
-`line 1 "proc/TinyRV2InstVRTL.v" 0
-//========================================================================
-// TinyRV2 Instruction Type
-//========================================================================
-// Instruction types are similar to message types but are strictly used
-// for communication within a TinyRV2-based processor. Instruction
-// "messages" can be unpacked into the various fields as defined by the
-// TinyRV2 ISA, as well as be constructed from specifying each field
-// explicitly. The 32-bit instruction has different fields depending on
-// the format of the instruction used. The following are the various
-// instruction encoding formats used in the TinyRV2 ISA.
-//
-//  31          25 24   20 19   15 14    12 11          7 6      0
-// | funct7       | rs2   | rs1   | funct3 | rd          | opcode |  R-type
-// | imm[11:0]            | rs1   | funct3 | rd          | opcode |  I-type, I-imm
-// | imm[11:5]    | rs2   | rs1   | funct3 | imm[4:0]    | opcode |  S-type, S-imm
-// | imm[12|10:5] | rs2   | rs1   | funct3 | imm[4:1|11] | opcode |  SB-type,B-imm
-// | imm[31:12]                            | rd          | opcode |  U-type, U-imm
-// | imm[20|10:1|11|19:12]                 | rd          | opcode |  UJ-type,J-imm
-
-`ifndef PROC_TINY_RV2_INST_V
-`define PROC_TINY_RV2_INST_V
-
-`line 1 "vc/trace.v" 0
-//========================================================================
-// Line Tracing
-//========================================================================
-
-`ifndef VC_TRACE_V
-`define VC_TRACE_V
-
-// NOTE: This macro is declared outside of the module to allow some vc
-// modules to see it and use it in their own params. Verilog does not
-// allow other modules to hierarchically reference the nbits localparam
-// inside this module in constant expressions (e.g., localparams).
-
-`define VC_TRACE_NCHARS 512
-`define VC_TRACE_NBITS  512*8
-
-`ifndef SYNTHESIS
-
-module vc_Trace
-(
-  input logic clk,
-  input logic reset
-);
-
-  integer len0;
-  integer len1;
-  integer idx0;
-  integer idx1;
-
-  // NOTE: If you change these, then you also need to change the
-  // hard-coded constant in the declaration of the trace function at the
-  // bottom of this file.
-  // NOTE: You would also need to change the VC_TRACE_NBITS and
-  // VC_TRACE_NCHARS macro at the top of this file.
-
-  localparam nchars = 512;
-  localparam nbits  = 512*8;
-
-  // This is the actual trace storage used when displaying a trace
-
-  logic [nbits-1:0] storage;
-
-  // Meant to be accesible from outside module
-
-  integer cycles_next = 0;
-  integer cycles      = 0;
-
-  // Get trace level from command line
-
-  logic [3:0] level;
-
-`ifndef VERILATOR
-  initial begin
-    if ( !$value$plusargs( "trace=%d", level ) ) begin
-      level = 0;
-    end
-  end
-`else
-  initial begin
-    level = 1;
-  end
-`endif // !`ifndef VERILATOR
-
-  // Track cycle count
-
-  always_ff @( posedge clk ) begin
-    cycles <= ( reset ) ? 0 : cycles_next;
-  end
-
-  //----------------------------------------------------------------------
-  // append_str
-  //----------------------------------------------------------------------
-  // Appends a string to the trace.
-
-  task append_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len0 = 1;
-    while ( str[len0*8+:8] != 0 ) begin
-      len0 = len0 + 1;
-    end
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = len0-1; idx1 >= 0; idx1 = idx1 - 1 )
-    begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8 +: 8 ];
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_str_ljust
-  //----------------------------------------------------------------------
-  // Appends a left-justified string to the trace.
-
-  task append_str_ljust
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    idx0 = trace[31:0];
-    idx1 = nchars;
-
-    while ( str[ idx1*8-1 -: 8 ] != 0 ) begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8-1 -: 8 ];
-      idx0 = idx0 - 1;
-      idx1 = idx1 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_chars
-  //----------------------------------------------------------------------
-  // Appends the given number of characters to the trace.
-
-  task append_chars
-  (
-    inout logic   [nbits-1:0] trace,
-    input logic         [7:0] char,
-    input integer             num
-  );
-  begin
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = 0;
-          idx1 < num;
-          idx1 = idx1 + 1 )
-    begin
-      trace[idx0*8+:8] = char;
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_val_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val signal.
-
-  task append_val_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( val )
-      append_str( trace, str );
-    else if ( !val )
-      append_chars( trace, " ", len1 );
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // val_rdy_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val/rdy signals.
-
-  task append_val_rdy_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic             rdy,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( rdy && val ) begin
-      append_str( trace, str );
-    end
-    else if ( rdy && !val ) begin
-      append_chars( trace, " ", len1 );
-    end
-    else if ( !rdy && val ) begin
-      append_str( trace, "#" );
-      append_chars( trace, " ", len1-1 );
-    end
-    else if ( !rdy && !val ) begin
-      append_str( trace, "." );
-      append_chars( trace, " ", len1-1 );
-    end
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-//------------------------------------------------------------------------
-// VC_TRACE_NBITS_TO_NCHARS
-//------------------------------------------------------------------------
-// Macro to determine number of characters for a net
-
-`define VC_TRACE_NBITS_TO_NCHARS( nbits_ ) ((nbits_+3)/4)
-
-//------------------------------------------------------------------------
-// VC_TRACE_BEGIN
-//------------------------------------------------------------------------
-
-//`define VC_TRACE_BEGIN                                                  \
-//  export "DPI-C" task line_trace;                                       \
-//  vc_Trace vc_trace(clk,reset);                                         \
-//  task line_trace( inout bit [(512*8)-1:0] trace_str );
-
-`ifndef VERILATOR
-`define VC_TRACE_BEGIN                                                  \
-  vc_Trace vc_trace(clk,reset);                                         \
-                                                                        \
-  task display_trace;                                                   \
-  begin                                                                 \
-                                                                        \
-    if ( vc_trace.level > 0 ) begin                                     \
-      vc_trace.storage[15:0] = vc_trace.nchars-1;                       \
-                                                                        \
-      line_trace( vc_trace.storage );                                   \
-                                                                        \
-      $write( "%4d: ", vc_trace.cycles );                               \
-                                                                        \
-      vc_trace.idx0 = vc_trace.storage[15:0];                           \
-      for ( vc_trace.idx1 = vc_trace.nchars-1;                          \
-            vc_trace.idx1 > vc_trace.idx0;                              \
-            vc_trace.idx1 = vc_trace.idx1 - 1 )                         \
-      begin                                                             \
-        $write( "%s", vc_trace.storage[vc_trace.idx1*8+:8] );           \
-      end                                                               \
-      $write("\n");                                                     \
-                                                                        \
-    end                                                                 \
-                                                                        \
-    vc_trace.cycles_next = vc_trace.cycles + 1;                         \
-                                                                        \
-  end                                                                   \
-  endtask                                                               \
-                                                                        \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`else
-`define VC_TRACE_BEGIN                                                  \
-  export "DPI-C" task line_trace;                                       \
-  vc_Trace vc_trace(clk,reset);                                         \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`endif
-
-//------------------------------------------------------------------------
-// VC_TRACE_END
-//------------------------------------------------------------------------
-
-`define VC_TRACE_END \
-  endtask
-
-`endif /* VC_TRACE_V */
-
-
-`line 24 "proc/TinyRV2InstVRTL.v" 0
-
-//------------------------------------------------------------------------
-// Instruction fields
-//------------------------------------------------------------------------
-
-`define RV2ISA_INST_OPCODE  6:0
-`define RV2ISA_INST_RD      11:7
-`define RV2ISA_INST_RS1     19:15
-`define RV2ISA_INST_RS2     24:20
-`define RV2ISA_INST_FUNCT3  14:12
-`define RV2ISA_INST_FUNCT7  31:25
-`define RV2ISA_INST_CSR     31:20
-
-// CUSTOM0 specific
-
-`define RV2ISA_INST_XD      14:14
-`define RV2ISA_INST_XS1     13:13
-`define RV2ISA_INST_XS2     12:12
-
-//------------------------------------------------------------------------
-// Field sizes
-//------------------------------------------------------------------------
-
-`define RV2ISA_INST_NBITS          32
-`define RV2ISA_INST_OPCODE_NBITS   7
-`define RV2ISA_INST_RD_NBITS       5
-`define RV2ISA_INST_RS1_NBITS      5
-`define RV2ISA_INST_RS2_NBITS      5
-`define RV2ISA_INST_FUNCT3_NBITS   3
-`define RV2ISA_INST_FUNCT7_NBITS   7
-`define RV2ISA_INST_CSR_NBITS      12
-
-//------------------------------------------------------------------------
-// Instruction opcodes
-//------------------------------------------------------------------------
-
-// Basic instructions
-
-`define RV2ISA_INST_CSRRX 32'b0111111_?????_?????_010_?????_1110011
-`define RV2ISA_INST_CSRR  32'b???????_?????_?????_010_?????_1110011
-`define RV2ISA_INST_CSRW  32'b???????_?????_?????_001_?????_1110011
-`define RV2ISA_INST_NOP   32'b0000000_00000_00000_000_00000_0010011
-`define RV2ISA_ZERO       32'b0000000_00000_00000_000_00000_0000000
-
-// Register-register arithmetic, logical, and comparison instructions
-
-`define RV2ISA_INST_ADD   32'b0000000_?????_?????_000_?????_0110011
-`define RV2ISA_INST_SUB   32'b0100000_?????_?????_000_?????_0110011
-`define RV2ISA_INST_AND   32'b0000000_?????_?????_111_?????_0110011
-`define RV2ISA_INST_OR    32'b0000000_?????_?????_110_?????_0110011
-`define RV2ISA_INST_XOR   32'b0000000_?????_?????_100_?????_0110011
-`define RV2ISA_INST_SLT   32'b0000000_?????_?????_010_?????_0110011
-`define RV2ISA_INST_SLTU  32'b0000000_?????_?????_011_?????_0110011
-`define RV2ISA_INST_MUL   32'b0000001_?????_?????_000_?????_0110011
-
-// Register-immediate arithmetic, logical, and comparison instructions
-
-`define RV2ISA_INST_ADDI  32'b???????_?????_?????_000_?????_0010011
-`define RV2ISA_INST_ANDI  32'b???????_?????_?????_111_?????_0010011
-`define RV2ISA_INST_ORI   32'b???????_?????_?????_110_?????_0010011
-`define RV2ISA_INST_XORI  32'b???????_?????_?????_100_?????_0010011
-`define RV2ISA_INST_SLTI  32'b???????_?????_?????_010_?????_0010011
-`define RV2ISA_INST_SLTIU 32'b???????_?????_?????_011_?????_0010011
-
-// Shift instructions
-
-`define RV2ISA_INST_SRA   32'b0100000_?????_?????_101_?????_0110011
-`define RV2ISA_INST_SRL   32'b0000000_?????_?????_101_?????_0110011
-`define RV2ISA_INST_SLL   32'b0000000_?????_?????_001_?????_0110011
-`define RV2ISA_INST_SRAI  32'b0100000_?????_?????_101_?????_0010011
-`define RV2ISA_INST_SRLI  32'b0000000_?????_?????_101_?????_0010011
-`define RV2ISA_INST_SLLI  32'b0000000_?????_?????_001_?????_0010011
-
-// Other instructions
-
-`define RV2ISA_INST_LUI   32'b???????_?????_?????_???_?????_0110111
-`define RV2ISA_INST_AUIPC 32'b???????_?????_?????_???_?????_0010111
-
-// Memory instructions
-
-`define RV2ISA_INST_LW    32'b???????_?????_?????_010_?????_0000011
-`define RV2ISA_INST_SW    32'b???????_?????_?????_010_?????_0100011
-
-// Unconditional jump instructions
-
-`define RV2ISA_INST_JAL   32'b???????_?????_?????_???_?????_1101111
-`define RV2ISA_INST_JALR  32'b???????_?????_?????_000_?????_1100111
-
-// Conditional branch instructions
-
-`define RV2ISA_INST_BEQ   32'b???????_?????_?????_000_?????_1100011
-`define RV2ISA_INST_BNE   32'b???????_?????_?????_001_?????_1100011
-`define RV2ISA_INST_BLT   32'b???????_?????_?????_100_?????_1100011
-`define RV2ISA_INST_BGE   32'b???????_?????_?????_101_?????_1100011
-`define RV2ISA_INST_BLTU  32'b???????_?????_?????_110_?????_1100011
-`define RV2ISA_INST_BGEU  32'b???????_?????_?????_111_?????_1100011
-
-// Accelerator custom0
-
-`define RV2ISA_INST_CUST0 32'b???????_?????_?????_???_?????_0001011
-
-//------------------------------------------------------------------------
-// Coprocessor registers
-//------------------------------------------------------------------------
-
-`define RV2ISA_CPR_PROC2MNGR  12'h7C0
-`define RV2ISA_CPR_MNGR2PROC  12'hFC0
-`define RV2ISA_CPR_COREID     12'hF14
-`define RV2ISA_CPR_NUMCORES   12'hFC1
-`define RV2ISA_CPR_STATS_EN   12'h7C1
-
-//------------------------------------------------------------------------
-// Helper Tasks
-//------------------------------------------------------------------------
-
-module rv2isa_InstTasks();
-
-  //----------------------------------------------------------------------
-  // Immediate decoding -- only outputs signals at the width required for
-  // line tracing
-  //----------------------------------------------------------------------
-  function [11:0] imm_i( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // I-type immediate
-    imm_i = { inst[31], inst[30:25], inst[24:21], inst[20] };
-  end
-  endfunction
-
-  function [4:0] imm_shamt( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // I-type immediate, specialized for shift amounts
-    imm_shamt = { inst[24:21], inst[20] };
-  end
-  endfunction
-
-  function [11:0] imm_s( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // S-type immediate
-    imm_s = { inst[31], inst[30:25], inst[11:8], inst[7] };
-  end
-  endfunction
-
-  function [12:0] imm_b( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // B-type immediate
-    imm_b = { inst[31], inst[7], inst[30:25], inst[11:8], 1'b0 };
-  end
-  endfunction
-
-  function [19:0] imm_u_sh12( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // U-type immediate, shifted right by 12
-    imm_u_sh12 = { inst[31], inst[30:20], inst[19:12] };
-  end
-  endfunction
-
-  function [20:0] imm_j( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // J-type immediate
-    imm_j = { inst[31], inst[19:12], inst[20], inst[30:25], inst[24:21], 1'b0 };
-  end
-  endfunction
-
-  //----------------------------------------------------------------------
-  // Disasm
-  //----------------------------------------------------------------------
-
-  reg [3*8-1:0]                     rs1_str;
-  reg [3*8-1:0]                     rs2_str;
-  reg [3*8-1:0]                     rd_str;
-  reg [9*8-1:0]                     csr_str;
-  reg [2*8-1:0]                     funct_str;
-
-  logic [`RV2ISA_INST_RS1_NBITS-1:0] rs1;
-  logic [`RV2ISA_INST_RS2_NBITS-1:0] rs2;
-  logic [`RV2ISA_INST_RD_NBITS-1:0]  rd;
-  logic [`RV2ISA_INST_CSR_NBITS-1:0] csr;
-  logic [`RV2ISA_INST_FUNCT7_NBITS-1:0] funct;
-
-  function [25*8-1:0] disasm( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-
-    // Unpack the fields
-
-    rs1      = inst[`RV2ISA_INST_RS1];
-    rs2      = inst[`RV2ISA_INST_RS2];
-    rd       = inst[`RV2ISA_INST_RD];
-    csr      = inst[`RV2ISA_INST_CSR];
-    // xcel
-    funct    = inst[`RV2ISA_INST_FUNCT7];
-
-    // Create fixed-width register specifiers
-
-    if ( rs1 <= 9 )
-      $sformat( rs1_str, "x0%0d", rs1 );
-    else
-      $sformat( rs1_str, "x%d",  rs1 );
-
-    if ( rs2 <= 9 )
-      $sformat( rs2_str, "x0%0d", rs2 );
-    else
-      $sformat( rs2_str, "x%d",  rs2 );
-
-    if ( rd <= 9 )
-      $sformat( rd_str, "x0%0d", rd );
-    else
-      $sformat( rd_str, "x%d",  rd );
-
-    // if ( csr == `RV2ISA_CPR_PROC2MNGR )
-      // $sformat( csr_str, "proc2mngr" );
-    // else if ( csr == `RV2ISA_CPR_MNGR2PROC )
-      // $sformat( csr_str, "mngr2proc" );
-    // else if ( csr == `RV2ISA_CPR_COREID )
-      // $sformat( csr_str, "coreid   " );
-    // else if ( csr == `RV2ISA_CPR_NUMCORES )
-      // $sformat( csr_str, "numcores " );
-    // else if ( csr == `RV2ISA_CPR_STATS_EN )
-      // $sformat( csr_str, "stats_en " );
-    // else
-    $sformat( csr_str, "    0x%x", csr );
-
-    $sformat( funct_str, "%x", funct[1:0]);
-
-    // Actual disassembly
-
-    casez ( inst )
-      `RV2ISA_INST_CSRR  : $sformat( disasm, "csrr   %s, %s  ",        rd_str,  csr_str );
-      `RV2ISA_INST_CSRW  : $sformat( disasm, "csrw   %s, %s  ",        csr_str, rs1_str );
-      `RV2ISA_INST_NOP   : $sformat( disasm, "nop                    " );
-      `RV2ISA_ZERO       : $sformat( disasm, "                       " );
-
-      `RV2ISA_INST_ADD   : $sformat( disasm, "add    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_SUB   : $sformat( disasm, "sub    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_AND   : $sformat( disasm, "and    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_OR    : $sformat( disasm, "or     %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_XOR   : $sformat( disasm, "xor    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_SLT   : $sformat( disasm, "slt    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_SLTU  : $sformat( disasm, "sltu   %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_MUL   : $sformat( disasm, "mul    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-
-      `RV2ISA_INST_ADDI  : $sformat( disasm, "addi   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_ANDI  : $sformat( disasm, "andi   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_ORI   : $sformat( disasm, "ori    %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_XORI  : $sformat( disasm, "xori   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_SLTI  : $sformat( disasm, "slti   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_SLTIU : $sformat( disasm, "sltiu  %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-
-      `RV2ISA_INST_SRA   : $sformat( disasm, "sra    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SRL   : $sformat( disasm, "srl    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SLL   : $sformat( disasm, "sll    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SRAI  : $sformat( disasm, "srai   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SRLI  : $sformat( disasm, "srli   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SLLI  : $sformat( disasm, "slli   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-
-      `RV2ISA_INST_LUI   : $sformat( disasm, "lui    %s, 0x%x    ",    rd_str,  imm_u_sh12(inst));
-      `RV2ISA_INST_AUIPC : $sformat( disasm, "auipc  %s, 0x%x    ",    rd_str,  imm_u_sh12(inst));
-
-      `RV2ISA_INST_LW    : $sformat( disasm, "lw     %s, 0x%x(%s) ",   rd_str,  imm_i(inst), rs1_str );
-      `RV2ISA_INST_SW    : $sformat( disasm, "sw     %s, 0x%x(%s) ",   rs2_str, imm_s(inst), rs1_str );
-
-      `RV2ISA_INST_JAL   : $sformat( disasm, "jal    %s, 0x%x   ",     rd_str, imm_j(inst) );
-      `RV2ISA_INST_JALR  : $sformat( disasm, "jalr   %s, %s, 0x%x ",   rd_str, rs1_str, imm_i(inst) );
-
-      `RV2ISA_INST_BEQ   : $sformat( disasm, "beq    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BNE   : $sformat( disasm, "bne    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BLT   : $sformat( disasm, "blt    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BGE   : $sformat( disasm, "bge    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BLTU  : $sformat( disasm, "bltu   %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BGEU  : $sformat( disasm, "bgeu   %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-
-      `RV2ISA_INST_CUST0 : $sformat( disasm, "cust0 %s, %s, %s, %s", rd_str, rs1_str, rs2_str, funct_str );
-      default            : $sformat( disasm, "illegal inst           " );
-    endcase
-
-  end
-  endfunction
-
-  //----------------------------------------------------------------------
-  // Disasm Tiny
-  //----------------------------------------------------------------------
-
-  function [4*8-1:0] disasm_tiny( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-
-    casez ( inst )
-      `RV2ISA_INST_CSRR  : disasm_tiny = "csrr";
-      `RV2ISA_INST_CSRW  : disasm_tiny = "csrw";
-      `RV2ISA_INST_NOP   : disasm_tiny = "nop ";
-
-      `RV2ISA_INST_ADD   : disasm_tiny = "add ";
-      `RV2ISA_INST_SUB   : disasm_tiny = "sub ";
-      `RV2ISA_INST_AND   : disasm_tiny = "and ";
-      `RV2ISA_INST_OR    : disasm_tiny = "or  ";
-      `RV2ISA_INST_XOR   : disasm_tiny = "xor ";
-      `RV2ISA_INST_SLT   : disasm_tiny = "slt ";
-      `RV2ISA_INST_SLTU  : disasm_tiny = "sltu";
-      `RV2ISA_INST_MUL   : disasm_tiny = "mul ";
-
-      `RV2ISA_INST_ADDI  : disasm_tiny = "addi";
-      `RV2ISA_INST_ANDI  : disasm_tiny = "andi";
-      `RV2ISA_INST_ORI   : disasm_tiny = "ori ";
-      `RV2ISA_INST_XORI  : disasm_tiny = "xori";
-      `RV2ISA_INST_SLTI  : disasm_tiny = "slti";
-      `RV2ISA_INST_SLTIU : disasm_tiny = "sltI";
-
-      `RV2ISA_INST_SRA   : disasm_tiny = "sra ";
-      `RV2ISA_INST_SRL   : disasm_tiny = "srl ";
-      `RV2ISA_INST_SLL   : disasm_tiny = "sll ";
-      `RV2ISA_INST_SRAI  : disasm_tiny = "srai";
-      `RV2ISA_INST_SRLI  : disasm_tiny = "srli";
-      `RV2ISA_INST_SLLI  : disasm_tiny = "slli";
-
-      `RV2ISA_INST_LUI   : disasm_tiny = "lui ";
-      `RV2ISA_INST_AUIPC : disasm_tiny = "auiP";
-
-      `RV2ISA_INST_LW    : disasm_tiny = "lw  ";
-      `RV2ISA_INST_SW    : disasm_tiny = "sw  ";
-
-      `RV2ISA_INST_JAL   : disasm_tiny = "jal ";
-      `RV2ISA_INST_JALR  : disasm_tiny = "jalr";
-
-      `RV2ISA_INST_BEQ   : disasm_tiny = "beq ";
-      `RV2ISA_INST_BNE   : disasm_tiny = "bne ";
-      `RV2ISA_INST_BLT   : disasm_tiny = "blt ";
-      `RV2ISA_INST_BGE   : disasm_tiny = "bge ";
-      `RV2ISA_INST_BLTU  : disasm_tiny = "bltu";
-      `RV2ISA_INST_BGEU  : disasm_tiny = "bgeu";
-
-      `RV2ISA_INST_CUST0 : disasm_tiny = "cus0";
-
-      default            : disasm_tiny = "????";
-    endcase
-
-  end
-  endfunction
-
-endmodule
-
-//------------------------------------------------------------------------
-// Unpack instruction
-//------------------------------------------------------------------------
-
-module rv2isa_InstUnpack
-(
-  // Packed message
-
-  input  [`RV2ISA_INST_NBITS-1:0]        inst,
-
-  // Packed fields
-
-  output [`RV2ISA_INST_OPCODE_NBITS-1:0] opcode,
-  output [`RV2ISA_INST_RD_NBITS-1:0]     rd,
-  output [`RV2ISA_INST_RS1_NBITS-1:0]    rs1,
-  output [`RV2ISA_INST_RS2_NBITS-1:0]    rs2,
-  output [`RV2ISA_INST_FUNCT3_NBITS-1:0] funct3,
-  output [`RV2ISA_INST_FUNCT7_NBITS-1:0] funct7,
-  output [`RV2ISA_INST_CSR_NBITS-1:0]    csr
-);
-
-  assign opcode   = inst[`RV2ISA_INST_OPCODE];
-  assign rd       = inst[`RV2ISA_INST_RD];
-  assign rs1      = inst[`RV2ISA_INST_RS1];
-  assign rs2      = inst[`RV2ISA_INST_RS2];
-  assign funct3   = inst[`RV2ISA_INST_FUNCT3];
-  assign csr      = inst[`RV2ISA_INST_CSR];
-
-endmodule
-
-//------------------------------------------------------------------------
-// Convert message to string
-//------------------------------------------------------------------------
-
-`ifndef SYNTHESIS
-
-module rv2isa_InstTrace
-(
-  input                          clk,
-  input                          reset,
-  input [`RV2ISA_INST_NBITS-1:0] inst
-);
-
-  rv2isa_InstTasks rv2isa();
-
-  `VC_TRACE_BEGIN
-  begin
-    vc_trace.append_str( trace_str, rv2isa.disasm( inst ) );
-    vc_trace.append_str( trace_str, " | " );
-    vc_trace.append_str( trace_str, rv2isa.disasm_tiny( inst ) );
-  end
-  `VC_TRACE_END
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-`endif /* PROC_TINY_RV2_INST_V */
-
-
-`line 12 "proc/ProcCtrlVRTL.v" 0
-`line 1 "proc/XcelMsg.v" 0
-//========================================================================
-// XcelMsg : Accelerator message type
-//========================================================================
-
-`ifndef PROC_XCEL_MSG_V
-`define PROC_XCEL_MSG_V
-
-`line 1 "vc/trace.v" 0
-//========================================================================
-// Line Tracing
-//========================================================================
-
-`ifndef VC_TRACE_V
-`define VC_TRACE_V
-
-// NOTE: This macro is declared outside of the module to allow some vc
-// modules to see it and use it in their own params. Verilog does not
-// allow other modules to hierarchically reference the nbits localparam
-// inside this module in constant expressions (e.g., localparams).
-
-`define VC_TRACE_NCHARS 512
-`define VC_TRACE_NBITS  512*8
-
-`ifndef SYNTHESIS
-
-module vc_Trace
-(
-  input logic clk,
-  input logic reset
-);
-
-  integer len0;
-  integer len1;
-  integer idx0;
-  integer idx1;
-
-  // NOTE: If you change these, then you also need to change the
-  // hard-coded constant in the declaration of the trace function at the
-  // bottom of this file.
-  // NOTE: You would also need to change the VC_TRACE_NBITS and
-  // VC_TRACE_NCHARS macro at the top of this file.
-
-  localparam nchars = 512;
-  localparam nbits  = 512*8;
-
-  // This is the actual trace storage used when displaying a trace
-
-  logic [nbits-1:0] storage;
-
-  // Meant to be accesible from outside module
-
-  integer cycles_next = 0;
-  integer cycles      = 0;
-
-  // Get trace level from command line
-
-  logic [3:0] level;
-
-`ifndef VERILATOR
-  initial begin
-    if ( !$value$plusargs( "trace=%d", level ) ) begin
-      level = 0;
-    end
-  end
-`else
-  initial begin
-    level = 1;
-  end
-`endif // !`ifndef VERILATOR
-
-  // Track cycle count
-
-  always_ff @( posedge clk ) begin
-    cycles <= ( reset ) ? 0 : cycles_next;
-  end
-
-  //----------------------------------------------------------------------
-  // append_str
-  //----------------------------------------------------------------------
-  // Appends a string to the trace.
-
-  task append_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len0 = 1;
-    while ( str[len0*8+:8] != 0 ) begin
-      len0 = len0 + 1;
-    end
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = len0-1; idx1 >= 0; idx1 = idx1 - 1 )
-    begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8 +: 8 ];
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_str_ljust
-  //----------------------------------------------------------------------
-  // Appends a left-justified string to the trace.
-
-  task append_str_ljust
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    idx0 = trace[31:0];
-    idx1 = nchars;
-
-    while ( str[ idx1*8-1 -: 8 ] != 0 ) begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8-1 -: 8 ];
-      idx0 = idx0 - 1;
-      idx1 = idx1 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_chars
-  //----------------------------------------------------------------------
-  // Appends the given number of characters to the trace.
-
-  task append_chars
-  (
-    inout logic   [nbits-1:0] trace,
-    input logic         [7:0] char,
-    input integer             num
-  );
-  begin
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = 0;
-          idx1 < num;
-          idx1 = idx1 + 1 )
-    begin
-      trace[idx0*8+:8] = char;
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_val_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val signal.
-
-  task append_val_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( val )
-      append_str( trace, str );
-    else if ( !val )
-      append_chars( trace, " ", len1 );
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // val_rdy_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val/rdy signals.
-
-  task append_val_rdy_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic             rdy,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( rdy && val ) begin
-      append_str( trace, str );
-    end
-    else if ( rdy && !val ) begin
-      append_chars( trace, " ", len1 );
-    end
-    else if ( !rdy && val ) begin
-      append_str( trace, "#" );
-      append_chars( trace, " ", len1-1 );
-    end
-    else if ( !rdy && !val ) begin
-      append_str( trace, "." );
-      append_chars( trace, " ", len1-1 );
-    end
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-//------------------------------------------------------------------------
-// VC_TRACE_NBITS_TO_NCHARS
-//------------------------------------------------------------------------
-// Macro to determine number of characters for a net
-
-`define VC_TRACE_NBITS_TO_NCHARS( nbits_ ) ((nbits_+3)/4)
-
-//------------------------------------------------------------------------
-// VC_TRACE_BEGIN
-//------------------------------------------------------------------------
-
-//`define VC_TRACE_BEGIN                                                  \
-//  export "DPI-C" task line_trace;                                       \
-//  vc_Trace vc_trace(clk,reset);                                         \
-//  task line_trace( inout bit [(512*8)-1:0] trace_str );
-
-`ifndef VERILATOR
-`define VC_TRACE_BEGIN                                                  \
-  vc_Trace vc_trace(clk,reset);                                         \
-                                                                        \
-  task display_trace;                                                   \
-  begin                                                                 \
-                                                                        \
-    if ( vc_trace.level > 0 ) begin                                     \
-      vc_trace.storage[15:0] = vc_trace.nchars-1;                       \
-                                                                        \
-      line_trace( vc_trace.storage );                                   \
-                                                                        \
-      $write( "%4d: ", vc_trace.cycles );                               \
-                                                                        \
-      vc_trace.idx0 = vc_trace.storage[15:0];                           \
-      for ( vc_trace.idx1 = vc_trace.nchars-1;                          \
-            vc_trace.idx1 > vc_trace.idx0;                              \
-            vc_trace.idx1 = vc_trace.idx1 - 1 )                         \
-      begin                                                             \
-        $write( "%s", vc_trace.storage[vc_trace.idx1*8+:8] );           \
-      end                                                               \
-      $write("\n");                                                     \
-                                                                        \
-    end                                                                 \
-                                                                        \
-    vc_trace.cycles_next = vc_trace.cycles + 1;                         \
-                                                                        \
-  end                                                                   \
-  endtask                                                               \
-                                                                        \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`else
-`define VC_TRACE_BEGIN                                                  \
-  export "DPI-C" task line_trace;                                       \
-  vc_Trace vc_trace(clk,reset);                                         \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`endif
-
-//------------------------------------------------------------------------
-// VC_TRACE_END
-//------------------------------------------------------------------------
-
-`define VC_TRACE_END \
-  endtask
-
-`endif /* VC_TRACE_V */
-
-
-`line 9 "proc/XcelMsg.v" 0
-
-//-------------------------------------------------------------------------
-// XcelReqMsg
-//-------------------------------------------------------------------------
-// Accelerator request messages can either be to read or write an
-// accelerator register. Read requests include just a register specifier,
-// while write requests include an accelerator register specifier and the
-// actual data to write to the accelerator register.
-//
-// Message Format:
-//
-//    1b     5b      32b
-//  +------+-------+-----------+
-//  | type | raddr | data      |
-//  +------+-------+-----------+
-//
-
-typedef struct packed {
-  logic [0:0]  type_;
-  logic [4:0]  raddr;
-  logic [31:0] data;
-} XcelReqMsg;
-
-// xcel request type values
-`define XcelReqMsg_TYPE_READ     1'd0
-`define XcelReqMsg_TYPE_WRITE    1'd1
-
-//-------------------------------------------------------------------------
-// XcelRespMsg
-//-------------------------------------------------------------------------
-// Accelerator response messages can either be from a read or write of an
-// accelerator register. Read requests include the actual value read from
-// the accelerator register, while write requests currently include
-// nothing other than the type.
-//
-// Message Format:
-//
-//    1b     32b
-//  +------+-----------+
-//  | type | data      |
-//  +------+-----------+
-//
-typedef struct packed {
-  logic [0:0]  type_;
-  logic [31:0] data;
-} XcelRespMsg;
-
-`define XcelRespMsg_TYPE_READ     1'd0
-`define XcelRespMsg_TYPE_WRITE    1'd1
-
-`endif /* PROC_XCEL_MSG_V */
-
-
-`line 13 "proc/ProcCtrlVRTL.v" 0
-
-module proc_ProcCtrlVRTL
-(
-  input  logic        clk,
-  input  logic        reset,
-
-  // Instruction Memory Port
-
-  output logic        imemreq_val,
-  input  logic        imemreq_rdy,
-
-  input  logic        imemresp_val,
-  output logic        imemresp_rdy,
-
-  output logic        imemresp_drop,
-
-  // Data Memory Port
-
-  output logic        dmemreq_val,
-  input  logic        dmemreq_rdy,
-  output logic [2:0]  dmemreq_msg_type,
-
-  input  logic        dmemresp_val,
-  output logic        dmemresp_rdy,
-
-  // mngr communication port
-
-  input  logic        mngr2proc_val,
-  output logic        mngr2proc_rdy,
-
-  output logic        proc2mngr_val,
-  input  logic        proc2mngr_rdy,
-
-  // xcel ports
-
-  output logic        xcelreq_val,
-  input  logic        xcelreq_rdy,
-  output logic        xcelreq_msg_type,
-
-  input  logic        xcelresp_val,
-  output logic        xcelresp_rdy,
-
-  // control signals (ctrl->dpath)
-
-  output logic        reg_en_F,
-  output logic [1:0]  pc_sel_F,
-
-  output logic        reg_en_D,
-  output logic [1:0]  op1_byp_sel_D,
-  output logic [1:0]  op2_byp_sel_D,
-  output logic        op1_sel_D,
-  output logic [1:0]  op2_sel_D,
-  output logic [1:0]  csrr_sel_D,
-  output logic [2:0]  imm_type_D,
-  output logic        imul_req_val_D,
-
-  output logic        reg_en_X,
-  output logic [3:0]  alu_fn_X,
-  output logic [1:0]  ex_result_sel_X,
-  output logic        imul_resp_rdy_X,
-
-  output logic        reg_en_M,
-  output logic [1:0]  wb_result_sel_M,
-
-  output logic        reg_en_W,
-  output logic [4:0]  rf_waddr_W,
-  output logic        rf_wen_W,
-
-  // status signals (dpath->ctrl)
-
-  input  logic [31:0] inst_D,
-  input  logic        imul_req_rdy_D,
-
-  input  logic        imul_resp_val_X,
-  input  logic        br_cond_eq_X,
-  input  logic        br_cond_lt_X,
-  input  logic        br_cond_ltu_X,
-
-  output logic        stats_en_wen_W,
-
-  output logic        commit_inst
-
-);
-
-  //----------------------------------------------------------------------
-  // Notes
-  //----------------------------------------------------------------------
-  // We follow this principle to organize code for each pipeline stage in
-  // the control unit.  Register enable logics should always at the
-  // beginning. It followed by pipeline registers. Then logic that is not
-  // dependent on stall or squash signals. Then logic that is dependent
-  // on stall or squash signals. At the end there should be signals meant
-  // to be passed to the next stage in the pipeline.
-
-  //----------------------------------------------------------------------
-  // Valid, stall, and squash signals
-  // ----------------------------------------------------------------------
-  // We use valid signal to indicate if the instruction is valid.  An
-  // instruction can become invalid because of being squashed or
-  // stalled. Notice that invalid instructions are microarchitectural
-  // events, they are different from archtectural no-ops. We must be
-  // careful about control signals that might change the state of the
-  // processor. We should always AND outgoing control signals with valid
-  // signal.
-
-  logic val_F;
-  logic val_D;
-  logic val_X;
-  logic val_M;
-  logic val_W;
-
-  // Managing the stall and squash signals is one of the most important,
-  // yet also one of the most complex, aspects of designing a pipelined
-  // processor. We will carefully use four signals per stage to manage
-  // stalling and squashing: ostall_A, osquash_A, stall_A, and squash_A.
-  //
-  // We denote the stall signals _originating_ from stage A as
-  // ostall_A. For example, if stage A can stall due to a pipeline
-  // harzard, then ostall_A would need to factor in the stalling
-  // condition for this pipeline harzard.
-
-  logic ostall_F;  // can ostall due to imemresp_val
-  logic ostall_D;  // can ostall due to mngr2proc_val or other hazards
-  logic ostall_X;  // can ostall due to dmemreq_rdy
-  logic ostall_M;  // can ostall due to dmemresp_val
-  logic ostall_W;  // can ostall due to proc2mngr_rdy
-
-  // The stall_A signal should be used to indicate when stage A is indeed
-  // stalling. stall_A will be a function of ostall_A and all the ostall
-  // signals of stages in front of it in the pipeline.
-
-  logic stall_F;
-  logic stall_D;
-  logic stall_X;
-  logic stall_M;
-  logic stall_W;
-
-  // We denote the squash signals _originating_ from stage A as
-  // osquash_A. For example, if stage A needs to squash the stages behind
-  // A in the pipeline, then osquash_A would need to factor in this
-  // squash condition.
-
-  logic osquash_D; // can osquash due to unconditional jumps
-  logic osquash_X; // can osquash due to taken branches
-
-  // The squash_A signal should be used to indicate when stage A is being
-  // squashed. squash_A will _not_ be a function of osquash_A, since
-  // osquash_A means to squash the stages _behind_ A in the pipeline, but
-  // not to squash A itself.
-
-  logic squash_F;
-  logic squash_D;
-
-  //----------------------------------------------------------------------
-  // F stage
-  //----------------------------------------------------------------------
-
-  // Register enable logic
-
-  assign reg_en_F = !stall_F || squash_F;
-
-  // Pipeline registers
-
-  always_ff @( posedge clk ) begin
-    if ( reset )
-      val_F <= 1'b0;
-    else if ( reg_en_F )
-      val_F <= 1'b1;
-  end
-
-  // forward declaration for PC sel
-
-  logic       pc_redirect_D;
-  logic       pc_redirect_X;
-
-  logic [2:0]  br_type_X;
-  localparam jalr     = 3'd7;
-  // PC select logic
-
-  always_comb begin
-    if ( pc_redirect_X )       // If a branch is taken in X stage
-      if ( br_type_X == jalr )
-        pc_sel_F = 2'd3;       // Use jalr target from ALU
-      else
-        pc_sel_F = 2'd1;       // Use branch target
-    else if ( pc_redirect_D )
-      pc_sel_F = 2'd2;         // Use jal target
-    else
-      pc_sel_F = 2'b0;         // Use pc+4
-  end
-
-  // ostall due to the imem response not valid.
-
-  assign ostall_F = val_F && !imemresp_val;
-
-  // stall and squash in F
-
-  assign stall_F  = val_F && ( ostall_F  || ostall_D || ostall_X || ostall_M || ostall_W );
-  assign squash_F = val_F && ( osquash_D || osquash_X );
-
-  // We drop the mem response when we are getting squashed
-
-  assign imemresp_drop = squash_F;
-
-  // imem is very special. Actually imem requests are sent before the F
-  // stage. Note that we need to factor in reset to the imemreq_val
-  // signal because we don't want to send out imem request when we are
-  // resetting.
-
-  assign imemreq_val  = ( !stall_F || squash_F ) && !reset;
-  assign imemresp_rdy = !stall_F || squash_F;
-
-  // Valid signal for the next stage (stage D)
-
-  logic  next_val_F;
-  assign next_val_F = val_F && !stall_F && !squash_F;
-
-  //----------------------------------------------------------------------
-  // D stage
-  //----------------------------------------------------------------------
-
-  // Register enable logic
-
-  assign reg_en_D = !stall_D || squash_D;
-
-  // Pipline registers
-
-  always_ff @( posedge clk ) begin
-    if ( reset )
-      val_D <= 1'b0;
-    else if ( reg_en_D )
-      val_D <= next_val_F;
-  end
-
-  // Parse instruction fields
-
-  logic   [4:0] inst_rd_D;
-  logic   [4:0] inst_rs1_D;
-  logic   [4:0] inst_rs2_D;
-  logic   [11:0] inst_csr_D;
-
-  rv2isa_InstUnpack inst_unpack
-  (
-    .inst     (inst_D),
-    .opcode   (),
-    .rd       (inst_rd_D),
-    .rs1      (inst_rs1_D),
-    .rs2      (inst_rs2_D),
-    .funct3   (),
-    .funct7   (),
-    .csr      (inst_csr_D)
-  );
-
-  // Generic Parameters -- yes or no
-
+  // wire declarations
+  wire   [   0:0] ostall_proc2mngr_W;
+  wire   [   2:0] rf_waddr_sel_D;
+
+
+  // register declarations
+  reg    [   3:0] alu_fn_D;
+  reg    [   2:0] br_type_D;
+  reg    [   2:0] br_type_X;
+  reg    [  26:0] cs;
+  reg    [   0:0] csrr_D;
+  reg    [   0:0] csrw_D;
+  reg    [   1:0] dmemreq_type_D;
+  reg    [   1:0] dmemreq_type_M;
+  reg    [   1:0] dmemreq_type_X;
+  reg    [   1:0] ex_result_sel_D;
+  reg    [   7:0] inst__9;
+  reg    [   7:0] inst_type_M;
+  reg    [   7:0] inst_type_W;
+  reg    [   7:0] inst_type_X;
+  reg    [   0:0] inst_val_D;
+  reg    [   0:0] jal_D;
+  reg    [   0:0] mngr2proc_rdy_D;
+  reg    [   0:0] mul_D;
+  reg    [   0:0] mul_X;
+  reg    [   0:0] next_val_D;
+  reg    [   0:0] next_val_F;
+  reg    [   0:0] next_val_M;
+  reg    [   0:0] next_val_X;
+  reg    [   0:0] osquash_D;
+  reg    [   0:0] osquash_X;
+  reg    [   0:0] ostall_D;
+  reg    [   0:0] ostall_F;
+  reg    [   0:0] ostall_M;
+  reg    [   0:0] ostall_W;
+  reg    [   0:0] ostall_X;
+  reg    [   0:0] ostall_csrrx_X_rs1_D;
+  reg    [   0:0] ostall_csrrx_X_rs2_D;
+  reg    [   0:0] ostall_dmem_M;
+  reg    [   0:0] ostall_dmem_X;
+  reg    [   0:0] ostall_hazard_D;
+  reg    [   0:0] ostall_imul_D;
+  reg    [   0:0] ostall_imul_X;
+  reg    [   0:0] ostall_ld_X_rs1_D;
+  reg    [   0:0] ostall_ld_X_rs2_D;
+  reg    [   0:0] ostall_mngr_D;
+  reg    [   0:0] ostall_xcel_M;
+  reg    [   0:0] ostall_xcel_X;
+  reg    [   0:0] pc_redirect_D;
+  reg    [   0:0] pc_redirect_X;
+  reg    [   0:0] proc2mngr_val_D;
+  reg    [   0:0] proc2mngr_val_M;
+  reg    [   0:0] proc2mngr_val_W;
+  reg    [   0:0] proc2mngr_val_X;
+  reg    [   4:0] rf_waddr_D;
+  reg    [   4:0] rf_waddr_M;
+  reg    [   4:0] rf_waddr_X;
+  reg    [   0:0] rf_wen_pending_D;
+  reg    [   0:0] rf_wen_pending_M;
+  reg    [   0:0] rf_wen_pending_W;
+  reg    [   0:0] rf_wen_pending_X;
+  reg    [   0:0] rs1_en_D;
+  reg    [   0:0] rs2_en_D;
+  reg    [   0:0] squash_D;
+  reg    [   0:0] squash_F;
+  reg    [   0:0] stall_D;
+  reg    [   0:0] stall_F;
+  reg    [   0:0] stall_M;
+  reg    [   0:0] stall_W;
+  reg    [   0:0] stall_X;
+  reg    [   0:0] stats_en_wen_D;
+  reg    [   0:0] stats_en_wen_M;
+  reg    [   0:0] stats_en_wen_X;
+  reg    [   0:0] stats_en_wen_pending_W;
+  reg    [   0:0] val_D;
+  reg    [   0:0] val_F;
+  reg    [   0:0] val_M;
+  reg    [   0:0] val_W;
+  reg    [   0:0] val_X;
+  reg    [   1:0] wb_result_sel_D;
+  reg    [   1:0] wb_result_sel_X;
+  reg    [   0:0] xcelreq_D;
+  reg    [   0:0] xcelreq_M;
+  reg    [   0:0] xcelreq_X;
+  reg    [   0:0] xcelreq_type_D;
+  reg    [   0:0] xcelreq_type_X;
+
+  // localparam declarations
+  localparam ADD = 9;
+  localparam ADDI = 10;
+  localparam AND = 18;
+  localparam ANDI = 19;
+  localparam AUIPC = 13;
+  localparam BEQ = 24;
+  localparam BGE = 27;
+  localparam BGEU = 29;
+  localparam BLT = 26;
+  localparam BLTU = 28;
+  localparam BNE = 25;
+  localparam CSRR = 33;
+  localparam CSRRX = 36;
+  localparam CSRW = 34;
+  localparam CSR_COREID = 3860;
+  localparam CSR_MNGR2PROC = 4032;
+  localparam CSR_NUMCORES = 4033;
+  localparam CSR_PROC2MNGR = 1984;
+  localparam CSR_STATS_EN = 1985;
+  localparam JAL = 30;
+  localparam JALR = 31;
+  localparam LUI = 12;
+  localparam LW = 1;
+  localparam MUL = 32;
+  localparam NOP = 0;
+  localparam OR = 16;
+  localparam ORI = 17;
+  localparam SLL = 3;
+  localparam SLLI = 4;
+  localparam SLT = 20;
+  localparam SLTI = 21;
+  localparam SLTIU = 23;
+  localparam SLTU = 22;
+  localparam SRA = 7;
+  localparam SRAI = 8;
+  localparam SRL = 5;
+  localparam SRLI = 6;
+  localparam SUB = 11;
+  localparam SW = 2;
+  localparam TYPE_READ = 0;
+  localparam TYPE_WRITE = 1;
+  localparam XOR = 14;
+  localparam XORI = 15;
+  localparam alu_add = 4'd0;
+  localparam alu_adz = 4'd13;
+  localparam alu_and = 4'd6;
+  localparam alu_cp0 = 4'd11;
+  localparam alu_cp1 = 4'd12;
+  localparam alu_lt = 4'd4;
+  localparam alu_ltu = 4'd5;
+  localparam alu_or = 4'd3;
+  localparam alu_sll = 4'd2;
+  localparam alu_sra = 4'd10;
+  localparam alu_srl = 4'd9;
+  localparam alu_sub = 4'd1;
+  localparam alu_x = 4'd0;
+  localparam alu_xor = 4'd7;
+  localparam am_pc = 1'd1;
+  localparam am_rf = 1'd0;
+  localparam am_x = 1'd0;
+  localparam bm_csr = 2'd2;
+  localparam bm_imm = 2'd1;
+  localparam bm_rf = 2'd0;
+  localparam bm_x = 2'd0;
+  localparam br_eq = 3'd4;
+  localparam br_ge = 3'd5;
+  localparam br_gu = 3'd6;
+  localparam br_lt = 3'd2;
+  localparam br_lu = 3'd3;
+  localparam br_na = 3'd0;
+  localparam br_ne = 3'd1;
+  localparam br_x = 3'd0;
+  localparam byp_d = 2'd0;
+  localparam byp_m = 2'd2;
+  localparam byp_w = 2'd3;
+  localparam byp_x = 2'd1;
+  localparam imm_b = 3'd2;
+  localparam imm_i = 3'd0;
+  localparam imm_j = 3'd4;
+  localparam imm_s = 3'd1;
+  localparam imm_u = 3'd3;
+  localparam imm_x = 3'd0;
+  localparam jalr = 3'd7;
+  localparam ld = 2'd1;
   localparam n = 1'd0;
+  localparam nr = 2'd0;
+  localparam st = 2'd2;
+  localparam wm_a = 2'd0;
+  localparam wm_c = 2'd2;
+  localparam wm_m = 2'd1;
+  localparam wm_x = 2'd0;
+  localparam xm_a = 2'd0;
+  localparam xm_m = 2'd1;
+  localparam xm_p = 2'd2;
+  localparam xm_x = 2'd0;
   localparam y = 1'd1;
 
-  // Register specifiers
+  // inst_type_decoder_D temporaries
+  wire   [   0:0] inst_type_decoder_D$reset;
+  wire   [  31:0] inst_type_decoder_D$in_;
+  wire   [   0:0] inst_type_decoder_D$clk;
+  wire   [   7:0] inst_type_decoder_D$out;
 
-  localparam rx = 5'bx;   // don't care
-  localparam r0 = 5'd0;   // zero
-  localparam rL = 5'd31;  // for jal
-
-  // Branch type
-
-  localparam br_x     = 3'bx; // Don't care
-  localparam br_na    = 3'b0; // No branch
-  localparam br_ne    = 3'b1; // bne
-  localparam br_lt    = 3'd2;
-  localparam br_lu    = 3'd3;
-  localparam br_eq    = 3'd4;
-  localparam br_ge    = 3'd5;
-  localparam br_gu    = 3'd6;
-
-  // Op1 mux select
-  localparam am_x     = 1'bx;
-  localparam am_rf    = 1'b0;
-  localparam am_pc    = 1'b1;
-
-  // Op2 Mux Select
-
-  localparam bm_x     = 2'bx; // Don't care
-  localparam bm_rf    = 2'd0; // Use data from register file
-  localparam bm_imm   = 2'd1; // Use sign-extended immediate
-  localparam bm_csr   = 2'd2; // Use from mngr data
-
-  // ALU Function
-
-  localparam alu_x    = 4'bx;
-  localparam alu_add  = 4'd0;
-  localparam alu_sub  = 4'd1;
-  localparam alu_sll  = 4'd2;
-  localparam alu_or   = 4'd3;
-  localparam alu_lt   = 4'd4;
-  localparam alu_ltu  = 4'd5;
-  localparam alu_and  = 4'd6;
-  localparam alu_xor  = 4'd7;
-  localparam alu_nor  = 4'd8;
-  localparam alu_srl  = 4'd9;
-  localparam alu_sra  = 4'd10;
-  localparam alu_cp0  = 4'd11; // copy in0
-  localparam alu_cp1  = 4'd12; // copy in1
-  localparam alu_adz  = 4'd13; // special case for JALR
-
-  // Immediate Type
-  localparam imm_x    = 3'bx;
-  localparam imm_i    = 3'd0;
-  localparam imm_s    = 3'd1;
-  localparam imm_b    = 3'd2;
-  localparam imm_u    = 3'd3;
-  localparam imm_j    = 3'd4;
-
-  // Memory Request Type
-
-  localparam nr       = 2'd0; // No request
-  localparam ld       = 2'd1; // Load
-  localparam st       = 2'd2; // Store
-
-  // X stage result mux select
-  localparam xm_x     = 2'bx;
-  localparam xm_a     = 2'd0;
-  localparam xm_m     = 2'd1;
-  localparam xm_p     = 2'd2;
-
-  // Writeback Mux Select
-
-  localparam wm_x     = 2'bx; // Don't care
-  localparam wm_a     = 2'd0; // Use ALU output
-  localparam wm_m     = 2'd1; // Use data memory response
-  localparam wm_c     = 2'd2; // Use xcel response
-
-  // Instruction Decode
-
-  logic       inst_val_D;
-  logic [2:0] br_type_D;
-  logic       jal_D;
-  logic       rs1_en_D;
-  logic       rs2_en_D;
-  logic [3:0] alu_fn_D;
-  logic [1:0] dmemreq_type_D;
-  logic [1:0] ex_result_sel_D;
-  logic [1:0] wb_result_sel_D;
-  logic       rf_wen_pending_D;
-  logic       mul_D;
-  logic       csrr_D;
-  logic       csrw_D;
-  logic       xcelreq_D;
-  logic       xcelreq_type_D;
-
-  logic       proc2mngr_val_D;
-  logic       mngr2proc_rdy_D;
-  logic       stats_en_wen_D;
-
-  task cs
+  DecodeInstType_0x477004d1d8d485d1 inst_type_decoder_D
   (
-    input logic       cs_inst_val,
-    input logic [2:0] cs_br_type,
-    input logic       cs_jal,
-    input logic [2:0] cs_imm_type,
-    input logic       cs_op1_sel,
-    input logic       cs_rs1_en,
-    input logic [1:0] cs_op2_sel,
-    input logic       cs_rs2_en,
-    input logic [3:0] cs_alu_fn,
-    input logic [1:0] cs_dmemreq_type,
-    input logic [1:0] cs_ex_result_sel,
-    input logic [1:0] cs_wb_result_sel,
-    input logic       cs_rf_wen_pending,
-    input logic       cs_mul,
-    input logic       cs_csrr,
-    input logic       cs_csrw
+    .reset ( inst_type_decoder_D$reset ),
+    .in_   ( inst_type_decoder_D$in_ ),
+    .clk   ( inst_type_decoder_D$clk ),
+    .out   ( inst_type_decoder_D$out )
   );
-  begin
-    inst_val_D            = cs_inst_val;
-    br_type_D             = cs_br_type;
-    jal_D                 = cs_jal;
-    imm_type_D            = cs_imm_type;
-    op1_sel_D             = cs_op1_sel;
-    rs1_en_D              = cs_rs1_en;
-    op2_sel_D             = cs_op2_sel;
-    rs2_en_D              = cs_rs2_en;
-    alu_fn_D              = cs_alu_fn;
-    dmemreq_type_D        = cs_dmemreq_type;
-    ex_result_sel_D       = cs_ex_result_sel;
-    wb_result_sel_D       = cs_wb_result_sel;
-    rf_wen_pending_D      = cs_rf_wen_pending;
-    mul_D                 = cs_mul;
-    csrr_D                = cs_csrr;
-    csrw_D                = cs_csrw;
-  end
-  endtask
 
-  // Control signals table
+  // signal connections
+  assign inst_type_decoder_D$clk   = clk;
+  assign inst_type_decoder_D$in_   = inst_D;
+  assign inst_type_decoder_D$reset = reset;
 
-  always_comb begin
 
-    casez ( inst_D )
+  // PYMTL SOURCE:
+  //
+  // @s.posedge_clk
+  // def reg_F():
+  //       if s.reset:
+  //         s.val_F.next = 0
+  //       elif s.reg_en_F:
+  //         s.val_F.next = 1
 
-      //                           br     jal  imm    op1   rs1 op2    rs2 alu      dmm xres  wbmux rf      cs cs
-      //                       val type    D   type  muxsel  en muxsel  en fn       typ sel   sel   wen mul rr rw 
-      `RV2ISA_INST_NOP     :cs( y, br_na,  n,  imm_x, am_x,  n, bm_x,   n, alu_x,   nr, xm_x, wm_a, n,  n,  n, n  );
-      `RV2ISA_INST_BNE     :cs( y, br_ne,  n,  imm_b, am_rf, y, bm_rf,  y, alu_x,   nr, xm_x, wm_a, n,  n,  n, n  );
-      `RV2ISA_INST_CSRRX   :cs( y, br_na,  n,  imm_i, am_x,  n, bm_imm, n, alu_cp1, nr, xm_a, wm_c, y,  n,  y, n  );
-      `RV2ISA_INST_CSRR    :cs( y, br_na,  n,  imm_i, am_x,  n, bm_csr, n, alu_cp1, nr, xm_a, wm_a, y,  n,  y, n  );
-      `RV2ISA_INST_CSRW    :cs( y, br_na,  n,  imm_i, am_rf, y, bm_imm, n, alu_cp0, nr, xm_a, wm_a, n,  n,  n, y  );
-
-      // reg-reg
-      `RV2ISA_INST_ADD     :cs( y, br_na,  n,  imm_x, am_rf, y, bm_rf,  y, alu_add, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_SUB     :cs( y, br_na,  n,  imm_x, am_rf, y, bm_rf,  y, alu_sub, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_MUL     :cs( y, br_na,  n,  imm_x, am_rf, y, bm_rf,  y, alu_x,   nr, xm_m, wm_a, y,  y,  n, n  );
-      `RV2ISA_INST_AND     :cs( y, br_na,  n,  imm_x, am_rf, y, bm_rf,  y, alu_and, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_OR      :cs( y, br_na,  n,  imm_x, am_rf, y, bm_rf,  y, alu_or,  nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_XOR     :cs( y, br_na,  n,  imm_x, am_rf, y, bm_rf,  y, alu_xor, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_SLT     :cs( y, br_na,  n,  imm_x, am_rf, y, bm_rf,  y, alu_lt,  nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_SLTU    :cs( y, br_na,  n,  imm_x, am_rf, y, bm_rf,  y, alu_ltu, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_SRA     :cs( y, br_na,  n,  imm_x, am_rf, y, bm_rf,  y, alu_sra, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_SRL     :cs( y, br_na,  n,  imm_x, am_rf, y, bm_rf,  y, alu_srl, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_SLL     :cs( y, br_na,  n,  imm_x, am_rf, y, bm_rf,  y, alu_sll, nr, xm_a, wm_a, y,  n,  n, n  );
-
-      // reg-imm
-      `RV2ISA_INST_ADDI    :cs( y, br_na,  n,  imm_i, am_rf, y, bm_imm, n, alu_add, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_ANDI    :cs( y, br_na,  n,  imm_i, am_rf, y, bm_imm, n, alu_and, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_ORI     :cs( y, br_na,  n,  imm_i, am_rf, y, bm_imm, n, alu_or,  nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_XORI    :cs( y, br_na,  n,  imm_i, am_rf, y, bm_imm, n, alu_xor, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_SLTI    :cs( y, br_na,  n,  imm_i, am_rf, y, bm_imm, n, alu_lt,  nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_SLTIU   :cs( y, br_na,  n,  imm_i, am_rf, y, bm_imm, n, alu_ltu, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_SRAI    :cs( y, br_na,  n,  imm_i, am_rf, y, bm_imm, n, alu_sra, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_SRLI    :cs( y, br_na,  n,  imm_i, am_rf, y, bm_imm, n, alu_srl, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_SLLI    :cs( y, br_na,  n,  imm_i, am_rf, y, bm_imm, n, alu_sll, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_LUI     :cs( y, br_na,  n,  imm_u, am_x,  n, bm_imm, n, alu_cp1, nr, xm_a, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_AUIPC   :cs( y, br_na,  n,  imm_u, am_pc, n, bm_imm, n, alu_add, nr, xm_a, wm_a, y,  n,  n, n  );
-
-      // mem
-      `RV2ISA_INST_LW      :cs( y, br_na,  n,  imm_i, am_rf, y, bm_imm, n, alu_add, ld, xm_a, wm_m, y,  n,  n, n  );
-      `RV2ISA_INST_SW      :cs( y, br_na,  n,  imm_s, am_rf, y, bm_imm, y, alu_add, st, xm_a, wm_x, n,  n,  n, n  );
-
-      // branch
-      `RV2ISA_INST_BNE     :cs( y, br_ne,  n,  imm_b, am_rf, y, bm_rf,  y, alu_x,   nr, xm_a, wm_x, n,  n,  n, n  );
-      `RV2ISA_INST_BEQ     :cs( y, br_eq,  n,  imm_b, am_rf, y, bm_rf,  y, alu_x,   nr, xm_a, wm_x, n,  n,  n, n  );
-      `RV2ISA_INST_BLT     :cs( y, br_lt,  n,  imm_b, am_rf, y, bm_rf,  y, alu_x,   nr, xm_a, wm_x, n,  n,  n, n  );
-      `RV2ISA_INST_BLTU    :cs( y, br_lu,  n,  imm_b, am_rf, y, bm_rf,  y, alu_x,   nr, xm_a, wm_x, n,  n,  n, n  );
-      `RV2ISA_INST_BGE     :cs( y, br_ge,  n,  imm_b, am_rf, y, bm_rf,  y, alu_x,   nr, xm_a, wm_x, n,  n,  n, n  );
-      `RV2ISA_INST_BGEU    :cs( y, br_gu,  n,  imm_b, am_rf, y, bm_rf,  y, alu_x,   nr, xm_a, wm_x, n,  n,  n, n  );
-
-      // jump
-      `RV2ISA_INST_JAL     :cs( y, br_na,  y,  imm_j, am_x,  n, bm_x,   n, alu_x,   nr, xm_p, wm_a, y,  n,  n, n  );
-      `RV2ISA_INST_JALR    :cs( y, jalr,   n,  imm_i, am_rf, y, bm_imm, n, alu_adz, nr, xm_p, wm_a, y,  n,  n, n  );
-
-      // accelerator
-      `RV2ISA_INST_CUST0   :cs( y, br_na,  n,  imm_x, am_rf, y, bm_rf,  y, alu_x,   nr, xm_x, wm_c, y,  n,  n, n  );
-
-      default              :cs( n, br_x,   n,  imm_x, am_x,  n, bm_x,   n, alu_x,   nr, xm_x, wm_x, n,  n,  n, n  );
-
-    endcase
-  end // always_comb
-
-  logic [4:0] rf_waddr_D;
-  assign rf_waddr_D = inst_rd_D;
-
-  // csrr and csrw logic
-
-  always_comb begin
-    proc2mngr_val_D  = 1'b0;
-    mngr2proc_rdy_D  = 1'b0;
-    csrr_sel_D       = 2'h0;
-    stats_en_wen_D   = 1'b0;
-    xcelreq_D        = 1'b0;
-    xcelreq_type_D   = 1'b0;
-
-    if ( csrr_D ) begin
-      if ( inst_csr_D == `RV2ISA_CPR_MNGR2PROC )
-        mngr2proc_rdy_D  = 1'b1;
-      else if ( inst_csr_D == `RV2ISA_CPR_NUMCORES )
-        csrr_sel_D       = 2'h1;
-      else if ( inst_csr_D == `RV2ISA_CPR_COREID )
-        csrr_sel_D       = 2'h2;
+  // logic for reg_F()
+  always @ (posedge clk) begin
+    if (reset) begin
+      val_F <= 0;
+    end
+    else begin
+      if (reg_en_F) begin
+        val_F <= 1;
+      end
       else begin
-      // FIXME
-        xcelreq_type_D  = `XcelReqMsg_TYPE_READ;
-        xcelreq_D       = 1'b1;
       end
     end
+  end
 
-    if ( csrw_D ) begin
-      if ( inst_csr_D == `RV2ISA_CPR_PROC2MNGR )
-        proc2mngr_val_D    = 1'b1;
-      else if ( inst_csr_D == `RV2ISA_CPR_STATS_EN )
-        stats_en_wen_D  = 1'b1;
+  // PYMTL SOURCE:
+  //
+  // @s.posedge_clk
+  // def reg_D():
+  //       if s.reset:
+  //         s.val_D.next = 0
+  //       elif s.reg_en_D:
+  //         s.val_D.next = s.next_val_F
+
+  // logic for reg_D()
+  always @ (posedge clk) begin
+    if (reset) begin
+      val_D <= 0;
+    end
+    else begin
+      if (reg_en_D) begin
+        val_D <= next_val_F;
+      end
       else begin
-      // FIXME
-        xcelreq_type_D  = `XcelReqMsg_TYPE_WRITE;
-        xcelreq_D       = 1'b1;
       end
     end
   end
 
-  assign pc_redirect_D  = val_D && jal_D;
+  // PYMTL SOURCE:
+  //
+  // @s.posedge_clk
+  // def reg_X():
+  //       if s.reset:
+  //         s.val_X.next            = 0
+  //         s.stats_en_wen_X.next   = 0
+  //       elif s.reg_en_X:
+  //         s.val_X.next            = s.next_val_D
+  //         s.rf_wen_pending_X.next = s.rf_wen_pending_D
+  //         s.inst_type_X.next      = s.inst_type_decoder_D.out
+  //         s.alu_fn_X.next         = s.alu_fn_D
+  //         s.rf_waddr_X.next       = s.rf_waddr_D
+  //         s.proc2mngr_val_X.next  = s.proc2mngr_val_D
+  //         s.dmemreq_type_X.next   = s.dmemreq_type_D
+  //         s.wb_result_sel_X.next  = s.wb_result_sel_D
+  //         s.stats_en_wen_X.next   = s.stats_en_wen_D
+  //         s.br_type_X.next        = s.br_type_D
+  //         s.mul_X.next            = s.mul_D
+  //         s.ex_result_sel_X.next  = s.ex_result_sel_D
+  //         s.xcelreq_X.next        = s.xcelreq_D
+  //         s.xcelreq_type_X.next   = s.xcelreq_type_D
 
-  // mngr2proc_rdy signal for csrr instruction
-
-  assign mngr2proc_rdy  = val_D && !stall_D && mngr2proc_rdy_D;
-
-  // multiply request valid signal
-  assign imul_req_val_D = val_D && !stall_D && !squash_D && mul_D;
-
-  logic  ostall_mngr2proc_D;
-  assign ostall_mngr2proc_D = val_D && mngr2proc_rdy_D && !mngr2proc_val;
-
-  // bypassing logic
-
-  localparam byp_d    = 2'b0;
-  localparam byp_x    = 2'd1;
-  localparam byp_m    = 2'd2;
-  localparam byp_w    = 2'd3;
-
-  logic        rf_wen_pending_X;
-  logic [4:0]  rf_waddr_X;
-  logic [1:0]  dmemreq_type_X;
-  logic        rf_wen_pending_M;
-  logic [4:0]  rf_waddr_M;
-  logic        rf_wen_pending_W;
-
-  always_comb begin
-
-    op1_byp_sel_D = byp_d;
-
-    if ( rs1_en_D ) begin
-      if      ( val_X && ( inst_rs1_D == rf_waddr_X )
-                && ( rf_waddr_X != 5'd0 ) && rf_wen_pending_X )
-        op1_byp_sel_D = byp_x;
-      else if ( val_M && ( inst_rs1_D == rf_waddr_M )
-                && ( rf_waddr_M != 5'd0 ) && rf_wen_pending_M )
-        op1_byp_sel_D = byp_m;
-      else if ( val_W && ( inst_rs1_D == rf_waddr_W )
-                && ( rf_waddr_W != 5'd0 ) && rf_wen_pending_W )
-        op1_byp_sel_D = byp_w;
-    end
-
-    op2_byp_sel_D = byp_d;
-
-    if ( rs2_en_D ) begin
-      if      ( val_X && ( inst_rs2_D == rf_waddr_X )
-                && ( rf_waddr_X != 5'd0 ) && rf_wen_pending_X )
-        op2_byp_sel_D = byp_x;
-      else if ( val_M && ( inst_rs2_D == rf_waddr_M )
-                && ( rf_waddr_M != 5'd0 ) && rf_wen_pending_M )
-        op2_byp_sel_D = byp_m;
-      else if ( val_W && ( inst_rs2_D == rf_waddr_W )
-                && ( rf_waddr_W != 5'd0 ) && rf_wen_pending_W )
-        op2_byp_sel_D = byp_w;
-    end
-
-  end
-
-  // Although bypassing is added, we might still have RAW when there is
-  // lw instruction in X stage
-
-  // ostall if lw address in X matches rs1 in D
-
-  logic  ostall_ld_X_rs1_D;
-  assign ostall_ld_X_rs1_D
-    = rs1_en_D && val_X && rf_wen_pending_X
-      && ( inst_rs1_D == rf_waddr_X ) && ( rf_waddr_X != 5'd0 )
-      && (dmemreq_type_X == ld);
-
-  // ostall if lw address in X matches rs2 in D
-
-  logic  ostall_ld_X_rs2_D;
-  assign ostall_ld_X_rs2_D
-    = rs2_en_D && val_X && rf_wen_pending_X
-      && ( inst_rs2_D == rf_waddr_X ) && ( rf_waddr_X != 5'd0 )
-      && (dmemreq_type_X == ld);
-
-  // We also need to add a stall for CSRRX since the value will not be
-  // returned from the accelerator until the M stage.
-
-  logic  ostall_csrrx_X_rs1_D;
-  logic  ostall_csrrx_X_rs2_D;
-
-  assign ostall_csrrx_X_rs1_D
-    = rs1_en_D && val_X && rf_wen_pending_X
-      && ( inst_rs1_D == rf_waddr_X ) && ( rf_waddr_X != 5'd0 )
-      && xcelreq_X && (xcelreq_type_X == `XcelReqMsg_TYPE_READ);
-
-  assign ostall_csrrx_X_rs2_D
-    = rs2_en_D && val_X && rf_wen_pending_X
-      && ( inst_rs2_D == rf_waddr_X ) && ( rf_waddr_X != 5'd0 )
-      && xcelreq_X && (xcelreq_type_X == `XcelReqMsg_TYPE_READ);
-
-  // Put together ostall signal due to hazards
-
-  logic  ostall_hazard_D;
-  assign ostall_hazard_D = ostall_ld_X_rs1_D || ostall_ld_X_rs2_D
-                        || ostall_csrrx_X_rs1_D || ostall_csrrx_X_rs2_D;
-
-  // stall if imul not ready
-  logic ostall_imul_D;
-  assign ostall_imul_D = mul_D && !imul_req_rdy_D;
-
-  // Final ostall signal
-
-  assign ostall_D = val_D && ( ostall_mngr2proc_D || ostall_hazard_D || ostall_imul_D );
-
-  // osquash due to jump instruction in D stage
-
-  assign osquash_D = val_D && !stall_D && pc_redirect_D;
-
-  // stall and squash in D
-
-  assign stall_D  = val_D && ( ostall_D || ostall_X || ostall_M || ostall_W );
-  assign squash_D = val_D && osquash_X;
-
-  // Valid signal for the next stage
-
-  logic  next_val_D;
-  assign next_val_D = val_D && !stall_D && !squash_D;
-
-  //----------------------------------------------------------------------
-  // X stage
-  //----------------------------------------------------------------------
-
-  // Register enable logic
-
-  assign reg_en_X = !stall_X;
-
-  logic [31:0] inst_X;
-  logic [1:0]  wb_result_sel_X;
-  logic        proc2mngr_val_X;
-  logic        stats_en_wen_X;
-  logic        mul_X;
-  logic        xcelreq_X;
-  logic [4:0]  xcelreq_raddr_X;
-  logic        xcelreq_type_X;
-
-  // Pipeline registers
-
-  always_ff @( posedge clk )
+  // logic for reg_X()
+  always @ (posedge clk) begin
     if (reset) begin
-      val_X           <= 1'b0;
-      stats_en_wen_X  <= 1'b0;
-    end else if (reg_en_X) begin
-      val_X           <= next_val_D;
-      rf_wen_pending_X<= rf_wen_pending_D;
-      inst_X          <= inst_D;
-      alu_fn_X        <= alu_fn_D;
-      rf_waddr_X      <= rf_waddr_D;
-      proc2mngr_val_X <= proc2mngr_val_D;
-      dmemreq_type_X  <= dmemreq_type_D;
-      wb_result_sel_X <= wb_result_sel_D;
-      stats_en_wen_X  <= stats_en_wen_D;
-      br_type_X       <= br_type_D;
-      mul_X           <= mul_D;
-      ex_result_sel_X <= ex_result_sel_D;
-      xcelreq_X       <= xcelreq_D;
-      xcelreq_type_X  <= xcelreq_type_D;
+      val_X <= 0;
+      stats_en_wen_X <= 0;
     end
-
-  // branch logic, redirect PC in F if branch is taken
-
-  always_comb begin
-    pc_redirect_X = 1'b0;
-    if ( val_X ) begin
-      case (br_type_X)
-        br_eq:
-          pc_redirect_X = br_cond_eq_X;
-        br_lt:
-          pc_redirect_X = br_cond_lt_X;
-        br_lu:
-          pc_redirect_X = br_cond_ltu_X;
-        br_ne:
-          pc_redirect_X = !br_cond_eq_X;
-        br_ge:
-          pc_redirect_X = !br_cond_lt_X;
-        br_gu:
-          pc_redirect_X = !br_cond_ltu_X;
-        jalr:
-          pc_redirect_X = 1'b1;
-        default:
-          pc_redirect_X = 1'b0;
-      endcase
+    else begin
+      if (reg_en_X) begin
+        val_X <= next_val_D;
+        rf_wen_pending_X <= rf_wen_pending_D;
+        inst_type_X <= inst_type_decoder_D$out;
+        alu_fn_X <= alu_fn_D;
+        rf_waddr_X <= rf_waddr_D;
+        proc2mngr_val_X <= proc2mngr_val_D;
+        dmemreq_type_X <= dmemreq_type_D;
+        wb_result_sel_X <= wb_result_sel_D;
+        stats_en_wen_X <= stats_en_wen_D;
+        br_type_X <= br_type_D;
+        mul_X <= mul_D;
+        ex_result_sel_X <= ex_result_sel_D;
+        xcelreq_X <= xcelreq_D;
+        xcelreq_type_X <= xcelreq_type_D;
+      end
+      else begin
+      end
     end
   end
 
-  // ostall due to dmemreq not ready.
-  logic ostall_dmem_X;
-  assign ostall_dmem_X = ( dmemreq_type_X != nr ) && !dmemreq_rdy;
+  // PYMTL SOURCE:
+  //
+  // @s.posedge_clk
+  // def reg_M():
+  //       if s.reset:
+  //         s.val_M.next            = 0
+  //         s.stats_en_wen_M.next   = 0
+  //       elif s.reg_en_M:
+  //         s.val_M.next            = s.next_val_X
+  //         s.rf_wen_pending_M.next = s.rf_wen_pending_X
+  //         s.inst_type_M.next      = s.inst_type_X
+  //         s.rf_waddr_M.next       = s.rf_waddr_X
+  //         s.proc2mngr_val_M.next  = s.proc2mngr_val_X
+  //         s.dmemreq_type_M.next   = s.dmemreq_type_X
+  //         s.wb_result_sel_M.next  = s.wb_result_sel_X
+  //         s.stats_en_wen_M.next   = s.stats_en_wen_X
+  //         # xcel
+  //         s.xcelreq_M.next        = s.xcelreq_X
 
-  // ostall due to imul
-  logic ostall_imul_X;
-  assign ostall_imul_X = mul_X && !imul_resp_val_X;
-
-  // ostall due to xcelreq
-  logic ostall_xcel_X;
-  assign ostall_xcel_X = xcelreq_X && !xcelreq_rdy;
-
-  assign ostall_X = val_X && ( ostall_dmem_X || ostall_imul_X || ostall_xcel_X );
-
-  // osquash due to taken branch, notice we can't osquash if current
-  // stage stalls, otherwise we will send osquash twice.
-
-  assign osquash_X = val_X && !stall_X && pc_redirect_X;
-
-  // stall and squash used in X stage
-
-  assign stall_X = val_X && ( ostall_X || ostall_M || ostall_W );
-
-  // set dmemreq_val only if not stalling
-
-  assign dmemreq_val = val_X && !stall_X && ( dmemreq_type_X != nr );
-  assign dmemreq_msg_type = (dmemreq_type_X == st) ?
-                                `VC_MEM_REQ_MSG_TYPE_WRITE :
-                                `VC_MEM_REQ_MSG_TYPE_READ;
-
-  // send xecl req if not stalling
-
-  assign xcelreq_val = val_X && !stall_X && xcelreq_X;
-  assign xcelreq_msg_type  = xcelreq_type_X;
-
-  // multiplier response ready signal
-  assign imul_resp_rdy_X = val_X && !stall_X && mul_X;
-
-  // Valid signal for the next stage
-
-  logic  next_val_X;
-  assign next_val_X = val_X && !stall_X;
-
-  //----------------------------------------------------------------------
-  // M stage
-  //----------------------------------------------------------------------
-
-  // Register enable logic
-
-  assign reg_en_M  = !stall_M;
-
-  logic [31:0] inst_M;
-  logic [1:0]  dmemreq_type_M;
-  logic        proc2mngr_val_M;
-  logic        stats_en_wen_M;
-  logic        xcelreq_M;
-
-  // Pipeline register
-
-  always_ff @( posedge clk )
+  // logic for reg_M()
+  always @ (posedge clk) begin
     if (reset) begin
-      val_M            <= 1'b0;
-      stats_en_wen_M   <= 1'b0;
-    end else if (reg_en_M) begin
-      val_M            <= next_val_X;
-      rf_wen_pending_M <= rf_wen_pending_X;
-      inst_M           <= inst_X;
-      rf_waddr_M       <= rf_waddr_X;
-      proc2mngr_val_M  <= proc2mngr_val_X;
-      dmemreq_type_M   <= dmemreq_type_X;
-      wb_result_sel_M  <= wb_result_sel_X;
-      stats_en_wen_M   <= stats_en_wen_X;
-      xcelreq_M        <= xcelreq_X;
+      val_M <= 0;
+      stats_en_wen_M <= 0;
     end
+    else begin
+      if (reg_en_M) begin
+        val_M <= next_val_X;
+        rf_wen_pending_M <= rf_wen_pending_X;
+        inst_type_M <= inst_type_X;
+        rf_waddr_M <= rf_waddr_X;
+        proc2mngr_val_M <= proc2mngr_val_X;
+        dmemreq_type_M <= dmemreq_type_X;
+        wb_result_sel_M <= wb_result_sel_X;
+        stats_en_wen_M <= stats_en_wen_X;
+        xcelreq_M <= xcelreq_X;
+      end
+      else begin
+      end
+    end
+  end
 
-  // ostall due to dmemresp not valid
+  // PYMTL SOURCE:
+  //
+  // @s.posedge_clk
+  // def reg_W():
+  //
+  //       if s.reset:
+  //         s.val_W.next            = 0
+  //         s.stats_en_wen_pending_W.next   = 0
+  //       elif s.reg_en_W:
+  //         s.val_W.next                  = s.next_val_M
+  //         s.rf_wen_pending_W.next       = s.rf_wen_pending_M
+  //         s.inst_type_W.next            = s.inst_type_M
+  //         s.rf_waddr_W.next             = s.rf_waddr_M
+  //         s.proc2mngr_val_W.next        = s.proc2mngr_val_M
+  //         s.stats_en_wen_pending_W.next = s.stats_en_wen_M
 
-  logic ostall_dmem_M;
-  assign ostall_dmem_M = ( dmemreq_type_M != nr ) && !dmemresp_val;
-
-  logic ostall_xcel_M;
-  assign ostall_xcel_M = xcelreq_M && !xcelresp_val;
-
-  assign ostall_M = val_M && ( ostall_dmem_M || ostall_xcel_M );
-
-  // stall M
-
-  assign stall_M = val_M && ( ostall_M || ostall_W );
-
-  // Set dmemresp_rdy if valid and not stalling and this is a lw/sw
-
-  assign dmemresp_rdy = val_M && !stall_M && ( dmemreq_type_M != nr );
-
-  // Set xrelresp_rdy if not stalling
-
-  assign xcelresp_rdy = val_M && !stall_M && xcelreq_M;
-
-  // Valid signal for the next stage
-
-  logic  next_val_M;
-  assign next_val_M = val_M && !stall_M;
-
-  //----------------------------------------------------------------------
-  // W stage
-  //----------------------------------------------------------------------
-
-  // Register enable logic
-
-  assign reg_en_W = !stall_W;
-
-  logic [31:0] inst_W;
-  logic        proc2mngr_val_W;
-  logic        stats_en_wen_pending_W;
-
-  // Pipeline registers
-
-  always_ff @( posedge clk ) begin
+  // logic for reg_W()
+  always @ (posedge clk) begin
     if (reset) begin
-      val_W            <= 1'b0;
-      stats_en_wen_pending_W   <= 1'b0;
-    end else if (reg_en_W) begin
-      val_W            <= next_val_M;
-      rf_wen_pending_W <= rf_wen_pending_M;
-      inst_W           <= inst_M;
-      rf_waddr_W       <= rf_waddr_M;
-      proc2mngr_val_W  <= proc2mngr_val_M;
-      stats_en_wen_pending_W   <= stats_en_wen_M;
-    end
-  end
-
-  // write enable
-
-  assign rf_wen_W       = val_W && rf_wen_pending_W;
-  assign stats_en_wen_W = val_W && stats_en_wen_pending_W;
-
-  // ostall due to proc2mngr
-
-  assign ostall_W = val_W && proc2mngr_val_W && !proc2mngr_rdy;
-
-  // stall and squash signal used in W stage
-
-  assign stall_W = val_W && ostall_W;
-
-  // proc2mngr port
-
-  assign proc2mngr_val = val_W && !stall_W && proc2mngr_val_W;
-
-  assign commit_inst = val_W && !stall_W;
-
-endmodule
-
-`endif /* PROC_PROC_CTRL_V */
-
-
-`line 14 "proc/ProcVRTL.v" 0
-`line 1 "proc/ProcDpathVRTL.v" 0
-//=========================================================================
-// 5-Stage Stalling Pipelined Processor Datapath
-//=========================================================================
-
-`ifndef PROC_PROC_DPATH_V
-`define PROC_PROC_DPATH_V
-
-`line 1 "vc/arithmetic.v" 0
-//========================================================================
-// Verilog Components: Arithmetic Components
-//========================================================================
-
-`ifndef VC_ARITHMETIC_V
-`define VC_ARITHMETIC_V
-
-//------------------------------------------------------------------------
-// Adders
-//------------------------------------------------------------------------
-
-module vc_Adder
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  input  logic               cin,
-  output logic [p_nbits-1:0] out,
-  output logic               cout
-);
-
-  // We need to convert cin into a 32-bit value to
-  // avoid verilator warnings
-
-  assign {cout,out} = in0 + in1 + {{(p_nbits-1){1'b0}},cin};
-
-endmodule
-
-module vc_SimpleAdder
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic [p_nbits-1:0] out
-);
-
-  assign out = in0 + in1;
-
-endmodule
-
-//------------------------------------------------------------------------
-// Subtractor
-//------------------------------------------------------------------------
-
-module vc_Subtractor
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic [p_nbits-1:0] out
-);
-
-  assign out = in0 - in1;
-
-endmodule
-
-//------------------------------------------------------------------------
-// Incrementer
-//------------------------------------------------------------------------
-
-module vc_Incrementer
-#(
-  parameter p_nbits     = 1,
-  parameter p_inc_value = 1
-)(
-  input  logic [p_nbits-1:0] in,
-  output logic [p_nbits-1:0] out
-);
-
-  assign out = in + p_inc_value;
-
-endmodule
-
-//------------------------------------------------------------------------
-// ZeroExtender
-//------------------------------------------------------------------------
-
-module vc_ZeroExtender
-#(
-  parameter p_in_nbits  = 1,
-  parameter p_out_nbits = 8
-)(
-  input  logic [p_in_nbits-1:0]  in,
-  output logic [p_out_nbits-1:0] out
-);
-
-  assign out = { {( p_out_nbits - p_in_nbits ){1'b0}}, in };
-
-endmodule
-
-//------------------------------------------------------------------------
-// SignExtender
-//------------------------------------------------------------------------
-
-module vc_SignExtender
-#(
- parameter p_in_nbits = 1,
- parameter p_out_nbits = 8
-)
-(
-  input  logic [p_in_nbits-1:0]  in,
-  output logic [p_out_nbits-1:0] out
-);
-
-  assign out = { {(p_out_nbits-p_in_nbits){in[p_in_nbits-1]}}, in };
-
-endmodule
-
-//------------------------------------------------------------------------
-// ZeroComparator
-//------------------------------------------------------------------------
-
-module vc_ZeroComparator
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in,
-  output logic               out
-);
-
-  assign out = ( in == {p_nbits{1'b0}} );
-
-endmodule
-
-//------------------------------------------------------------------------
-// EqComparator
-//------------------------------------------------------------------------
-
-module vc_EqComparator
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic               out
-);
-
-  assign out = ( in0 == in1 );
-
-endmodule
-
-//------------------------------------------------------------------------
-// LtComparator
-//------------------------------------------------------------------------
-
-module vc_LtComparator
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic               out
-);
-
-  assign out = ( in0 < in1 );
-
-endmodule
-
-//------------------------------------------------------------------------
-// GtComparator
-//------------------------------------------------------------------------
-
-module vc_GtComparator
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic               out
-);
-
-  assign out = ( in0 > in1 );
-
-endmodule
-
-//------------------------------------------------------------------------
-// LeftLogicalShifter
-//------------------------------------------------------------------------
-
-module vc_LeftLogicalShifter
-#(
-  parameter p_nbits       = 1,
-  parameter p_shamt_nbits = 1 )
-(
-  input  logic       [p_nbits-1:0] in,
-  input  logic [p_shamt_nbits-1:0] shamt,
-  output logic       [p_nbits-1:0] out
-);
-
-  assign out = ( in << shamt );
-
-endmodule
-
-//------------------------------------------------------------------------
-// RightLogicalShifter
-//------------------------------------------------------------------------
-
-module vc_RightLogicalShifter
-#(
-  parameter p_nbits       = 1,
-  parameter p_shamt_nbits = 1
-)(
-  input  logic       [p_nbits-1:0] in,
-  input  logic [p_shamt_nbits-1:0] shamt,
-  output logic       [p_nbits-1:0] out
-);
-
-  assign out = ( in >> shamt );
-
-endmodule
-
-`endif /* VC_ARITHMETIC_V */
-
-
-`line 9 "proc/ProcDpathVRTL.v" 0
-`line 1 "vc/mem-msgs.v" 0
-//========================================================================
-// vc-mem-msgs : Memory Request/Response Messages
-//========================================================================
-// The memory request/response messages are used to interact with various
-// memories. They are parameterized by the number of bits in the address,
-// data, and opaque field.
-
-`ifndef VC_MEM_MSGS_V
-`define VC_MEM_MSGS_V
-
-`line 1 "vc/trace.v" 0
-//========================================================================
-// Line Tracing
-//========================================================================
-
-`ifndef VC_TRACE_V
-`define VC_TRACE_V
-
-// NOTE: This macro is declared outside of the module to allow some vc
-// modules to see it and use it in their own params. Verilog does not
-// allow other modules to hierarchically reference the nbits localparam
-// inside this module in constant expressions (e.g., localparams).
-
-`define VC_TRACE_NCHARS 512
-`define VC_TRACE_NBITS  512*8
-
-`ifndef SYNTHESIS
-
-module vc_Trace
-(
-  input logic clk,
-  input logic reset
-);
-
-  integer len0;
-  integer len1;
-  integer idx0;
-  integer idx1;
-
-  // NOTE: If you change these, then you also need to change the
-  // hard-coded constant in the declaration of the trace function at the
-  // bottom of this file.
-  // NOTE: You would also need to change the VC_TRACE_NBITS and
-  // VC_TRACE_NCHARS macro at the top of this file.
-
-  localparam nchars = 512;
-  localparam nbits  = 512*8;
-
-  // This is the actual trace storage used when displaying a trace
-
-  logic [nbits-1:0] storage;
-
-  // Meant to be accesible from outside module
-
-  integer cycles_next = 0;
-  integer cycles      = 0;
-
-  // Get trace level from command line
-
-  logic [3:0] level;
-
-`ifndef VERILATOR
-  initial begin
-    if ( !$value$plusargs( "trace=%d", level ) ) begin
-      level = 0;
-    end
-  end
-`else
-  initial begin
-    level = 1;
-  end
-`endif // !`ifndef VERILATOR
-
-  // Track cycle count
-
-  always_ff @( posedge clk ) begin
-    cycles <= ( reset ) ? 0 : cycles_next;
-  end
-
-  //----------------------------------------------------------------------
-  // append_str
-  //----------------------------------------------------------------------
-  // Appends a string to the trace.
-
-  task append_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len0 = 1;
-    while ( str[len0*8+:8] != 0 ) begin
-      len0 = len0 + 1;
-    end
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = len0-1; idx1 >= 0; idx1 = idx1 - 1 )
-    begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8 +: 8 ];
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_str_ljust
-  //----------------------------------------------------------------------
-  // Appends a left-justified string to the trace.
-
-  task append_str_ljust
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    idx0 = trace[31:0];
-    idx1 = nchars;
-
-    while ( str[ idx1*8-1 -: 8 ] != 0 ) begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8-1 -: 8 ];
-      idx0 = idx0 - 1;
-      idx1 = idx1 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_chars
-  //----------------------------------------------------------------------
-  // Appends the given number of characters to the trace.
-
-  task append_chars
-  (
-    inout logic   [nbits-1:0] trace,
-    input logic         [7:0] char,
-    input integer             num
-  );
-  begin
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = 0;
-          idx1 < num;
-          idx1 = idx1 + 1 )
-    begin
-      trace[idx0*8+:8] = char;
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_val_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val signal.
-
-  task append_val_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( val )
-      append_str( trace, str );
-    else if ( !val )
-      append_chars( trace, " ", len1 );
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // val_rdy_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val/rdy signals.
-
-  task append_val_rdy_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic             rdy,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( rdy && val ) begin
-      append_str( trace, str );
-    end
-    else if ( rdy && !val ) begin
-      append_chars( trace, " ", len1 );
-    end
-    else if ( !rdy && val ) begin
-      append_str( trace, "#" );
-      append_chars( trace, " ", len1-1 );
-    end
-    else if ( !rdy && !val ) begin
-      append_str( trace, "." );
-      append_chars( trace, " ", len1-1 );
+      val_W <= 0;
+      stats_en_wen_pending_W <= 0;
     end
     else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-//------------------------------------------------------------------------
-// VC_TRACE_NBITS_TO_NCHARS
-//------------------------------------------------------------------------
-// Macro to determine number of characters for a net
-
-`define VC_TRACE_NBITS_TO_NCHARS( nbits_ ) ((nbits_+3)/4)
-
-//------------------------------------------------------------------------
-// VC_TRACE_BEGIN
-//------------------------------------------------------------------------
-
-//`define VC_TRACE_BEGIN                                                  \
-//  export "DPI-C" task line_trace;                                       \
-//  vc_Trace vc_trace(clk,reset);                                         \
-//  task line_trace( inout bit [(512*8)-1:0] trace_str );
-
-`ifndef VERILATOR
-`define VC_TRACE_BEGIN                                                  \
-  vc_Trace vc_trace(clk,reset);                                         \
-                                                                        \
-  task display_trace;                                                   \
-  begin                                                                 \
-                                                                        \
-    if ( vc_trace.level > 0 ) begin                                     \
-      vc_trace.storage[15:0] = vc_trace.nchars-1;                       \
-                                                                        \
-      line_trace( vc_trace.storage );                                   \
-                                                                        \
-      $write( "%4d: ", vc_trace.cycles );                               \
-                                                                        \
-      vc_trace.idx0 = vc_trace.storage[15:0];                           \
-      for ( vc_trace.idx1 = vc_trace.nchars-1;                          \
-            vc_trace.idx1 > vc_trace.idx0;                              \
-            vc_trace.idx1 = vc_trace.idx1 - 1 )                         \
-      begin                                                             \
-        $write( "%s", vc_trace.storage[vc_trace.idx1*8+:8] );           \
-      end                                                               \
-      $write("\n");                                                     \
-                                                                        \
-    end                                                                 \
-                                                                        \
-    vc_trace.cycles_next = vc_trace.cycles + 1;                         \
-                                                                        \
-  end                                                                   \
-  endtask                                                               \
-                                                                        \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`else
-`define VC_TRACE_BEGIN                                                  \
-  export "DPI-C" task line_trace;                                       \
-  vc_Trace vc_trace(clk,reset);                                         \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`endif
-
-//------------------------------------------------------------------------
-// VC_TRACE_END
-//------------------------------------------------------------------------
-
-`define VC_TRACE_END \
-  endtask
-
-`endif /* VC_TRACE_V */
-
-
-`line 12 "vc/mem-msgs.v" 0
-
-//========================================================================
-// Memory Request Message
-//========================================================================
-// Memory request messages can either be for a read or write. Read
-// requests include an opaque field, the address, and the number of bytes
-// to read, while write requests include an opaque field, the address,
-// the number of bytes to write, and the actual data to write.
-//
-// Message Format:
-//
-//    3b    p_opaque_nbits  p_addr_nbits       calc   p_data_nbits
-//  +------+---------------+------------------+------+------------------+
-//  | type | opaque        | addr             | len  | data             |
-//  +------+---------------+------------------+------+------------------+
-//
-// The message type is parameterized by the number of bits in the opaque
-// field, address field, and data field. Note that the size of the length
-// field is caclulated from the number of bits in the data field, and
-// that the length field is expressed in _bytes_. If the value of the
-// length field is zero, then the read or write should be for the full
-// width of the data field.
-//
-// For example, if the opaque field is 8 bits, the address is 32 bits and
-// the data is also 32 bits, then the message format is as follows:
-//
-//   76  74 73           66 65              34 33  32 31               0
-//  +------+---------------+------------------+------+------------------+
-//  | type | opaque        | addr             | len  | data             |
-//  +------+---------------+------------------+------+------------------+
-//
-// The length field is two bits. A length value of one means read or write
-// a single byte, a length value of two means read or write two bytes, and
-// so on. A length value of zero means read or write all four bytes. Note
-// that not all memories will necessarily support any alignment and/or any
-// value for the length field.
-//
-// The opaque field is reserved for use by a specific implementation. All
-// memories should guarantee that every response includes the opaque
-// field corresponding to the request that generated the response.
-
-//------------------------------------------------------------------------
-// Memory Request Struct: Using a packed struct to represent the message
-//------------------------------------------------------------------------
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [31:0] addr;
-  logic [1:0]  len;
-  logic [31:0] data;
-} mem_req_4B_t;
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [31:0] addr;
-  logic [2:0]  len;
-  logic [63:0] data;
-} mem_req_8B_t;
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [31:0] addr;
-  logic [3:0]  len;
-  logic [127:0] data;
-} mem_req_16B_t;
-
-// memory request type values
-`define VC_MEM_REQ_MSG_TYPE_READ     3'd0
-`define VC_MEM_REQ_MSG_TYPE_WRITE    3'd1
-
-// write no-refill
-`define VC_MEM_REQ_MSG_TYPE_WRITE_INIT 3'd2
-`define VC_MEM_REQ_MSG_TYPE_AMO_ADD    3'd3
-`define VC_MEM_REQ_MSG_TYPE_AMO_AND    3'd4
-`define VC_MEM_REQ_MSG_TYPE_AMO_OR     3'd5
-`define VC_MEM_REQ_MSG_TYPE_X          3'dx
-
-//------------------------------------------------------------------------
-// Memory Request Message: Trace message
-//------------------------------------------------------------------------
-
-`ifndef SYNTHESIS
-
-module vc_MemReqMsg4BTrace
-(
-  input logic         clk,
-  input logic         reset,
-  input logic         val,
-  input logic         rdy,
-  input mem_req_4B_t  msg
-);
-
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [31:0]  addr;
-  assign addr   = msg.addr;
-  logic [1:0]   len;
-  assign len    = msg.len;
-  logic [31:0]  data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits = $bits(mem_req_4B_t);
-  localparam c_read      = `VC_MEM_REQ_MSG_TYPE_READ;
-  localparam c_write     = `VC_MEM_REQ_MSG_TYPE_WRITE;
-  localparam c_write_init  = `VC_MEM_REQ_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( msg.type_ === `VC_MEM_REQ_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( msg.type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( vc_trace.level == 1 ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 2 ) begin
-      $sformat( str, "%s:%x", type_str, msg.addr );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_read ) begin
-        $sformat( str, "%s:%x:%x %s", type_str, msg.opaque, msg.addr,
-                  {8{" "}} );
+      if (reg_en_W) begin
+        val_W <= next_val_M;
+        rf_wen_pending_W <= rf_wen_pending_M;
+        inst_type_W <= inst_type_M;
+        rf_waddr_W <= rf_waddr_M;
+        proc2mngr_val_W <= proc2mngr_val_M;
+        stats_en_wen_pending_W <= stats_en_wen_M;
       end
-      else
-        $sformat( str, "%s:%x:%x:%x", type_str, msg.opaque, msg.addr, msg.data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-
-module vc_MemReqMsg8BTrace
-(
-  input logic         clk,
-  input logic         reset,
-  input logic         val,
-  input logic         rdy,
-  input mem_req_8B_t  msg
-);
-
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [31:0]  addr;
-  assign addr   = msg.addr;
-  logic [2:0]   len;
-  assign len    = msg.len;
-  logic [63:0]  data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_req_8B_t);
-  localparam c_read       = `VC_MEM_REQ_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_REQ_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_REQ_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( msg.type_ === `VC_MEM_REQ_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( msg.type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( vc_trace.level == 1 ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 2 ) begin
-      $sformat( str, "%s:%x", type_str, msg.addr );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_read ) begin
-        $sformat( str, "%s:%x:%x %s", type_str, msg.opaque, msg.addr,
-                  {16{" "}} );
+      else begin
       end
-      else
-        $sformat( str, "%s:%x:%x:%x", type_str, msg.opaque, msg.addr, msg.data );
     end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
   end
-  `VC_TRACE_END
 
-endmodule
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_reg_en_F():
+  //       s.reg_en_F.value = ~s.stall_F | s.squash_F
 
-module vc_MemReqMsg16BTrace
-(
-  input logic         clk,
-  input logic         reset,
-  input logic         val,
-  input logic         rdy,
-  input mem_req_16B_t  msg
-);
+  // logic for comb_reg_en_F()
+  always @ (*) begin
+    reg_en_F = (~stall_F|squash_F);
+  end
 
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [31:0]  addr;
-  assign addr   = msg.addr;
-  logic [3:0]   len;
-  assign len    = msg.len;
-  logic [127:0]  data;
-  assign data   = msg.data;
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_PC_sel_F():
+  //       if   s.pc_redirect_X:
+  //
+  //         if s.br_type_X == jalr:
+  //           s.pc_sel_F.value = 3 # jalr target from ALU
+  //         else:
+  //           s.pc_sel_F.value = 1 # branch target
+  //
+  //       elif s.pc_redirect_D:
+  //         s.pc_sel_F.value = 2 # use jal target
+  //       else:
+  //         s.pc_sel_F.value = 0           # use pc+4
 
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_req_16B_t);
-  localparam c_read       = `VC_MEM_REQ_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_REQ_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_REQ_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( msg.type_ === `VC_MEM_REQ_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( msg.type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( vc_trace.level == 1 ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 2 ) begin
-      $sformat( str, "%s:%x", type_str, msg.addr );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_read ) begin
-        $sformat( str, "%s:%x:%x %s", type_str, msg.opaque, msg.addr,
-                  {32{" "}} );
+  // logic for comb_PC_sel_F()
+  always @ (*) begin
+    if (pc_redirect_X) begin
+      if ((br_type_X == jalr)) begin
+        pc_sel_F = 3;
       end
-      else
-        $sformat( str, "%s:%x:%x:%x", type_str, msg.opaque, msg.addr, msg.data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-
-`endif
-
-//========================================================================
-// Memory Response Message
-//========================================================================
-// Memory request messages can either be for a read or write. Read
-// responses include an opaque field, the actual data, and the number of
-// bytes, while write responses currently include just the opaque field.
-//
-// Message Format:
-//
-//    3b    p_opaque_nbits   2b    calc   p_data_nbits
-//  +------+---------------+------+------+------------------+
-//  | type | opaque        | test | len  | data             |
-//  +------+---------------+------+------+------------------+
-//
-// The message type is parameterized by the number of bits in the opaque
-// field and data field. Note that the size of the length field is
-// caclulated from the number of bits in the data field, and that the
-// length field is expressed in _bytes_. If the value of the length field
-// is zero, then the read or write should be for the full width of the
-// data field.
-//
-// For example, if the opaque field is 8 bits and the data is 32 bits,
-// then the message format is as follows:
-//
-//   46  44 43           36 35  34 33  32 31               0
-//  +------+---------------+------+------+------------------+
-//  | type | opaque        | test | len  | data             |
-//  +------+---------------+------+------+------------------+
-//
-// The length field is two bits. A length value of one means one byte was
-// read, a length value of two means two bytes were read, and so on. A
-// length value of zero means all four bytes were read. Note that not all
-// memories will necessarily support any alignment and/or any value for
-// the length field.
-//
-// The opaque field is reserved for use by a specific implementation. All
-// memories should guarantee that every response includes the opaque
-// field corresponding to the request that generated the response.
-
-//------------------------------------------------------------------------
-// Memory Request Struct: Using a packed struct to represent the message
-//------------------------------------------------------------------------
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [1:0]  test;
-  logic [1:0]  len;
-  logic [31:0] data;
-} mem_resp_4B_t;
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [1:0]  test;
-  logic [2:0]  len;
-  logic [63:0] data;
-} mem_resp_8B_t;
-
-typedef struct packed {
-  logic [2:0]  type_;
-  logic [7:0]  opaque;
-  logic [1:0]  test;
-  logic [3:0]  len;
-  logic [127:0] data;
-} mem_resp_16B_t;
-
-// Values for the type field
-
-`define VC_MEM_RESP_MSG_TYPE_READ     3'd0
-`define VC_MEM_RESP_MSG_TYPE_WRITE    3'd1
-
-// write no-refill
-`define VC_MEM_RESP_MSG_TYPE_WRITE_INIT 3'd2
-`define VC_MEM_RESP_MSG_TYPE_AMO_ADD    3'd3
-`define VC_MEM_RESP_MSG_TYPE_AMO_AND    3'd4
-`define VC_MEM_RESP_MSG_TYPE_AMO_OR     3'd5
-`define VC_MEM_RESP_MSG_TYPE_X          3'dx
-
-//------------------------------------------------------------------------
-// Memory Response Message: Trace message
-//------------------------------------------------------------------------
-
-`ifndef SYNTHESIS
-
-module vc_MemRespMsg4BTrace
-(
-  input logic          clk,
-  input logic          reset,
-  input logic          val,
-  input logic          rdy,
-  input mem_resp_4B_t  msg
-);
-
-  // unpack message fields -- makes them visible in gtkwave
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [1:0]   test;
-  assign test   = msg.test;
-  logic [1:0]   len;
-  assign len    = msg.len;
-  logic [31:0]  data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_resp_4B_t);
-  localparam c_read       = `VC_MEM_RESP_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_RESP_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_RESP_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( type_ === `VC_MEM_RESP_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( (vc_trace.level == 1) || (vc_trace.level == 2) ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_write || type_ == c_write_init ) begin
-        $sformat( str, "%s:%x %s", type_str, opaque,
-                  {8{" "}} );
+      else begin
+        pc_sel_F = 1;
       end
-      else
-        $sformat( str, "%s:%x:%x", type_str, opaque, data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-
-module vc_MemRespMsg8BTrace
-(
-  input logic          clk,
-  input logic          reset,
-  input logic          val,
-  input logic          rdy,
-  input mem_resp_8B_t  msg
-);
-
-  // unpack message fields -- makes them visible in gtkwave
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [1:0]   test;
-  assign test   = msg.test;
-  logic [2:0]   len;
-  assign len    = msg.len;
-  logic [63:0]  data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_resp_8B_t);
-  localparam c_read       = `VC_MEM_RESP_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_RESP_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_RESP_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( type_ === `VC_MEM_RESP_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( (vc_trace.level == 1) || (vc_trace.level == 2) ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_write || type_ == c_write_init ) begin
-        $sformat( str, "%s:%x %s", type_str, opaque,
-                  {16{" "}} );
-      end
-      else
-        $sformat( str, "%s:%x:%x", type_str, opaque, data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-
-module vc_MemRespMsg16BTrace
-(
-  input logic          clk,
-  input logic          reset,
-  input logic          val,
-  input logic          rdy,
-  input mem_resp_16B_t msg
-);
-
-  // unpack message fields -- makes them visible in gtkwave
-  logic [2:0]   type_;
-  assign type_  = msg.type_;
-  logic [7:0]   opaque;
-  assign opaque = msg.opaque;
-  logic [1:0]   test;
-  assign test   = msg.test;
-  logic [3:0]   len;
-  assign len    = msg.len;
-  logic [127:0] data;
-  assign data   = msg.data;
-
-  // Short names
-
-  localparam c_msg_nbits  = $bits(mem_resp_16B_t);
-  localparam c_read       = `VC_MEM_RESP_MSG_TYPE_READ;
-  localparam c_write      = `VC_MEM_RESP_MSG_TYPE_WRITE;
-  localparam c_write_init = `VC_MEM_RESP_MSG_TYPE_WRITE_INIT;
-
-  // Line tracing
-
-  logic [8*2-1:0] type_str;
-  logic [`VC_TRACE_NBITS-1:0] str;
-
-  `VC_TRACE_BEGIN
-  begin
-
-    // Convert type into a string
-
-    if ( type_ === `VC_MEM_RESP_MSG_TYPE_X )
-      type_str = "xx";
-    else begin
-      case ( type_ )
-        c_read       : type_str = "rd";
-        c_write      : type_str = "wr";
-        c_write_init : type_str = "wn";
-        default      : type_str = "??";
-      endcase
-    end
-
-    // Put together the trace string
-
-    if ( (vc_trace.level == 1) || (vc_trace.level == 2) ) begin
-      $sformat( str, "%s", type_str );
-    end
-    else if ( vc_trace.level == 3 ) begin
-      if ( type_ == c_write || type_ == c_write_init ) begin
-        $sformat( str, "%s:%x %s", type_str, opaque,
-                  {32{" "}} );
-      end
-      else
-        $sformat( str, "%s:%x:%x", type_str, opaque, data );
-    end
-
-    // Trace with val/rdy signals
-
-    vc_trace.append_val_rdy_str( trace_str, val, rdy, str );
-
-  end
-  `VC_TRACE_END
-
-endmodule
-`endif
-
-`endif /* VC_MEM_MSGS_V */
-
-
-`line 10 "proc/ProcDpathVRTL.v" 0
-`line 1 "vc/muxes.v" 0
-//========================================================================
-// Verilog Components: Muxes
-//========================================================================
-
-`ifndef VC_MUXES_V
-`define VC_MUXES_V
-
-//------------------------------------------------------------------------
-// 2 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux2
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1,
-  input  logic               sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      1'd0 : out = in0;
-      1'd1 : out = in1;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 3 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux3
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2,
-  input  logic         [1:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      2'd0 : out = in0;
-      2'd1 : out = in1;
-      2'd2 : out = in2;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 4 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux4
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3,
-  input  logic         [1:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      2'd0 : out = in0;
-      2'd1 : out = in1;
-      2'd2 : out = in2;
-      2'd3 : out = in3;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 5 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux5
-#(
- parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3, in4,
-  input  logic         [2:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      3'd0 : out = in0;
-      3'd1 : out = in1;
-      3'd2 : out = in2;
-      3'd3 : out = in3;
-      3'd4 : out = in4;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 6 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux6
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3, in4, in5,
-  input  logic         [2:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      3'd0 : out = in0;
-      3'd1 : out = in1;
-      3'd2 : out = in2;
-      3'd3 : out = in3;
-      3'd4 : out = in4;
-      3'd5 : out = in5;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 7 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux7
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3, in4, in5, in6,
-  input  logic         [2:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      3'd0 : out = in0;
-      3'd1 : out = in1;
-      3'd2 : out = in2;
-      3'd3 : out = in3;
-      3'd4 : out = in4;
-      3'd5 : out = in5;
-      3'd6 : out = in6;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 8 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux8
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3, in4, in5, in6, in7,
-  input  logic         [2:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      3'd0 : out = in0;
-      3'd1 : out = in1;
-      3'd2 : out = in2;
-      3'd3 : out = in3;
-      3'd4 : out = in4;
-      3'd5 : out = in5;
-      3'd6 : out = in6;
-      3'd7 : out = in7;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-`endif /* VC_MUXES_V */
-
-
-`line 11 "proc/ProcDpathVRTL.v" 0
-`line 1 "vc/regs.v" 0
-//========================================================================
-// Verilog Components: Registers
-//========================================================================
-
-// Note that we place the register output earlier in the port list since
-// this is one place we might actually want to use positional port
-// binding like this:
-//
-//  logic [p_nbits-1:0] result_B;
-//  vc_Reg#(p_nbits) result_AB( clk, result_B, result_A );
-
-`ifndef VC_REGS_V
-`define VC_REGS_V
-
-//------------------------------------------------------------------------
-// Postive-edge triggered flip-flop
-//------------------------------------------------------------------------
-
-module vc_Reg
-#(
-  parameter p_nbits = 1
-)(
-  input  logic               clk, // Clock input
-  output logic [p_nbits-1:0] q,   // Data output
-  input  logic [p_nbits-1:0] d    // Data input
-);
-
-  always_ff @( posedge clk )
-    q <= d;
-
-endmodule
-
-//------------------------------------------------------------------------
-// Postive-edge triggered flip-flop with reset
-//------------------------------------------------------------------------
-
-module vc_ResetReg
-#(
-  parameter p_nbits       = 1,
-  parameter p_reset_value = 0
-)(
-  input  logic               clk,   // Clock input
-  input  logic               reset, // Sync reset input
-  output logic [p_nbits-1:0] q,     // Data output
-  input  logic [p_nbits-1:0] d      // Data input
-);
-
-  always_ff @( posedge clk )
-    q <= reset ? p_reset_value : d;
-
-endmodule
-
-//------------------------------------------------------------------------
-// Postive-edge triggered flip-flop with enable
-//------------------------------------------------------------------------
-
-module vc_EnReg
-#(
-  parameter p_nbits = 1
-)(
-  input  logic               clk,   // Clock input
-  input  logic               reset, // Sync reset input
-  output logic [p_nbits-1:0] q,     // Data output
-  input  logic [p_nbits-1:0] d,     // Data input
-  input  logic               en     // Enable input
-);
-
-  always_ff @( posedge clk )
-    if ( en )
-      q <= d;
-
-  // Assertions
-
-  `ifndef SYNTHESIS
-
-  /*
-  always_ff @( posedge clk )
-    if ( !reset )
-      `VC_ASSERT_NOT_X( en );
-  */
-
-  `endif /* SYNTHESIS */
-
-endmodule
-
-//------------------------------------------------------------------------
-// Postive-edge triggered flip-flop with enable and reset
-//------------------------------------------------------------------------
-
-module vc_EnResetReg
-#(
-  parameter p_nbits       = 1,
-  parameter p_reset_value = 0
-)(
-  input  logic               clk,   // Clock input
-  input  logic               reset, // Sync reset input
-  output logic [p_nbits-1:0] q,     // Data output
-  input  logic [p_nbits-1:0] d,     // Data input
-  input  logic               en     // Enable input
-);
-
-  always_ff @( posedge clk )
-    if ( reset || en )
-      q <= reset ? p_reset_value : d;
-
-  // Assertions
-
-  `ifndef SYNTHESIS
-
-  /*
-  always_ff @( posedge clk )
-    if ( !reset )
-      `VC_ASSERT_NOT_X( en );
-  */
-
-  `endif /* SYNTHESIS */
-
-endmodule
-
-`endif /* VC_REGS_V */
-
-
-`line 12 "proc/ProcDpathVRTL.v" 0
-`line 1 "vc/regfiles.v" 0
-//========================================================================
-// Verilog Components: Register Files
-//========================================================================
-
-`ifndef VC_REGFILES_V
-`define VC_REGFILES_V
-
-//------------------------------------------------------------------------
-// 1r1w register file
-//------------------------------------------------------------------------
-
-module vc_Regfile_1r1w
-#(
-  parameter p_data_nbits  = 1,
-  parameter p_num_entries = 2,
-
-  // Local constants not meant to be set from outside the module
-  parameter c_addr_nbits  = $clog2(p_num_entries)
-)(
-  input  logic                    clk,
-  input  logic                    reset,
-
-  // Read port (combinational read)
-
-  input  logic [c_addr_nbits-1:0] read_addr,
-  output logic [p_data_nbits-1:0] read_data,
-
-  // Write port (sampled on the rising clock edge)
-
-  input  logic                    write_en,
-  input  logic [c_addr_nbits-1:0] write_addr,
-  input  logic [p_data_nbits-1:0] write_data
-);
-
-  logic [p_data_nbits-1:0] rfile[p_num_entries-1:0];
-
-  // Combinational read
-
-  assign read_data = rfile[read_addr];
-
-  // Write on positive clock edge
-
-  always_ff @( posedge clk )
-    if ( write_en )
-      rfile[write_addr] <= write_data;
-
-  // Assertions
-
-  /*
-  always_ff @( posedge clk ) begin
-    if ( !reset ) begin
-      `VC_ASSERT_NOT_X( write_en );
-
-      // If write_en is one, then write address better be less than the
-      // number of entries and definitely cannot be X's.
-
-      if ( write_en ) begin
-        `VC_ASSERT_NOT_X( write_addr );
-        `VC_ASSERT( write_addr < p_num_entries );
-      end
-
-    end
-  end
-  */
-
-endmodule
-
-//------------------------------------------------------------------------
-// 1r1w register file with reset
-//------------------------------------------------------------------------
-
-module vc_ResetRegfile_1r1w
-#(
-  parameter p_data_nbits  = 1,
-  parameter p_num_entries = 2,
-  parameter p_reset_value = 0,
-
-  // Local constants not meant to be set from outside the module
-  parameter c_addr_nbits  = $clog2(p_num_entries)
-)(
-  input  logic                    clk,
-  input  logic                    reset,
-
-  // Read port (combinational read)
-
-  input  logic [c_addr_nbits-1:0] read_addr,
-  output logic [p_data_nbits-1:0] read_data,
-
-  // Write port (sampled on the rising clock edge)
-
-  input  logic                    write_en,
-  input  logic [c_addr_nbits-1:0] write_addr,
-  input  logic [p_data_nbits-1:0] write_data
-);
-
-  logic [p_data_nbits-1:0] rfile[p_num_entries-1:0];
-
-  // Combinational read
-
-  assign read_data = rfile[read_addr];
-
-  // Write on positive clock edge. We have to use a generate statement to
-  // allow us to include the reset logic for each individual register.
-
-  genvar i;
-  generate
-    for ( i = 0; i < p_num_entries; i = i+1 )
-    begin : wport
-      always_ff @( posedge clk )
-        if ( reset )
-          rfile[i] <= p_reset_value;
-        else if ( write_en && (i[c_addr_nbits-1:0] == write_addr) )
-          rfile[i] <= write_data;
-    end
-  endgenerate
-
-  // Assertions
-
-  /*
-  always_ff @( posedge clk ) begin
-    if ( !reset ) begin
-      `VC_ASSERT_NOT_X( write_en );
-
-      // If write_en is one, then write address better be less than the
-      // number of entries and definitely cannot be X's.
-
-      if ( write_en ) begin
-        `VC_ASSERT_NOT_X( write_addr );
-        `VC_ASSERT( write_addr < p_num_entries );
-      end
-
-    end
-  end
-  */
-
-endmodule
-
-//------------------------------------------------------------------------
-// 2r1w register file
-//------------------------------------------------------------------------
-
-module vc_Regfile_2r1w
-#(
-  parameter p_data_nbits  = 1,
-  parameter p_num_entries = 2,
-
-  // Local constants not meant to be set from outside the module
-  parameter c_addr_nbits  = $clog2(p_num_entries)
-)(
-  input  logic                   clk,
-  input  logic                   reset,
-
-  // Read port 0 (combinational read)
-
-  input  logic [c_addr_nbits-1:0] read_addr0,
-  output logic [p_data_nbits-1:0] read_data0,
-
-  // Read port 1 (combinational read)
-
-  input  logic [c_addr_nbits-1:0] read_addr1,
-  output logic [p_data_nbits-1:0] read_data1,
-
-  // Write port (sampled on the rising clock edge)
-
-  input  logic                    write_en,
-  input  logic [c_addr_nbits-1:0] write_addr,
-  input  logic [p_data_nbits-1:0] write_data
-);
-
-  logic [p_data_nbits-1:0] rfile[p_num_entries-1:0];
-
-  // Combinational read
-
-  assign read_data0 = rfile[read_addr0];
-  assign read_data1 = rfile[read_addr1];
-
-  // Write on positive clock edge
-
-  always_ff @( posedge clk )
-    if ( write_en )
-      rfile[write_addr] <= write_data;
-
-  // Assertions
-
-  /*
-  always_ff @( posedge clk ) begin
-    if ( !reset ) begin
-      `VC_ASSERT_NOT_X( write_en );
-
-      // If write_en is one, then write address better be less than the
-      // number of entries and definitely cannot be X's.
-
-      if ( write_en ) begin
-        `VC_ASSERT_NOT_X( write_addr );
-        `VC_ASSERT( write_addr < p_num_entries );
-      end
-
-    end
-  end
-  */
-
-endmodule
-
-//------------------------------------------------------------------------
-// 2r2w register file
-//------------------------------------------------------------------------
-
-module vc_Regfile_2r2w
-#(
-  parameter p_data_nbits  = 1,
-  parameter p_num_entries = 2,
-
-  // Local constants not meant to be set from outside the module
-  parameter c_addr_nbits  = $clog2(p_num_entries)
-)(
-  input  logic                    clk,
-  input  logic                    reset,
-
-  // Read port 0 (combinational read)
-
-  input  logic [c_addr_nbits-1:0] read_addr0,
-  output logic [p_data_nbits-1:0] read_data0,
-
-  // Read port 1 (combinational read)
-
-  input  logic [c_addr_nbits-1:0] read_addr1,
-  output logic [p_data_nbits-1:0] read_data1,
-
-  // Write port (sampled on the rising clock edge)
-
-  input  logic                    write_en0,
-  input  logic [c_addr_nbits-1:0] write_addr0,
-  input  logic [p_data_nbits-1:0] write_data0,
-
-  // Write port (sampled on the rising clock edge)
-
-  input  logic                    write_en1,
-  input  logic [c_addr_nbits-1:0] write_addr1,
-  input  logic [p_data_nbits-1:0] write_data1
-);
-
-  logic [p_data_nbits-1:0] rfile[p_num_entries-1:0];
-
-  // Combinational read
-
-  assign read_data0 = rfile[read_addr0];
-  assign read_data1 = rfile[read_addr1];
-
-  // Write on positive clock edge
-
-  always_ff @( posedge clk ) begin
-
-    if ( write_en0 )
-      rfile[write_addr0] <= write_data0;
-
-    if ( write_en1 )
-      rfile[write_addr1] <= write_data1;
-
-  end
-
-  // Assertions
-
-  /*
-  always_ff @( posedge clk ) begin
-    if ( !reset ) begin
-      `VC_ASSERT_NOT_X( write_en0 );
-      `VC_ASSERT_NOT_X( write_en1 );
-
-      // If write_en is one, then write address better be less than the
-      // number of entries and definitely cannot be X's.
-
-      if ( write_en0 ) begin
-        `VC_ASSERT_NOT_X( write_addr0 );
-        `VC_ASSERT( write_addr0 < p_num_entries );
-      end
-
-      if ( write_en1 ) begin
-        `VC_ASSERT_NOT_X( write_addr1 );
-        `VC_ASSERT( write_addr1 < p_num_entries );
-      end
-
-      // It is invalid to use the same write address for both write ports
-
-      if ( write_en0 && write_en1 ) begin
-        `VC_ASSERT( write_addr0 != write_addr1 );
-      end
-
-    end
-  end
-  */
-
-endmodule
-
-//------------------------------------------------------------------------
-// Register file specialized for r0 == 0
-//------------------------------------------------------------------------
-
-module vc_Regfile_2r1w_zero
-(
-  input  logic        clk,
-  input  logic        reset,
-
-  input  logic  [4:0] rd_addr0,
-  output logic [31:0] rd_data0,
-
-  input  logic  [4:0] rd_addr1,
-  output logic [31:0] rd_data1,
-
-  input  logic        wr_en,
-  input  logic  [4:0] wr_addr,
-  input  logic [31:0] wr_data
-);
-
-  // these wires are to be hooked up to the actual register file read
-  // ports
-
-  logic [31:0] rf_read_data0;
-  logic [31:0] rf_read_data1;
-
-  vc_Regfile_2r1w
-  #(
-    .p_data_nbits  (32),
-    .p_num_entries (32)
-  )
-  rfile
-  (
-    .clk         (clk),
-    .reset       (reset),
-    .read_addr0  (rd_addr0),
-    .read_data0  (rf_read_data0),
-    .read_addr1  (rd_addr1),
-    .read_data1  (rf_read_data1),
-    .write_en    (wr_en),
-    .write_addr  (wr_addr),
-    .write_data  (wr_data)
-  );
-
-  // we pick 0 value when either read address is 0
-  assign rd_data0 = ( rd_addr0 == 5'd0 ) ? 32'd0 : rf_read_data0;
-  assign rd_data1 = ( rd_addr1 == 5'd0 ) ? 32'd0 : rf_read_data1;
-
-endmodule
-
-`endif /* VC_REGFILES_V */
-
-
-`line 13 "proc/ProcDpathVRTL.v" 0
-
-`line 1 "lab1_imul/IntMulVarLatVRTL.v" 0
-//=========================================================================
-// Integer Multiplier Variable-Latency Implementation
-//=========================================================================
-
-`ifndef LAB1_IMUL_INT_MUL_VARLAT_V
-`define LAB1_IMUL_INT_MUL_VARLAT_V
-
-`line 1 "vc/trace.v" 0
-//========================================================================
-// Line Tracing
-//========================================================================
-
-`ifndef VC_TRACE_V
-`define VC_TRACE_V
-
-// NOTE: This macro is declared outside of the module to allow some vc
-// modules to see it and use it in their own params. Verilog does not
-// allow other modules to hierarchically reference the nbits localparam
-// inside this module in constant expressions (e.g., localparams).
-
-`define VC_TRACE_NCHARS 512
-`define VC_TRACE_NBITS  512*8
-
-`ifndef SYNTHESIS
-
-module vc_Trace
-(
-  input logic clk,
-  input logic reset
-);
-
-  integer len0;
-  integer len1;
-  integer idx0;
-  integer idx1;
-
-  // NOTE: If you change these, then you also need to change the
-  // hard-coded constant in the declaration of the trace function at the
-  // bottom of this file.
-  // NOTE: You would also need to change the VC_TRACE_NBITS and
-  // VC_TRACE_NCHARS macro at the top of this file.
-
-  localparam nchars = 512;
-  localparam nbits  = 512*8;
-
-  // This is the actual trace storage used when displaying a trace
-
-  logic [nbits-1:0] storage;
-
-  // Meant to be accesible from outside module
-
-  integer cycles_next = 0;
-  integer cycles      = 0;
-
-  // Get trace level from command line
-
-  logic [3:0] level;
-
-`ifndef VERILATOR
-  initial begin
-    if ( !$value$plusargs( "trace=%d", level ) ) begin
-      level = 0;
-    end
-  end
-`else
-  initial begin
-    level = 1;
-  end
-`endif // !`ifndef VERILATOR
-
-  // Track cycle count
-
-  always_ff @( posedge clk ) begin
-    cycles <= ( reset ) ? 0 : cycles_next;
-  end
-
-  //----------------------------------------------------------------------
-  // append_str
-  //----------------------------------------------------------------------
-  // Appends a string to the trace.
-
-  task append_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len0 = 1;
-    while ( str[len0*8+:8] != 0 ) begin
-      len0 = len0 + 1;
-    end
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = len0-1; idx1 >= 0; idx1 = idx1 - 1 )
-    begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8 +: 8 ];
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_str_ljust
-  //----------------------------------------------------------------------
-  // Appends a left-justified string to the trace.
-
-  task append_str_ljust
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    idx0 = trace[31:0];
-    idx1 = nchars;
-
-    while ( str[ idx1*8-1 -: 8 ] != 0 ) begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8-1 -: 8 ];
-      idx0 = idx0 - 1;
-      idx1 = idx1 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_chars
-  //----------------------------------------------------------------------
-  // Appends the given number of characters to the trace.
-
-  task append_chars
-  (
-    inout logic   [nbits-1:0] trace,
-    input logic         [7:0] char,
-    input integer             num
-  );
-  begin
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = 0;
-          idx1 < num;
-          idx1 = idx1 + 1 )
-    begin
-      trace[idx0*8+:8] = char;
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_val_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val signal.
-
-  task append_val_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( val )
-      append_str( trace, str );
-    else if ( !val )
-      append_chars( trace, " ", len1 );
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // val_rdy_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val/rdy signals.
-
-  task append_val_rdy_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic             rdy,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( rdy && val ) begin
-      append_str( trace, str );
-    end
-    else if ( rdy && !val ) begin
-      append_chars( trace, " ", len1 );
-    end
-    else if ( !rdy && val ) begin
-      append_str( trace, "#" );
-      append_chars( trace, " ", len1-1 );
-    end
-    else if ( !rdy && !val ) begin
-      append_str( trace, "." );
-      append_chars( trace, " ", len1-1 );
     end
     else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-//------------------------------------------------------------------------
-// VC_TRACE_NBITS_TO_NCHARS
-//------------------------------------------------------------------------
-// Macro to determine number of characters for a net
-
-`define VC_TRACE_NBITS_TO_NCHARS( nbits_ ) ((nbits_+3)/4)
-
-//------------------------------------------------------------------------
-// VC_TRACE_BEGIN
-//------------------------------------------------------------------------
-
-//`define VC_TRACE_BEGIN                                                  \
-//  export "DPI-C" task line_trace;                                       \
-//  vc_Trace vc_trace(clk,reset);                                         \
-//  task line_trace( inout bit [(512*8)-1:0] trace_str );
-
-`ifndef VERILATOR
-`define VC_TRACE_BEGIN                                                  \
-  vc_Trace vc_trace(clk,reset);                                         \
-                                                                        \
-  task display_trace;                                                   \
-  begin                                                                 \
-                                                                        \
-    if ( vc_trace.level > 0 ) begin                                     \
-      vc_trace.storage[15:0] = vc_trace.nchars-1;                       \
-                                                                        \
-      line_trace( vc_trace.storage );                                   \
-                                                                        \
-      $write( "%4d: ", vc_trace.cycles );                               \
-                                                                        \
-      vc_trace.idx0 = vc_trace.storage[15:0];                           \
-      for ( vc_trace.idx1 = vc_trace.nchars-1;                          \
-            vc_trace.idx1 > vc_trace.idx0;                              \
-            vc_trace.idx1 = vc_trace.idx1 - 1 )                         \
-      begin                                                             \
-        $write( "%s", vc_trace.storage[vc_trace.idx1*8+:8] );           \
-      end                                                               \
-      $write("\n");                                                     \
-                                                                        \
-    end                                                                 \
-                                                                        \
-    vc_trace.cycles_next = vc_trace.cycles + 1;                         \
-                                                                        \
-  end                                                                   \
-  endtask                                                               \
-                                                                        \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`else
-`define VC_TRACE_BEGIN                                                  \
-  export "DPI-C" task line_trace;                                       \
-  vc_Trace vc_trace(clk,reset);                                         \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`endif
-
-//------------------------------------------------------------------------
-// VC_TRACE_END
-//------------------------------------------------------------------------
-
-`define VC_TRACE_END \
-  endtask
-
-`endif /* VC_TRACE_V */
-
-
-`line 9 "lab1_imul/IntMulVarLatVRTL.v" 0
-
-// ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-// Define datapath and control unit here.
-// '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''\/
-
-`line 1 "vc/muxes.v" 0
-//========================================================================
-// Verilog Components: Muxes
-//========================================================================
-
-`ifndef VC_MUXES_V
-`define VC_MUXES_V
-
-//------------------------------------------------------------------------
-// 2 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux2
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1,
-  input  logic               sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      1'd0 : out = in0;
-      1'd1 : out = in1;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 3 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux3
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2,
-  input  logic         [1:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      2'd0 : out = in0;
-      2'd1 : out = in1;
-      2'd2 : out = in2;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 4 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux4
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3,
-  input  logic         [1:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      2'd0 : out = in0;
-      2'd1 : out = in1;
-      2'd2 : out = in2;
-      2'd3 : out = in3;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 5 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux5
-#(
- parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3, in4,
-  input  logic         [2:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      3'd0 : out = in0;
-      3'd1 : out = in1;
-      3'd2 : out = in2;
-      3'd3 : out = in3;
-      3'd4 : out = in4;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 6 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux6
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3, in4, in5,
-  input  logic         [2:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      3'd0 : out = in0;
-      3'd1 : out = in1;
-      3'd2 : out = in2;
-      3'd3 : out = in3;
-      3'd4 : out = in4;
-      3'd5 : out = in5;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 7 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux7
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3, in4, in5, in6,
-  input  logic         [2:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      3'd0 : out = in0;
-      3'd1 : out = in1;
-      3'd2 : out = in2;
-      3'd3 : out = in3;
-      3'd4 : out = in4;
-      3'd5 : out = in5;
-      3'd6 : out = in6;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// 8 Input Mux
-//------------------------------------------------------------------------
-
-module vc_Mux8
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0, in1, in2, in3, in4, in5, in6, in7,
-  input  logic         [2:0] sel,
-  output logic [p_nbits-1:0] out
-);
-
-  always_comb
-  begin
-    case ( sel )
-      3'd0 : out = in0;
-      3'd1 : out = in1;
-      3'd2 : out = in2;
-      3'd3 : out = in3;
-      3'd4 : out = in4;
-      3'd5 : out = in5;
-      3'd6 : out = in6;
-      3'd7 : out = in7;
-      default : out = {p_nbits{1'bx}};
-    endcase
-  end
-
-endmodule
-
-`endif /* VC_MUXES_V */
-
-
-`line 15 "lab1_imul/IntMulVarLatVRTL.v" 0
-`line 1 "vc/regs.v" 0
-//========================================================================
-// Verilog Components: Registers
-//========================================================================
-
-// Note that we place the register output earlier in the port list since
-// this is one place we might actually want to use positional port
-// binding like this:
-//
-//  logic [p_nbits-1:0] result_B;
-//  vc_Reg#(p_nbits) result_AB( clk, result_B, result_A );
-
-`ifndef VC_REGS_V
-`define VC_REGS_V
-
-//------------------------------------------------------------------------
-// Postive-edge triggered flip-flop
-//------------------------------------------------------------------------
-
-module vc_Reg
-#(
-  parameter p_nbits = 1
-)(
-  input  logic               clk, // Clock input
-  output logic [p_nbits-1:0] q,   // Data output
-  input  logic [p_nbits-1:0] d    // Data input
-);
-
-  always_ff @( posedge clk )
-    q <= d;
-
-endmodule
-
-//------------------------------------------------------------------------
-// Postive-edge triggered flip-flop with reset
-//------------------------------------------------------------------------
-
-module vc_ResetReg
-#(
-  parameter p_nbits       = 1,
-  parameter p_reset_value = 0
-)(
-  input  logic               clk,   // Clock input
-  input  logic               reset, // Sync reset input
-  output logic [p_nbits-1:0] q,     // Data output
-  input  logic [p_nbits-1:0] d      // Data input
-);
-
-  always_ff @( posedge clk )
-    q <= reset ? p_reset_value : d;
-
-endmodule
-
-//------------------------------------------------------------------------
-// Postive-edge triggered flip-flop with enable
-//------------------------------------------------------------------------
-
-module vc_EnReg
-#(
-  parameter p_nbits = 1
-)(
-  input  logic               clk,   // Clock input
-  input  logic               reset, // Sync reset input
-  output logic [p_nbits-1:0] q,     // Data output
-  input  logic [p_nbits-1:0] d,     // Data input
-  input  logic               en     // Enable input
-);
-
-  always_ff @( posedge clk )
-    if ( en )
-      q <= d;
-
-  // Assertions
-
-  `ifndef SYNTHESIS
-
-  /*
-  always_ff @( posedge clk )
-    if ( !reset )
-      `VC_ASSERT_NOT_X( en );
-  */
-
-  `endif /* SYNTHESIS */
-
-endmodule
-
-//------------------------------------------------------------------------
-// Postive-edge triggered flip-flop with enable and reset
-//------------------------------------------------------------------------
-
-module vc_EnResetReg
-#(
-  parameter p_nbits       = 1,
-  parameter p_reset_value = 0
-)(
-  input  logic               clk,   // Clock input
-  input  logic               reset, // Sync reset input
-  output logic [p_nbits-1:0] q,     // Data output
-  input  logic [p_nbits-1:0] d,     // Data input
-  input  logic               en     // Enable input
-);
-
-  always_ff @( posedge clk )
-    if ( reset || en )
-      q <= reset ? p_reset_value : d;
-
-  // Assertions
-
-  `ifndef SYNTHESIS
-
-  /*
-  always_ff @( posedge clk )
-    if ( !reset )
-      `VC_ASSERT_NOT_X( en );
-  */
-
-  `endif /* SYNTHESIS */
-
-endmodule
-
-`endif /* VC_REGS_V */
-
-
-`line 16 "lab1_imul/IntMulVarLatVRTL.v" 0
-`line 1 "vc/arithmetic.v" 0
-//========================================================================
-// Verilog Components: Arithmetic Components
-//========================================================================
-
-`ifndef VC_ARITHMETIC_V
-`define VC_ARITHMETIC_V
-
-//------------------------------------------------------------------------
-// Adders
-//------------------------------------------------------------------------
-
-module vc_Adder
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  input  logic               cin,
-  output logic [p_nbits-1:0] out,
-  output logic               cout
-);
-
-  // We need to convert cin into a 32-bit value to
-  // avoid verilator warnings
-
-  assign {cout,out} = in0 + in1 + {{(p_nbits-1){1'b0}},cin};
-
-endmodule
-
-module vc_SimpleAdder
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic [p_nbits-1:0] out
-);
-
-  assign out = in0 + in1;
-
-endmodule
-
-//------------------------------------------------------------------------
-// Subtractor
-//------------------------------------------------------------------------
-
-module vc_Subtractor
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic [p_nbits-1:0] out
-);
-
-  assign out = in0 - in1;
-
-endmodule
-
-//------------------------------------------------------------------------
-// Incrementer
-//------------------------------------------------------------------------
-
-module vc_Incrementer
-#(
-  parameter p_nbits     = 1,
-  parameter p_inc_value = 1
-)(
-  input  logic [p_nbits-1:0] in,
-  output logic [p_nbits-1:0] out
-);
-
-  assign out = in + p_inc_value;
-
-endmodule
-
-//------------------------------------------------------------------------
-// ZeroExtender
-//------------------------------------------------------------------------
-
-module vc_ZeroExtender
-#(
-  parameter p_in_nbits  = 1,
-  parameter p_out_nbits = 8
-)(
-  input  logic [p_in_nbits-1:0]  in,
-  output logic [p_out_nbits-1:0] out
-);
-
-  assign out = { {( p_out_nbits - p_in_nbits ){1'b0}}, in };
-
-endmodule
-
-//------------------------------------------------------------------------
-// SignExtender
-//------------------------------------------------------------------------
-
-module vc_SignExtender
-#(
- parameter p_in_nbits = 1,
- parameter p_out_nbits = 8
-)
-(
-  input  logic [p_in_nbits-1:0]  in,
-  output logic [p_out_nbits-1:0] out
-);
-
-  assign out = { {(p_out_nbits-p_in_nbits){in[p_in_nbits-1]}}, in };
-
-endmodule
-
-//------------------------------------------------------------------------
-// ZeroComparator
-//------------------------------------------------------------------------
-
-module vc_ZeroComparator
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in,
-  output logic               out
-);
-
-  assign out = ( in == {p_nbits{1'b0}} );
-
-endmodule
-
-//------------------------------------------------------------------------
-// EqComparator
-//------------------------------------------------------------------------
-
-module vc_EqComparator
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic               out
-);
-
-  assign out = ( in0 == in1 );
-
-endmodule
-
-//------------------------------------------------------------------------
-// LtComparator
-//------------------------------------------------------------------------
-
-module vc_LtComparator
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic               out
-);
-
-  assign out = ( in0 < in1 );
-
-endmodule
-
-//------------------------------------------------------------------------
-// GtComparator
-//------------------------------------------------------------------------
-
-module vc_GtComparator
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic               out
-);
-
-  assign out = ( in0 > in1 );
-
-endmodule
-
-//------------------------------------------------------------------------
-// LeftLogicalShifter
-//------------------------------------------------------------------------
-
-module vc_LeftLogicalShifter
-#(
-  parameter p_nbits       = 1,
-  parameter p_shamt_nbits = 1 )
-(
-  input  logic       [p_nbits-1:0] in,
-  input  logic [p_shamt_nbits-1:0] shamt,
-  output logic       [p_nbits-1:0] out
-);
-
-  assign out = ( in << shamt );
-
-endmodule
-
-//------------------------------------------------------------------------
-// RightLogicalShifter
-//------------------------------------------------------------------------
-
-module vc_RightLogicalShifter
-#(
-  parameter p_nbits       = 1,
-  parameter p_shamt_nbits = 1
-)(
-  input  logic       [p_nbits-1:0] in,
-  input  logic [p_shamt_nbits-1:0] shamt,
-  output logic       [p_nbits-1:0] out
-);
-
-  assign out = ( in >> shamt );
-
-endmodule
-
-`endif /* VC_ARITHMETIC_V */
-
-
-`line 17 "lab1_imul/IntMulVarLatVRTL.v" 0
-`line 1 "lab1_imul/IntMulVarLatCalcShamtVRTL.v" 0
-//========================================================================
-// CalcShamtVRTL
-//========================================================================
-// Looking at least significant eight bits, calculate how many bits we
-// want to shift.
-
-`ifndef LAB1_IMUL_CALC_SHAMT_V
-`define LAB1_IMUL_CALC_SHAMT_V
-
-module lab1_imul_IntMulVarLatCalcShamtVRTL
-(
-  input  logic [7:0] in,
-  output logic [3:0] out
-);
-
-  always @(*) begin
-    if      (in == 0) out = 8;
-    else if ( in[0] ) out = 1;
-    else if ( in[1] ) out = 1;
-    else if ( in[2] ) out = 2;
-    else if ( in[3] ) out = 3;
-    else if ( in[4] ) out = 4;
-    else if ( in[5] ) out = 5;
-    else if ( in[6] ) out = 6;
-    else if ( in[7] ) out = 7;
-  end
-
-endmodule
-
-`endif /* LAB1_IMUL_CALC_SHAMT_V */
-
-
-`line 18 "lab1_imul/IntMulVarLatVRTL.v" 0
-
-//========================================================================
-// Integer Multiplier Variable-Latency Datapath
-//========================================================================
-
-module lab1_imul_IntMulVarLatDpathRTL
-(
-  input  logic        clk,
-  input  logic        reset,
-
-  // Data signals
-
-  input  logic [31:0] req_msg_a,
-  input  logic [31:0] req_msg_b,
-  output logic [31:0] resp_msg,
-
-  // Control signals (ctrl -> dpath)
-
-  input  logic        a_mux_sel,
-  input  logic        b_mux_sel,
-  input  logic        result_mux_sel,
-  input  logic        result_reg_en,
-  input  logic        add_mux_sel,
-
-  // Status signals (dpath -> ctrl)
-
-  output logic        b_lsb,
-  output logic        is_b_zero
-);
-
-  // B mux
-
-  logic [31:0] rshifter_out;
-  logic [31:0] b_mux_out;
-
-  vc_Mux2#(32) b_mux
-  (
-   .sel (b_mux_sel),
-   .in0 (rshifter_out),
-   .in1 (req_msg_b),
-   .out (b_mux_out)
-  );
-
-  // B register
-
-  logic [31:0] b_reg_out;
-
-  vc_Reg#(32) b_reg
-  (
-   .clk (clk),
-   .d   (b_mux_out),
-   .q   (b_reg_out)
-  );
-
-  // B zero comparator
-
-  vc_ZeroComparator#(32) b_zero_cmp
-  (
-   .in  (b_reg_out),
-   .out (is_b_zero)
-  );
-
-  // Calculate shift amount
-
-  logic [3:0] calc_shamt_out;
-
-  lab1_imul_IntMulVarLatCalcShamtVRTL calc_shamt
-  (
-   .in  (b_reg_out[7:0]),
-   .out (calc_shamt_out)
-  );
-
-  // Right shifter
-
-  vc_RightLogicalShifter#(32,4) rshifter
-  (
-   .in    (b_reg_out),
-   .shamt (calc_shamt_out),
-   .out   (rshifter_out)
-  );
-
-  // A mux
-
-  logic [31:0] lshifter_out;
-  logic [31:0] a_mux_out;
-
-  vc_Mux2#(32) a_mux
-  (
-   .sel (a_mux_sel),
-   .in0 (lshifter_out),
-   .in1 (req_msg_a),
-   .out (a_mux_out)
-  );
-
-  // A register
-
-  logic [31:0] a_reg_out;
-
-  vc_Reg#(32) a_reg
-  (
-   .clk (clk),
-   .d   (a_mux_out),
-   .q   (a_reg_out)
-  );
-
-  // Left shifter
-
-  vc_LeftLogicalShifter#(32,4) lshifter
-  (
-   .in    (a_reg_out),
-   .shamt (calc_shamt_out),
-   .out   (lshifter_out)
-  );
-
-  // Result mux
-
-  logic [31:0] add_mux_out;
-  logic [31:0] result_mux_out;
-
-  vc_Mux2#(32) result_mux
-  (
-   .sel (result_mux_sel),
-   .in0 (add_mux_out),
-   .in1 (32'b0),
-   .out (result_mux_out)
-  );
-
-  // Result register
-
-  logic [31:0] result_reg_out;
-
-  vc_EnReg#(32) result_reg
-  (
-   .clk   (clk),
-   .reset (reset),
-   .en    (result_reg_en),
-   .d     (result_mux_out),
-   .q     (result_reg_out)
-  );
-
-  // Adder
-
-  logic [31:0] add_out;
-
-  vc_SimpleAdder#(32) add
-  (
-   .in0 (a_reg_out),
-   .in1 (result_reg_out),
-   .out (add_out)
-  );
-
-  // Add mux
-
-  vc_Mux2#(32) add_mux
-  (
-   .sel (add_mux_sel),
-   .in0 (add_out),
-   .in1 (result_reg_out),
-   .out (add_mux_out)
-  );
-
-  // Status signals
-
-  assign b_lsb = b_reg_out[0];
-
-  // Connect to output port
-
-  assign resp_msg = result_reg_out;
-
-endmodule
-
-//========================================================================
-// Integer Multiplier Variable-Latency Control Unit
-//========================================================================
-
-module lab1_imul_IntMulVarLatCtrlRTL
-(
-  input  logic clk,
-  input  logic reset,
-
-  // Dataflow signals
-
-  input  logic req_val,
-  output logic req_rdy,
-
-  output logic resp_val,
-  input  logic resp_rdy,
-
-  // Control signals (ctrl -> dpath)
-
-  output logic a_mux_sel,
-  output logic b_mux_sel,
-  output logic result_mux_sel,
-  output logic result_reg_en,
-  output logic add_mux_sel,
-
-  // Status signals (dpath -> ctrl)
-
-  input  logic b_lsb,
-  input  logic is_b_zero
-);
-
-  //----------------------------------------------------------------------
-  // State
-  //----------------------------------------------------------------------
-
-  localparam STATE_IDLE = 2'd0;
-  localparam STATE_CALC = 2'd1;
-  localparam STATE_DONE = 2'd2;
-
-  /*
-  typedef enum logic [$clog2(3)-1:0] {
-    STATE_IDLE,
-    STATE_CALC,
-    STATE_DONE
-  } state_t;
-
-  state_t state_reg;
-  state_t state_next;
-  */
-
-  logic [1:0] state_reg;
-  logic [1:0] state_next;
-
-  always @( posedge clk ) begin
-    if ( reset )
-      state_reg <= STATE_IDLE;
-    else
-      state_reg <= state_next;
-  end
-
-  //----------------------------------------------------------------------
-  // State Transitions
-  //----------------------------------------------------------------------
-
-  logic req_go, resp_go, is_calc_done;
-
-  assign req_go       = req_val  && req_rdy;
-  assign resp_go      = resp_val && resp_rdy;
-  assign is_calc_done = is_b_zero;
-
-  always @(*) begin
-
-    state_next = state_reg;
-
-    case ( state_reg )
-
-      STATE_IDLE: if ( req_go       ) state_next = STATE_CALC;
-      STATE_CALC: if ( is_calc_done ) state_next = STATE_DONE;
-      STATE_DONE: if ( resp_go      ) state_next = STATE_IDLE;
-      default:                        state_next = 'x;
-
-    endcase
-
-  end
-
-  //----------------------------------------------------------------------
-  // State Outputs
-  //----------------------------------------------------------------------
-
-  localparam a_x     = 1'dx;
-  localparam a_lsh   = 1'd0;
-  localparam a_ld    = 1'd1;
-
-  localparam b_x     = 1'dx;
-  localparam b_rsh   = 1'd0;
-  localparam b_ld    = 1'd1;
-
-  localparam res_x   = 1'dx;
-  localparam res_add = 1'd0;
-  localparam res_0   = 1'd1;
-
-  localparam add_x   = 1'dx;
-  localparam add_add = 1'd0;
-  localparam add_res = 1'd1;
-
-  task cs
-  (
-    input cs_req_rdy,
-    input cs_resp_val,
-    input cs_a_mux_sel,
-    input cs_b_mux_sel,
-    input cs_result_mux_sel,
-    input cs_result_reg_en,
-    input cs_add_mux_sel
-  );
-  begin
-    req_rdy        = cs_req_rdy;
-    resp_val       = cs_resp_val;
-    a_mux_sel      = cs_a_mux_sel;
-    b_mux_sel      = cs_b_mux_sel;
-    result_mux_sel = cs_result_mux_sel;
-    result_reg_en  = cs_result_reg_en;
-    add_mux_sel    = cs_add_mux_sel;
-  end
-  endtask
-
-  // Labels for Mealy transistions
-
-  logic do_sh_add, do_sh;
-
-  assign do_sh_add = (b_lsb == 1); // do shift and add
-  assign do_sh     = (b_lsb == 0); // do shift but no add
-
-  // Set outputs using a control signal "table"
-
-  always @(*) begin
-
-    case ( state_reg )
-
-//                               req resp a mux  b mux  res mux  res    add mux
-//                               rdy val  sel    sel    sel      en     sel
-STATE_IDLE:                  cs( 1,  0,   a_ld,  b_ld,  res_0,   1,     add_x    );
-STATE_CALC: if ( do_sh_add ) cs( 0,  0,   a_lsh, b_rsh, res_add, 1,     add_add  );
-       else if ( do_sh )     cs( 0,  0,   a_lsh, b_rsh, res_add, 1,     add_res  );
-STATE_DONE:                  cs( 0,  1,   a_x,   b_x,   res_x,   0,     add_x    );
-default:                     cs('x, 'x,   a_x,   b_x,   res_x,  'x,     add_x    );
-
-    endcase
-
-  end
-
-endmodule
-
-// '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''/\
-
-//=========================================================================
-// Integer Multiplier Variable-Latency Implementation
-//=========================================================================
-
-module lab1_imul_IntMulVarLatVRTL
-(
-  input  logic        clk,
-  input  logic        reset,
-
-  input  logic        req_val,
-  output logic        req_rdy,
-  input  logic [63:0] req_msg,
-
-  output logic        resp_val,
-  input  logic        resp_rdy,
-  output logic [31:0] resp_msg
-);
-
-  // ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  // Instantiate datapath and control models here and then connect them
-  // together.
-  // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''\/
-
-  // Control signals
-
-  logic a_mux_sel;
-  logic b_mux_sel;
-  logic result_mux_sel;
-  logic result_reg_en;
-  logic add_mux_sel;
-
-  // Status signals
-
-  logic b_lsb;
-  logic is_b_zero;
-
-  // Instantiate and connect datapath
-
-  lab1_imul_IntMulVarLatDpathRTL dpath
-  (
-    .req_msg_a (req_msg[63:32]),
-    .req_msg_b (req_msg[31: 0]),
-    .*
-  );
-
-  // Instantiate and connect control unit
-
-  lab1_imul_IntMulVarLatCtrlRTL ctrl
-  (
-    .*
-  );
-
-  // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''/\
-
-  //----------------------------------------------------------------------
-  // Line Tracing
-  //----------------------------------------------------------------------
-
-  `ifndef SYNTHESIS
-
-  logic [`VC_TRACE_NBITS-1:0] str;
-  `VC_TRACE_BEGIN
-  begin
-
-    $sformat( str, "%x", req_msg );
-    vc_trace.append_val_rdy_str( trace_str, req_val, req_rdy, str );
-
-    vc_trace.append_str( trace_str, "(" );
-
-    // ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    // Add additional line tracing using the helper tasks for
-    // internal state including the current FSM state.
-    // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''\/
-
-    $sformat( str, "%x", dpath.a_reg_out );
-    vc_trace.append_str( trace_str, str );
-    vc_trace.append_str( trace_str, " " );
-
-    $sformat( str, "%x", dpath.b_reg_out );
-    vc_trace.append_str( trace_str, str );
-    vc_trace.append_str( trace_str, " " );
-
-    $sformat( str, "%x", dpath.result_reg_out );
-    vc_trace.append_str( trace_str, str );
-    vc_trace.append_str( trace_str, " " );
-
-    case ( ctrl.state_reg )
-      ctrl.STATE_IDLE:
-        vc_trace.append_str( trace_str, "I " );
-
-      ctrl.STATE_CALC:
-      begin
-        if ( ctrl.do_sh_add )
-          vc_trace.append_str( trace_str, "C+" );
-        else if ( ctrl.do_sh )
-          vc_trace.append_str( trace_str, "C " );
-        else
-          vc_trace.append_str( trace_str, "C?" );
+      if (pc_redirect_D) begin
+        pc_sel_F = 2;
       end
-
-      ctrl.STATE_DONE:
-        vc_trace.append_str( trace_str, "D " );
-
-      default:
-        vc_trace.append_str( trace_str, "? " );
-
-    endcase
-
-    // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''/\
-
-    vc_trace.append_str( trace_str, ")" );
-
-    $sformat( str, "%x", resp_msg );
-    vc_trace.append_val_rdy_str( trace_str, resp_val, resp_rdy, str );
-
-  end
-  `VC_TRACE_END
-
-  `endif /* SYNTHESIS */
-
-endmodule
-
-`endif /* LAB1_IMUL_INT_MUL_VARLAT_V */
-
-`line 15 "proc/ProcDpathVRTL.v" 0
-
-`line 1 "proc/TinyRV2InstVRTL.v" 0
-//========================================================================
-// TinyRV2 Instruction Type
-//========================================================================
-// Instruction types are similar to message types but are strictly used
-// for communication within a TinyRV2-based processor. Instruction
-// "messages" can be unpacked into the various fields as defined by the
-// TinyRV2 ISA, as well as be constructed from specifying each field
-// explicitly. The 32-bit instruction has different fields depending on
-// the format of the instruction used. The following are the various
-// instruction encoding formats used in the TinyRV2 ISA.
-//
-//  31          25 24   20 19   15 14    12 11          7 6      0
-// | funct7       | rs2   | rs1   | funct3 | rd          | opcode |  R-type
-// | imm[11:0]            | rs1   | funct3 | rd          | opcode |  I-type, I-imm
-// | imm[11:5]    | rs2   | rs1   | funct3 | imm[4:0]    | opcode |  S-type, S-imm
-// | imm[12|10:5] | rs2   | rs1   | funct3 | imm[4:1|11] | opcode |  SB-type,B-imm
-// | imm[31:12]                            | rd          | opcode |  U-type, U-imm
-// | imm[20|10:1|11|19:12]                 | rd          | opcode |  UJ-type,J-imm
-
-`ifndef PROC_TINY_RV2_INST_V
-`define PROC_TINY_RV2_INST_V
-
-`line 1 "vc/trace.v" 0
-//========================================================================
-// Line Tracing
-//========================================================================
-
-`ifndef VC_TRACE_V
-`define VC_TRACE_V
-
-// NOTE: This macro is declared outside of the module to allow some vc
-// modules to see it and use it in their own params. Verilog does not
-// allow other modules to hierarchically reference the nbits localparam
-// inside this module in constant expressions (e.g., localparams).
-
-`define VC_TRACE_NCHARS 512
-`define VC_TRACE_NBITS  512*8
-
-`ifndef SYNTHESIS
-
-module vc_Trace
-(
-  input logic clk,
-  input logic reset
-);
-
-  integer len0;
-  integer len1;
-  integer idx0;
-  integer idx1;
-
-  // NOTE: If you change these, then you also need to change the
-  // hard-coded constant in the declaration of the trace function at the
-  // bottom of this file.
-  // NOTE: You would also need to change the VC_TRACE_NBITS and
-  // VC_TRACE_NCHARS macro at the top of this file.
-
-  localparam nchars = 512;
-  localparam nbits  = 512*8;
-
-  // This is the actual trace storage used when displaying a trace
-
-  logic [nbits-1:0] storage;
-
-  // Meant to be accesible from outside module
-
-  integer cycles_next = 0;
-  integer cycles      = 0;
-
-  // Get trace level from command line
-
-  logic [3:0] level;
-
-`ifndef VERILATOR
-  initial begin
-    if ( !$value$plusargs( "trace=%d", level ) ) begin
-      level = 0;
+      else begin
+        pc_sel_F = 0;
+      end
     end
   end
-`else
-  initial begin
-    level = 1;
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_F():
+  //       # ostall due to imemresp
+  //
+  //       s.ostall_F.value      = s.val_F & ~s.imemresp_val
+  //
+  //       # stall and squash in F stage
+  //
+  //       s.stall_F.value       = s.val_F & ( s.ostall_F  | s.ostall_D |
+  //                                           s.ostall_X  | s.ostall_M |
+  //                                           s.ostall_W                 )
+  //       s.squash_F.value      = s.val_F & ( s.osquash_D | s.osquash_X  )
+  //
+  //       # imem req is special, it actually be sent out _before_ the F
+  //       # stage, we need to send memreq everytime we are getting squashed
+  //       # because we need to redirect the PC. We also need to factor in
+  //       # reset. When we are resetting we shouldn't send out imem req.
+  //
+  //       s.imemreq_val.value   =  ~s.reset & (~s.stall_F | s.squash_F)
+  //       s.imemresp_rdy.value  =  ~s.stall_F | s.squash_F
+  //
+  //       # We drop the mem response when we are getting squashed
+  //
+  //       s.imemresp_drop.value = s.squash_F
+  //
+  //       s.next_val_F.value    = s.val_F & ~s.stall_F & ~s.squash_F
+
+  // logic for comb_F()
+  always @ (*) begin
+    ostall_F = (val_F&~imemresp_val);
+    stall_F = (val_F&((((ostall_F|ostall_D)|ostall_X)|ostall_M)|ostall_W));
+    squash_F = (val_F&(osquash_D|osquash_X));
+    imemreq_val = (~reset&(~stall_F|squash_F));
+    imemresp_rdy = (~stall_F|squash_F);
+    imemresp_drop = squash_F;
+    next_val_F = ((val_F&~stall_F)&~squash_F);
   end
-`endif // !`ifndef VERILATOR
 
-  // Track cycle count
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_reg_en_D():
+  //       s.reg_en_D.value = ~s.stall_D | s.squash_D
 
-  always_ff @( posedge clk ) begin
-    cycles <= ( reset ) ? 0 : cycles_next;
+  // logic for comb_reg_en_D()
+  always @ (*) begin
+    reg_en_D = (~stall_D|squash_D);
   end
 
-  //----------------------------------------------------------------------
-  // append_str
-  //----------------------------------------------------------------------
-  // Appends a string to the trace.
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_control_table_D():
+  //       inst = s.inst_type_decoder_D.out.value
+  //       #                                           br    jal op1   rs1 imm    op2    rs2 alu      dmm xres  wbmux rf      cs cs
+  //       #                                       val type   D  muxsel en type   muxsel  en fn       typ sel   sel   wen mul rr rw
+  //       if   inst == NOP  : s.cs.value = concat( y, br_na, n, am_x,  n, imm_x, bm_x,   n, alu_x,   nr, xm_x, wm_a, n,  n,  n, n )
+  //       # xcel/csrr/csrw
+  //       elif inst == CSRRX: s.cs.value = concat( y, br_na, n, am_x,  n, imm_i, bm_imm, n, alu_cp1, nr, xm_a, wm_c, y,  n,  y, n )
+  //       elif inst == CSRR : s.cs.value = concat( y, br_na, n, am_x,  n, imm_i, bm_csr, n, alu_cp1, nr, xm_a, wm_a, y,  n,  y, n )
+  //       elif inst == CSRW : s.cs.value = concat( y, br_na, n, am_rf, y, imm_i, bm_imm, n, alu_cp0, nr, xm_a, wm_a, n,  n,  n, y )
+  //       # reg-reg
+  //       elif inst == ADD  : s.cs.value = concat( y, br_na, n, am_rf, y, imm_x, bm_rf,  y, alu_add, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == SUB  : s.cs.value = concat( y, br_na, n, am_rf, y, imm_x, bm_rf,  y, alu_sub, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == MUL  : s.cs.value = concat( y, br_na, n, am_rf, y, imm_x, bm_rf,  y, alu_x  , nr, xm_m, wm_a, y,  y,  n, n )
+  //       elif inst == AND  : s.cs.value = concat( y, br_na, n, am_rf, y, imm_x, bm_rf,  y, alu_and, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == OR   : s.cs.value = concat( y, br_na, n, am_rf, y, imm_x, bm_rf,  y, alu_or , nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == XOR  : s.cs.value = concat( y, br_na, n, am_rf, y, imm_x, bm_rf,  y, alu_xor, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == SLT  : s.cs.value = concat( y, br_na, n, am_rf, y, imm_x, bm_rf,  y, alu_lt , nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == SLTU : s.cs.value = concat( y, br_na, n, am_rf, y, imm_x, bm_rf,  y, alu_ltu, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == SRA  : s.cs.value = concat( y, br_na, n, am_rf, y, imm_x, bm_rf,  y, alu_sra, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == SRL  : s.cs.value = concat( y, br_na, n, am_rf, y, imm_x, bm_rf,  y, alu_srl, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == SLL  : s.cs.value = concat( y, br_na, n, am_rf, y, imm_x, bm_rf,  y, alu_sll, nr, xm_a, wm_a, y,  n,  n, n )
+  //       # reg-imm
+  //       elif inst == ADDI : s.cs.value = concat( y, br_na, n, am_rf, y, imm_i, bm_imm, n, alu_add, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == ANDI : s.cs.value = concat( y, br_na, n, am_rf, y, imm_i, bm_imm, n, alu_and, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == ORI  : s.cs.value = concat( y, br_na, n, am_rf, y, imm_i, bm_imm, n, alu_or , nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == XORI : s.cs.value = concat( y, br_na, n, am_rf, y, imm_i, bm_imm, n, alu_xor, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == SLTI : s.cs.value = concat( y, br_na, n, am_rf, y, imm_i, bm_imm, n, alu_lt , nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == SLTIU: s.cs.value = concat( y, br_na, n, am_rf, y, imm_i, bm_imm, n, alu_ltu, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == SRAI : s.cs.value = concat( y, br_na, n, am_rf, y, imm_i, bm_imm, n, alu_sra, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == SRLI : s.cs.value = concat( y, br_na, n, am_rf, y, imm_i, bm_imm, n, alu_srl, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == SLLI : s.cs.value = concat( y, br_na, n, am_rf, y, imm_i, bm_imm, n, alu_sll, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == LUI  : s.cs.value = concat( y, br_na, n, am_x,  n, imm_u, bm_imm, n, alu_cp1, nr, xm_a, wm_a, y,  n,  n, n )
+  //       elif inst == AUIPC: s.cs.value = concat( y, br_na, n, am_pc, n, imm_u, bm_imm, n, alu_add, nr, xm_a, wm_a, y,  n,  n, n )
+  //       # mem
+  //       elif inst == LW   : s.cs.value = concat( y, br_na, n, am_rf, y, imm_i, bm_imm, n, alu_add, ld, xm_a, wm_m, y,  n,  n, n )
+  //       elif inst == SW   : s.cs.value = concat( y, br_na, n, am_rf, y, imm_s, bm_imm, y, alu_add, st, xm_a, wm_m, n,  n,  n, n )
+  //       # branch
+  //       elif inst == BNE  : s.cs.value = concat( y, br_ne, n, am_rf, y, imm_b, bm_rf,  y, alu_x,   nr, xm_a, wm_x, n,  n,  n, n )
+  //       elif inst == BEQ  : s.cs.value = concat( y, br_eq, n, am_rf, y, imm_b, bm_rf,  y, alu_x,   nr, xm_a, wm_x, n,  n,  n, n )
+  //       elif inst == BLT  : s.cs.value = concat( y, br_lt, n, am_rf, y, imm_b, bm_rf,  y, alu_lt,  nr, xm_a, wm_x, n,  n,  n, n )
+  //       elif inst == BLTU : s.cs.value = concat( y, br_lu, n, am_rf, y, imm_b, bm_rf,  y, alu_ltu, nr, xm_a, wm_x, n,  n,  n, n )
+  //       elif inst == BGE  : s.cs.value = concat( y, br_ge, n, am_rf, y, imm_b, bm_rf,  y, alu_lt,  nr, xm_a, wm_x, n,  n,  n, n )
+  //       elif inst == BGEU : s.cs.value = concat( y, br_gu, n, am_rf, y, imm_b, bm_rf,  y, alu_ltu, nr, xm_a, wm_x, n,  n,  n, n )
+  //       # jump
+  //       elif inst == JAL  : s.cs.value = concat( y, br_na, y, am_x,  n, imm_j, bm_x,   n, alu_x,   nr, xm_p, wm_a, y,  n,  n, n )
+  //       elif inst == JALR : s.cs.value = concat( y, jalr , n, am_rf, y, imm_i, bm_imm, n, alu_adz, nr, xm_p, wm_a, y,  n,  n, n )
+  //       else:               s.cs.value = concat( n, br_x,  n, am_x,  n, imm_x, bm_x,   n, alu_x,   nr, xm_x, wm_x, n,  n,  n, n )
+  //
+  //       s.inst_val_D.value       = s.cs[26:27]
+  //       s.br_type_D.value        = s.cs[23:26]
+  //       s.jal_D.value            = s.cs[22:23]
+  //       s.op1_sel_D.value        = s.cs[21:22]
+  //       s.rs1_en_D.value         = s.cs[20:21]
+  //       s.imm_type_D.value       = s.cs[17:20]
+  //       s.op2_sel_D.value        = s.cs[15:17]
+  //       s.rs2_en_D.value         = s.cs[14:15]
+  //       s.alu_fn_D.value         = s.cs[10:14]
+  //       s.dmemreq_type_D.value   = s.cs[8:10]
+  //       s.ex_result_sel_D.value  = s.cs[6:8]
+  //       s.wb_result_sel_D.value  = s.cs[4:6]
+  //       s.rf_wen_pending_D.value = s.cs[3:4]
+  //       s.mul_D.value            = s.cs[2:3]
+  //       s.csrr_D.value           = s.cs[1:2]
+  //       s.csrw_D.value           = s.cs[0:1]
+  //
+  //       # setting the actual write address
+  //
+  //       s.rf_waddr_D.value = s.inst_D[RD]
+  //
+  //       # csrr/csrw logic
+  //
+  //       s.csrr_sel_D.value      = 0
+  //       s.xcelreq_type_D.value  = 0
+  //       s.xcelreq_D.value       = 0
+  //       s.mngr2proc_rdy_D.value = 0
+  //       s.proc2mngr_val_D.value = 0
+  //       s.stats_en_wen_D.value  = 0
+  //
+  //       if s.csrr_D:
+  //         if   s.inst_D[CSRNUM] == CSR_NUMCORES:
+  //           s.csrr_sel_D.value = 1
+  //         elif s.inst_D[CSRNUM] == CSR_COREID:
+  //           s.csrr_sel_D.value = 2
+  //         elif s.inst_D[CSRNUM] == CSR_MNGR2PROC:
+  //           s.mngr2proc_rdy_D.value = 1
+  //
+  //         else:
+  //           # FIXME
+  //           s.xcelreq_type_D.value = XcelReqMsg.TYPE_READ
+  //           s.xcelreq_D.value = 1
+  //
+  //       if s.csrw_D:
+  //         if   s.inst_D[CSRNUM] == CSR_PROC2MNGR:
+  //           s.proc2mngr_val_D.value = 1
+  //         elif s.inst_D[CSRNUM] == CSR_STATS_EN:
+  //           s.stats_en_wen_D.value = 1
+  //
+  //         # In this case we handle accelerator registers requests.
+  //         else:
+  //           # FIXME
+  //           s.xcelreq_type_D.value = XcelReqMsg.TYPE_WRITE
+  //           s.xcelreq_D.value = 1
 
-  task append_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len0 = 1;
-    while ( str[len0*8+:8] != 0 ) begin
-      len0 = len0 + 1;
-    end
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = len0-1; idx1 >= 0; idx1 = idx1 - 1 )
-    begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8 +: 8 ];
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_str_ljust
-  //----------------------------------------------------------------------
-  // Appends a left-justified string to the trace.
-
-  task append_str_ljust
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    idx0 = trace[31:0];
-    idx1 = nchars;
-
-    while ( str[ idx1*8-1 -: 8 ] != 0 ) begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8-1 -: 8 ];
-      idx0 = idx0 - 1;
-      idx1 = idx1 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_chars
-  //----------------------------------------------------------------------
-  // Appends the given number of characters to the trace.
-
-  task append_chars
-  (
-    inout logic   [nbits-1:0] trace,
-    input logic         [7:0] char,
-    input integer             num
-  );
-  begin
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = 0;
-          idx1 < num;
-          idx1 = idx1 + 1 )
-    begin
-      trace[idx0*8+:8] = char;
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_val_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val signal.
-
-  task append_val_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( val )
-      append_str( trace, str );
-    else if ( !val )
-      append_chars( trace, " ", len1 );
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // val_rdy_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val/rdy signals.
-
-  task append_val_rdy_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic             rdy,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( rdy && val ) begin
-      append_str( trace, str );
-    end
-    else if ( rdy && !val ) begin
-      append_chars( trace, " ", len1 );
-    end
-    else if ( !rdy && val ) begin
-      append_str( trace, "#" );
-      append_chars( trace, " ", len1-1 );
-    end
-    else if ( !rdy && !val ) begin
-      append_str( trace, "." );
-      append_chars( trace, " ", len1-1 );
+  // logic for comb_control_table_D()
+  always @ (*) begin
+    inst__9 = inst_type_decoder_D$out;
+    if ((inst__9 == NOP)) begin
+      cs = { y,br_na,n,am_x,n,imm_x,bm_x,n,alu_x,nr,xm_x,wm_a,n,n,n,n };
     end
     else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-//------------------------------------------------------------------------
-// VC_TRACE_NBITS_TO_NCHARS
-//------------------------------------------------------------------------
-// Macro to determine number of characters for a net
-
-`define VC_TRACE_NBITS_TO_NCHARS( nbits_ ) ((nbits_+3)/4)
-
-//------------------------------------------------------------------------
-// VC_TRACE_BEGIN
-//------------------------------------------------------------------------
-
-//`define VC_TRACE_BEGIN                                                  \
-//  export "DPI-C" task line_trace;                                       \
-//  vc_Trace vc_trace(clk,reset);                                         \
-//  task line_trace( inout bit [(512*8)-1:0] trace_str );
-
-`ifndef VERILATOR
-`define VC_TRACE_BEGIN                                                  \
-  vc_Trace vc_trace(clk,reset);                                         \
-                                                                        \
-  task display_trace;                                                   \
-  begin                                                                 \
-                                                                        \
-    if ( vc_trace.level > 0 ) begin                                     \
-      vc_trace.storage[15:0] = vc_trace.nchars-1;                       \
-                                                                        \
-      line_trace( vc_trace.storage );                                   \
-                                                                        \
-      $write( "%4d: ", vc_trace.cycles );                               \
-                                                                        \
-      vc_trace.idx0 = vc_trace.storage[15:0];                           \
-      for ( vc_trace.idx1 = vc_trace.nchars-1;                          \
-            vc_trace.idx1 > vc_trace.idx0;                              \
-            vc_trace.idx1 = vc_trace.idx1 - 1 )                         \
-      begin                                                             \
-        $write( "%s", vc_trace.storage[vc_trace.idx1*8+:8] );           \
-      end                                                               \
-      $write("\n");                                                     \
-                                                                        \
-    end                                                                 \
-                                                                        \
-    vc_trace.cycles_next = vc_trace.cycles + 1;                         \
-                                                                        \
-  end                                                                   \
-  endtask                                                               \
-                                                                        \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`else
-`define VC_TRACE_BEGIN                                                  \
-  export "DPI-C" task line_trace;                                       \
-  vc_Trace vc_trace(clk,reset);                                         \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`endif
-
-//------------------------------------------------------------------------
-// VC_TRACE_END
-//------------------------------------------------------------------------
-
-`define VC_TRACE_END \
-  endtask
-
-`endif /* VC_TRACE_V */
-
-
-`line 24 "proc/TinyRV2InstVRTL.v" 0
-
-//------------------------------------------------------------------------
-// Instruction fields
-//------------------------------------------------------------------------
-
-`define RV2ISA_INST_OPCODE  6:0
-`define RV2ISA_INST_RD      11:7
-`define RV2ISA_INST_RS1     19:15
-`define RV2ISA_INST_RS2     24:20
-`define RV2ISA_INST_FUNCT3  14:12
-`define RV2ISA_INST_FUNCT7  31:25
-`define RV2ISA_INST_CSR     31:20
-
-// CUSTOM0 specific
-
-`define RV2ISA_INST_XD      14:14
-`define RV2ISA_INST_XS1     13:13
-`define RV2ISA_INST_XS2     12:12
-
-//------------------------------------------------------------------------
-// Field sizes
-//------------------------------------------------------------------------
-
-`define RV2ISA_INST_NBITS          32
-`define RV2ISA_INST_OPCODE_NBITS   7
-`define RV2ISA_INST_RD_NBITS       5
-`define RV2ISA_INST_RS1_NBITS      5
-`define RV2ISA_INST_RS2_NBITS      5
-`define RV2ISA_INST_FUNCT3_NBITS   3
-`define RV2ISA_INST_FUNCT7_NBITS   7
-`define RV2ISA_INST_CSR_NBITS      12
-
-//------------------------------------------------------------------------
-// Instruction opcodes
-//------------------------------------------------------------------------
-
-// Basic instructions
-
-`define RV2ISA_INST_CSRRX 32'b0111111_?????_?????_010_?????_1110011
-`define RV2ISA_INST_CSRR  32'b???????_?????_?????_010_?????_1110011
-`define RV2ISA_INST_CSRW  32'b???????_?????_?????_001_?????_1110011
-`define RV2ISA_INST_NOP   32'b0000000_00000_00000_000_00000_0010011
-`define RV2ISA_ZERO       32'b0000000_00000_00000_000_00000_0000000
-
-// Register-register arithmetic, logical, and comparison instructions
-
-`define RV2ISA_INST_ADD   32'b0000000_?????_?????_000_?????_0110011
-`define RV2ISA_INST_SUB   32'b0100000_?????_?????_000_?????_0110011
-`define RV2ISA_INST_AND   32'b0000000_?????_?????_111_?????_0110011
-`define RV2ISA_INST_OR    32'b0000000_?????_?????_110_?????_0110011
-`define RV2ISA_INST_XOR   32'b0000000_?????_?????_100_?????_0110011
-`define RV2ISA_INST_SLT   32'b0000000_?????_?????_010_?????_0110011
-`define RV2ISA_INST_SLTU  32'b0000000_?????_?????_011_?????_0110011
-`define RV2ISA_INST_MUL   32'b0000001_?????_?????_000_?????_0110011
-
-// Register-immediate arithmetic, logical, and comparison instructions
-
-`define RV2ISA_INST_ADDI  32'b???????_?????_?????_000_?????_0010011
-`define RV2ISA_INST_ANDI  32'b???????_?????_?????_111_?????_0010011
-`define RV2ISA_INST_ORI   32'b???????_?????_?????_110_?????_0010011
-`define RV2ISA_INST_XORI  32'b???????_?????_?????_100_?????_0010011
-`define RV2ISA_INST_SLTI  32'b???????_?????_?????_010_?????_0010011
-`define RV2ISA_INST_SLTIU 32'b???????_?????_?????_011_?????_0010011
-
-// Shift instructions
-
-`define RV2ISA_INST_SRA   32'b0100000_?????_?????_101_?????_0110011
-`define RV2ISA_INST_SRL   32'b0000000_?????_?????_101_?????_0110011
-`define RV2ISA_INST_SLL   32'b0000000_?????_?????_001_?????_0110011
-`define RV2ISA_INST_SRAI  32'b0100000_?????_?????_101_?????_0010011
-`define RV2ISA_INST_SRLI  32'b0000000_?????_?????_101_?????_0010011
-`define RV2ISA_INST_SLLI  32'b0000000_?????_?????_001_?????_0010011
-
-// Other instructions
-
-`define RV2ISA_INST_LUI   32'b???????_?????_?????_???_?????_0110111
-`define RV2ISA_INST_AUIPC 32'b???????_?????_?????_???_?????_0010111
-
-// Memory instructions
-
-`define RV2ISA_INST_LW    32'b???????_?????_?????_010_?????_0000011
-`define RV2ISA_INST_SW    32'b???????_?????_?????_010_?????_0100011
-
-// Unconditional jump instructions
-
-`define RV2ISA_INST_JAL   32'b???????_?????_?????_???_?????_1101111
-`define RV2ISA_INST_JALR  32'b???????_?????_?????_000_?????_1100111
-
-// Conditional branch instructions
-
-`define RV2ISA_INST_BEQ   32'b???????_?????_?????_000_?????_1100011
-`define RV2ISA_INST_BNE   32'b???????_?????_?????_001_?????_1100011
-`define RV2ISA_INST_BLT   32'b???????_?????_?????_100_?????_1100011
-`define RV2ISA_INST_BGE   32'b???????_?????_?????_101_?????_1100011
-`define RV2ISA_INST_BLTU  32'b???????_?????_?????_110_?????_1100011
-`define RV2ISA_INST_BGEU  32'b???????_?????_?????_111_?????_1100011
-
-// Accelerator custom0
-
-`define RV2ISA_INST_CUST0 32'b???????_?????_?????_???_?????_0001011
-
-//------------------------------------------------------------------------
-// Coprocessor registers
-//------------------------------------------------------------------------
-
-`define RV2ISA_CPR_PROC2MNGR  12'h7C0
-`define RV2ISA_CPR_MNGR2PROC  12'hFC0
-`define RV2ISA_CPR_COREID     12'hF14
-`define RV2ISA_CPR_NUMCORES   12'hFC1
-`define RV2ISA_CPR_STATS_EN   12'h7C1
-
-//------------------------------------------------------------------------
-// Helper Tasks
-//------------------------------------------------------------------------
-
-module rv2isa_InstTasks();
-
-  //----------------------------------------------------------------------
-  // Immediate decoding -- only outputs signals at the width required for
-  // line tracing
-  //----------------------------------------------------------------------
-  function [11:0] imm_i( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // I-type immediate
-    imm_i = { inst[31], inst[30:25], inst[24:21], inst[20] };
-  end
-  endfunction
-
-  function [4:0] imm_shamt( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // I-type immediate, specialized for shift amounts
-    imm_shamt = { inst[24:21], inst[20] };
-  end
-  endfunction
-
-  function [11:0] imm_s( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // S-type immediate
-    imm_s = { inst[31], inst[30:25], inst[11:8], inst[7] };
-  end
-  endfunction
-
-  function [12:0] imm_b( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // B-type immediate
-    imm_b = { inst[31], inst[7], inst[30:25], inst[11:8], 1'b0 };
-  end
-  endfunction
-
-  function [19:0] imm_u_sh12( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // U-type immediate, shifted right by 12
-    imm_u_sh12 = { inst[31], inst[30:20], inst[19:12] };
-  end
-  endfunction
-
-  function [20:0] imm_j( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // J-type immediate
-    imm_j = { inst[31], inst[19:12], inst[20], inst[30:25], inst[24:21], 1'b0 };
-  end
-  endfunction
-
-  //----------------------------------------------------------------------
-  // Disasm
-  //----------------------------------------------------------------------
-
-  reg [3*8-1:0]                     rs1_str;
-  reg [3*8-1:0]                     rs2_str;
-  reg [3*8-1:0]                     rd_str;
-  reg [9*8-1:0]                     csr_str;
-  reg [2*8-1:0]                     funct_str;
-
-  logic [`RV2ISA_INST_RS1_NBITS-1:0] rs1;
-  logic [`RV2ISA_INST_RS2_NBITS-1:0] rs2;
-  logic [`RV2ISA_INST_RD_NBITS-1:0]  rd;
-  logic [`RV2ISA_INST_CSR_NBITS-1:0] csr;
-  logic [`RV2ISA_INST_FUNCT7_NBITS-1:0] funct;
-
-  function [25*8-1:0] disasm( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-
-    // Unpack the fields
-
-    rs1      = inst[`RV2ISA_INST_RS1];
-    rs2      = inst[`RV2ISA_INST_RS2];
-    rd       = inst[`RV2ISA_INST_RD];
-    csr      = inst[`RV2ISA_INST_CSR];
-    // xcel
-    funct    = inst[`RV2ISA_INST_FUNCT7];
-
-    // Create fixed-width register specifiers
-
-    if ( rs1 <= 9 )
-      $sformat( rs1_str, "x0%0d", rs1 );
-    else
-      $sformat( rs1_str, "x%d",  rs1 );
-
-    if ( rs2 <= 9 )
-      $sformat( rs2_str, "x0%0d", rs2 );
-    else
-      $sformat( rs2_str, "x%d",  rs2 );
-
-    if ( rd <= 9 )
-      $sformat( rd_str, "x0%0d", rd );
-    else
-      $sformat( rd_str, "x%d",  rd );
-
-    // if ( csr == `RV2ISA_CPR_PROC2MNGR )
-      // $sformat( csr_str, "proc2mngr" );
-    // else if ( csr == `RV2ISA_CPR_MNGR2PROC )
-      // $sformat( csr_str, "mngr2proc" );
-    // else if ( csr == `RV2ISA_CPR_COREID )
-      // $sformat( csr_str, "coreid   " );
-    // else if ( csr == `RV2ISA_CPR_NUMCORES )
-      // $sformat( csr_str, "numcores " );
-    // else if ( csr == `RV2ISA_CPR_STATS_EN )
-      // $sformat( csr_str, "stats_en " );
-    // else
-    $sformat( csr_str, "    0x%x", csr );
-
-    $sformat( funct_str, "%x", funct[1:0]);
-
-    // Actual disassembly
-
-    casez ( inst )
-      `RV2ISA_INST_CSRR  : $sformat( disasm, "csrr   %s, %s  ",        rd_str,  csr_str );
-      `RV2ISA_INST_CSRW  : $sformat( disasm, "csrw   %s, %s  ",        csr_str, rs1_str );
-      `RV2ISA_INST_NOP   : $sformat( disasm, "nop                    " );
-      `RV2ISA_ZERO       : $sformat( disasm, "                       " );
-
-      `RV2ISA_INST_ADD   : $sformat( disasm, "add    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_SUB   : $sformat( disasm, "sub    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_AND   : $sformat( disasm, "and    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_OR    : $sformat( disasm, "or     %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_XOR   : $sformat( disasm, "xor    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_SLT   : $sformat( disasm, "slt    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_SLTU  : $sformat( disasm, "sltu   %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_MUL   : $sformat( disasm, "mul    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-
-      `RV2ISA_INST_ADDI  : $sformat( disasm, "addi   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_ANDI  : $sformat( disasm, "andi   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_ORI   : $sformat( disasm, "ori    %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_XORI  : $sformat( disasm, "xori   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_SLTI  : $sformat( disasm, "slti   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_SLTIU : $sformat( disasm, "sltiu  %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-
-      `RV2ISA_INST_SRA   : $sformat( disasm, "sra    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SRL   : $sformat( disasm, "srl    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SLL   : $sformat( disasm, "sll    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SRAI  : $sformat( disasm, "srai   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SRLI  : $sformat( disasm, "srli   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SLLI  : $sformat( disasm, "slli   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-
-      `RV2ISA_INST_LUI   : $sformat( disasm, "lui    %s, 0x%x    ",    rd_str,  imm_u_sh12(inst));
-      `RV2ISA_INST_AUIPC : $sformat( disasm, "auipc  %s, 0x%x    ",    rd_str,  imm_u_sh12(inst));
-
-      `RV2ISA_INST_LW    : $sformat( disasm, "lw     %s, 0x%x(%s) ",   rd_str,  imm_i(inst), rs1_str );
-      `RV2ISA_INST_SW    : $sformat( disasm, "sw     %s, 0x%x(%s) ",   rs2_str, imm_s(inst), rs1_str );
-
-      `RV2ISA_INST_JAL   : $sformat( disasm, "jal    %s, 0x%x   ",     rd_str, imm_j(inst) );
-      `RV2ISA_INST_JALR  : $sformat( disasm, "jalr   %s, %s, 0x%x ",   rd_str, rs1_str, imm_i(inst) );
-
-      `RV2ISA_INST_BEQ   : $sformat( disasm, "beq    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BNE   : $sformat( disasm, "bne    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BLT   : $sformat( disasm, "blt    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BGE   : $sformat( disasm, "bge    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BLTU  : $sformat( disasm, "bltu   %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BGEU  : $sformat( disasm, "bgeu   %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-
-      `RV2ISA_INST_CUST0 : $sformat( disasm, "cust0 %s, %s, %s, %s", rd_str, rs1_str, rs2_str, funct_str );
-      default            : $sformat( disasm, "illegal inst           " );
-    endcase
-
-  end
-  endfunction
-
-  //----------------------------------------------------------------------
-  // Disasm Tiny
-  //----------------------------------------------------------------------
-
-  function [4*8-1:0] disasm_tiny( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-
-    casez ( inst )
-      `RV2ISA_INST_CSRR  : disasm_tiny = "csrr";
-      `RV2ISA_INST_CSRW  : disasm_tiny = "csrw";
-      `RV2ISA_INST_NOP   : disasm_tiny = "nop ";
-
-      `RV2ISA_INST_ADD   : disasm_tiny = "add ";
-      `RV2ISA_INST_SUB   : disasm_tiny = "sub ";
-      `RV2ISA_INST_AND   : disasm_tiny = "and ";
-      `RV2ISA_INST_OR    : disasm_tiny = "or  ";
-      `RV2ISA_INST_XOR   : disasm_tiny = "xor ";
-      `RV2ISA_INST_SLT   : disasm_tiny = "slt ";
-      `RV2ISA_INST_SLTU  : disasm_tiny = "sltu";
-      `RV2ISA_INST_MUL   : disasm_tiny = "mul ";
-
-      `RV2ISA_INST_ADDI  : disasm_tiny = "addi";
-      `RV2ISA_INST_ANDI  : disasm_tiny = "andi";
-      `RV2ISA_INST_ORI   : disasm_tiny = "ori ";
-      `RV2ISA_INST_XORI  : disasm_tiny = "xori";
-      `RV2ISA_INST_SLTI  : disasm_tiny = "slti";
-      `RV2ISA_INST_SLTIU : disasm_tiny = "sltI";
-
-      `RV2ISA_INST_SRA   : disasm_tiny = "sra ";
-      `RV2ISA_INST_SRL   : disasm_tiny = "srl ";
-      `RV2ISA_INST_SLL   : disasm_tiny = "sll ";
-      `RV2ISA_INST_SRAI  : disasm_tiny = "srai";
-      `RV2ISA_INST_SRLI  : disasm_tiny = "srli";
-      `RV2ISA_INST_SLLI  : disasm_tiny = "slli";
-
-      `RV2ISA_INST_LUI   : disasm_tiny = "lui ";
-      `RV2ISA_INST_AUIPC : disasm_tiny = "auiP";
-
-      `RV2ISA_INST_LW    : disasm_tiny = "lw  ";
-      `RV2ISA_INST_SW    : disasm_tiny = "sw  ";
-
-      `RV2ISA_INST_JAL   : disasm_tiny = "jal ";
-      `RV2ISA_INST_JALR  : disasm_tiny = "jalr";
-
-      `RV2ISA_INST_BEQ   : disasm_tiny = "beq ";
-      `RV2ISA_INST_BNE   : disasm_tiny = "bne ";
-      `RV2ISA_INST_BLT   : disasm_tiny = "blt ";
-      `RV2ISA_INST_BGE   : disasm_tiny = "bge ";
-      `RV2ISA_INST_BLTU  : disasm_tiny = "bltu";
-      `RV2ISA_INST_BGEU  : disasm_tiny = "bgeu";
-
-      `RV2ISA_INST_CUST0 : disasm_tiny = "cus0";
-
-      default            : disasm_tiny = "????";
-    endcase
-
-  end
-  endfunction
-
-endmodule
-
-//------------------------------------------------------------------------
-// Unpack instruction
-//------------------------------------------------------------------------
-
-module rv2isa_InstUnpack
-(
-  // Packed message
-
-  input  [`RV2ISA_INST_NBITS-1:0]        inst,
-
-  // Packed fields
-
-  output [`RV2ISA_INST_OPCODE_NBITS-1:0] opcode,
-  output [`RV2ISA_INST_RD_NBITS-1:0]     rd,
-  output [`RV2ISA_INST_RS1_NBITS-1:0]    rs1,
-  output [`RV2ISA_INST_RS2_NBITS-1:0]    rs2,
-  output [`RV2ISA_INST_FUNCT3_NBITS-1:0] funct3,
-  output [`RV2ISA_INST_FUNCT7_NBITS-1:0] funct7,
-  output [`RV2ISA_INST_CSR_NBITS-1:0]    csr
-);
-
-  assign opcode   = inst[`RV2ISA_INST_OPCODE];
-  assign rd       = inst[`RV2ISA_INST_RD];
-  assign rs1      = inst[`RV2ISA_INST_RS1];
-  assign rs2      = inst[`RV2ISA_INST_RS2];
-  assign funct3   = inst[`RV2ISA_INST_FUNCT3];
-  assign csr      = inst[`RV2ISA_INST_CSR];
-
-endmodule
-
-//------------------------------------------------------------------------
-// Convert message to string
-//------------------------------------------------------------------------
-
-`ifndef SYNTHESIS
-
-module rv2isa_InstTrace
-(
-  input                          clk,
-  input                          reset,
-  input [`RV2ISA_INST_NBITS-1:0] inst
-);
-
-  rv2isa_InstTasks rv2isa();
-
-  `VC_TRACE_BEGIN
-  begin
-    vc_trace.append_str( trace_str, rv2isa.disasm( inst ) );
-    vc_trace.append_str( trace_str, " | " );
-    vc_trace.append_str( trace_str, rv2isa.disasm_tiny( inst ) );
-  end
-  `VC_TRACE_END
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-`endif /* PROC_TINY_RV2_INST_V */
-
-
-`line 17 "proc/ProcDpathVRTL.v" 0
-`line 1 "proc/ProcDpathComponentsVRTL.v" 0
-//========================================================================
-// Datapath Components for 5-Stage Pipelined Processor
-//========================================================================
-
-`ifndef PROC_PROC_DPATH_COMPONENTS_V
-`define PROC_PROC_DPATH_COMPONENTS_V
-
-`line 1 "proc/TinyRV2InstVRTL.v" 0
-//========================================================================
-// TinyRV2 Instruction Type
-//========================================================================
-// Instruction types are similar to message types but are strictly used
-// for communication within a TinyRV2-based processor. Instruction
-// "messages" can be unpacked into the various fields as defined by the
-// TinyRV2 ISA, as well as be constructed from specifying each field
-// explicitly. The 32-bit instruction has different fields depending on
-// the format of the instruction used. The following are the various
-// instruction encoding formats used in the TinyRV2 ISA.
-//
-//  31          25 24   20 19   15 14    12 11          7 6      0
-// | funct7       | rs2   | rs1   | funct3 | rd          | opcode |  R-type
-// | imm[11:0]            | rs1   | funct3 | rd          | opcode |  I-type, I-imm
-// | imm[11:5]    | rs2   | rs1   | funct3 | imm[4:0]    | opcode |  S-type, S-imm
-// | imm[12|10:5] | rs2   | rs1   | funct3 | imm[4:1|11] | opcode |  SB-type,B-imm
-// | imm[31:12]                            | rd          | opcode |  U-type, U-imm
-// | imm[20|10:1|11|19:12]                 | rd          | opcode |  UJ-type,J-imm
-
-`ifndef PROC_TINY_RV2_INST_V
-`define PROC_TINY_RV2_INST_V
-
-`line 1 "vc/trace.v" 0
-//========================================================================
-// Line Tracing
-//========================================================================
-
-`ifndef VC_TRACE_V
-`define VC_TRACE_V
-
-// NOTE: This macro is declared outside of the module to allow some vc
-// modules to see it and use it in their own params. Verilog does not
-// allow other modules to hierarchically reference the nbits localparam
-// inside this module in constant expressions (e.g., localparams).
-
-`define VC_TRACE_NCHARS 512
-`define VC_TRACE_NBITS  512*8
-
-`ifndef SYNTHESIS
-
-module vc_Trace
-(
-  input logic clk,
-  input logic reset
-);
-
-  integer len0;
-  integer len1;
-  integer idx0;
-  integer idx1;
-
-  // NOTE: If you change these, then you also need to change the
-  // hard-coded constant in the declaration of the trace function at the
-  // bottom of this file.
-  // NOTE: You would also need to change the VC_TRACE_NBITS and
-  // VC_TRACE_NCHARS macro at the top of this file.
-
-  localparam nchars = 512;
-  localparam nbits  = 512*8;
-
-  // This is the actual trace storage used when displaying a trace
-
-  logic [nbits-1:0] storage;
-
-  // Meant to be accesible from outside module
-
-  integer cycles_next = 0;
-  integer cycles      = 0;
-
-  // Get trace level from command line
-
-  logic [3:0] level;
-
-`ifndef VERILATOR
-  initial begin
-    if ( !$value$plusargs( "trace=%d", level ) ) begin
-      level = 0;
-    end
-  end
-`else
-  initial begin
-    level = 1;
-  end
-`endif // !`ifndef VERILATOR
-
-  // Track cycle count
-
-  always_ff @( posedge clk ) begin
-    cycles <= ( reset ) ? 0 : cycles_next;
-  end
-
-  //----------------------------------------------------------------------
-  // append_str
-  //----------------------------------------------------------------------
-  // Appends a string to the trace.
-
-  task append_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len0 = 1;
-    while ( str[len0*8+:8] != 0 ) begin
-      len0 = len0 + 1;
-    end
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = len0-1; idx1 >= 0; idx1 = idx1 - 1 )
-    begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8 +: 8 ];
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_str_ljust
-  //----------------------------------------------------------------------
-  // Appends a left-justified string to the trace.
-
-  task append_str_ljust
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    idx0 = trace[31:0];
-    idx1 = nchars;
-
-    while ( str[ idx1*8-1 -: 8 ] != 0 ) begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8-1 -: 8 ];
-      idx0 = idx0 - 1;
-      idx1 = idx1 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_chars
-  //----------------------------------------------------------------------
-  // Appends the given number of characters to the trace.
-
-  task append_chars
-  (
-    inout logic   [nbits-1:0] trace,
-    input logic         [7:0] char,
-    input integer             num
-  );
-  begin
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = 0;
-          idx1 < num;
-          idx1 = idx1 + 1 )
-    begin
-      trace[idx0*8+:8] = char;
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_val_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val signal.
-
-  task append_val_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( val )
-      append_str( trace, str );
-    else if ( !val )
-      append_chars( trace, " ", len1 );
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // val_rdy_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val/rdy signals.
-
-  task append_val_rdy_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic             rdy,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( rdy && val ) begin
-      append_str( trace, str );
-    end
-    else if ( rdy && !val ) begin
-      append_chars( trace, " ", len1 );
-    end
-    else if ( !rdy && val ) begin
-      append_str( trace, "#" );
-      append_chars( trace, " ", len1-1 );
-    end
-    else if ( !rdy && !val ) begin
-      append_str( trace, "." );
-      append_chars( trace, " ", len1-1 );
-    end
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-//------------------------------------------------------------------------
-// VC_TRACE_NBITS_TO_NCHARS
-//------------------------------------------------------------------------
-// Macro to determine number of characters for a net
-
-`define VC_TRACE_NBITS_TO_NCHARS( nbits_ ) ((nbits_+3)/4)
-
-//------------------------------------------------------------------------
-// VC_TRACE_BEGIN
-//------------------------------------------------------------------------
-
-//`define VC_TRACE_BEGIN                                                  \
-//  export "DPI-C" task line_trace;                                       \
-//  vc_Trace vc_trace(clk,reset);                                         \
-//  task line_trace( inout bit [(512*8)-1:0] trace_str );
-
-`ifndef VERILATOR
-`define VC_TRACE_BEGIN                                                  \
-  vc_Trace vc_trace(clk,reset);                                         \
-                                                                        \
-  task display_trace;                                                   \
-  begin                                                                 \
-                                                                        \
-    if ( vc_trace.level > 0 ) begin                                     \
-      vc_trace.storage[15:0] = vc_trace.nchars-1;                       \
-                                                                        \
-      line_trace( vc_trace.storage );                                   \
-                                                                        \
-      $write( "%4d: ", vc_trace.cycles );                               \
-                                                                        \
-      vc_trace.idx0 = vc_trace.storage[15:0];                           \
-      for ( vc_trace.idx1 = vc_trace.nchars-1;                          \
-            vc_trace.idx1 > vc_trace.idx0;                              \
-            vc_trace.idx1 = vc_trace.idx1 - 1 )                         \
-      begin                                                             \
-        $write( "%s", vc_trace.storage[vc_trace.idx1*8+:8] );           \
-      end                                                               \
-      $write("\n");                                                     \
-                                                                        \
-    end                                                                 \
-                                                                        \
-    vc_trace.cycles_next = vc_trace.cycles + 1;                         \
-                                                                        \
-  end                                                                   \
-  endtask                                                               \
-                                                                        \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`else
-`define VC_TRACE_BEGIN                                                  \
-  export "DPI-C" task line_trace;                                       \
-  vc_Trace vc_trace(clk,reset);                                         \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`endif
-
-//------------------------------------------------------------------------
-// VC_TRACE_END
-//------------------------------------------------------------------------
-
-`define VC_TRACE_END \
-  endtask
-
-`endif /* VC_TRACE_V */
-
-
-`line 24 "proc/TinyRV2InstVRTL.v" 0
-
-//------------------------------------------------------------------------
-// Instruction fields
-//------------------------------------------------------------------------
-
-`define RV2ISA_INST_OPCODE  6:0
-`define RV2ISA_INST_RD      11:7
-`define RV2ISA_INST_RS1     19:15
-`define RV2ISA_INST_RS2     24:20
-`define RV2ISA_INST_FUNCT3  14:12
-`define RV2ISA_INST_FUNCT7  31:25
-`define RV2ISA_INST_CSR     31:20
-
-// CUSTOM0 specific
-
-`define RV2ISA_INST_XD      14:14
-`define RV2ISA_INST_XS1     13:13
-`define RV2ISA_INST_XS2     12:12
-
-//------------------------------------------------------------------------
-// Field sizes
-//------------------------------------------------------------------------
-
-`define RV2ISA_INST_NBITS          32
-`define RV2ISA_INST_OPCODE_NBITS   7
-`define RV2ISA_INST_RD_NBITS       5
-`define RV2ISA_INST_RS1_NBITS      5
-`define RV2ISA_INST_RS2_NBITS      5
-`define RV2ISA_INST_FUNCT3_NBITS   3
-`define RV2ISA_INST_FUNCT7_NBITS   7
-`define RV2ISA_INST_CSR_NBITS      12
-
-//------------------------------------------------------------------------
-// Instruction opcodes
-//------------------------------------------------------------------------
-
-// Basic instructions
-
-`define RV2ISA_INST_CSRRX 32'b0111111_?????_?????_010_?????_1110011
-`define RV2ISA_INST_CSRR  32'b???????_?????_?????_010_?????_1110011
-`define RV2ISA_INST_CSRW  32'b???????_?????_?????_001_?????_1110011
-`define RV2ISA_INST_NOP   32'b0000000_00000_00000_000_00000_0010011
-`define RV2ISA_ZERO       32'b0000000_00000_00000_000_00000_0000000
-
-// Register-register arithmetic, logical, and comparison instructions
-
-`define RV2ISA_INST_ADD   32'b0000000_?????_?????_000_?????_0110011
-`define RV2ISA_INST_SUB   32'b0100000_?????_?????_000_?????_0110011
-`define RV2ISA_INST_AND   32'b0000000_?????_?????_111_?????_0110011
-`define RV2ISA_INST_OR    32'b0000000_?????_?????_110_?????_0110011
-`define RV2ISA_INST_XOR   32'b0000000_?????_?????_100_?????_0110011
-`define RV2ISA_INST_SLT   32'b0000000_?????_?????_010_?????_0110011
-`define RV2ISA_INST_SLTU  32'b0000000_?????_?????_011_?????_0110011
-`define RV2ISA_INST_MUL   32'b0000001_?????_?????_000_?????_0110011
-
-// Register-immediate arithmetic, logical, and comparison instructions
-
-`define RV2ISA_INST_ADDI  32'b???????_?????_?????_000_?????_0010011
-`define RV2ISA_INST_ANDI  32'b???????_?????_?????_111_?????_0010011
-`define RV2ISA_INST_ORI   32'b???????_?????_?????_110_?????_0010011
-`define RV2ISA_INST_XORI  32'b???????_?????_?????_100_?????_0010011
-`define RV2ISA_INST_SLTI  32'b???????_?????_?????_010_?????_0010011
-`define RV2ISA_INST_SLTIU 32'b???????_?????_?????_011_?????_0010011
-
-// Shift instructions
-
-`define RV2ISA_INST_SRA   32'b0100000_?????_?????_101_?????_0110011
-`define RV2ISA_INST_SRL   32'b0000000_?????_?????_101_?????_0110011
-`define RV2ISA_INST_SLL   32'b0000000_?????_?????_001_?????_0110011
-`define RV2ISA_INST_SRAI  32'b0100000_?????_?????_101_?????_0010011
-`define RV2ISA_INST_SRLI  32'b0000000_?????_?????_101_?????_0010011
-`define RV2ISA_INST_SLLI  32'b0000000_?????_?????_001_?????_0010011
-
-// Other instructions
-
-`define RV2ISA_INST_LUI   32'b???????_?????_?????_???_?????_0110111
-`define RV2ISA_INST_AUIPC 32'b???????_?????_?????_???_?????_0010111
-
-// Memory instructions
-
-`define RV2ISA_INST_LW    32'b???????_?????_?????_010_?????_0000011
-`define RV2ISA_INST_SW    32'b???????_?????_?????_010_?????_0100011
-
-// Unconditional jump instructions
-
-`define RV2ISA_INST_JAL   32'b???????_?????_?????_???_?????_1101111
-`define RV2ISA_INST_JALR  32'b???????_?????_?????_000_?????_1100111
-
-// Conditional branch instructions
-
-`define RV2ISA_INST_BEQ   32'b???????_?????_?????_000_?????_1100011
-`define RV2ISA_INST_BNE   32'b???????_?????_?????_001_?????_1100011
-`define RV2ISA_INST_BLT   32'b???????_?????_?????_100_?????_1100011
-`define RV2ISA_INST_BGE   32'b???????_?????_?????_101_?????_1100011
-`define RV2ISA_INST_BLTU  32'b???????_?????_?????_110_?????_1100011
-`define RV2ISA_INST_BGEU  32'b???????_?????_?????_111_?????_1100011
-
-// Accelerator custom0
-
-`define RV2ISA_INST_CUST0 32'b???????_?????_?????_???_?????_0001011
-
-//------------------------------------------------------------------------
-// Coprocessor registers
-//------------------------------------------------------------------------
-
-`define RV2ISA_CPR_PROC2MNGR  12'h7C0
-`define RV2ISA_CPR_MNGR2PROC  12'hFC0
-`define RV2ISA_CPR_COREID     12'hF14
-`define RV2ISA_CPR_NUMCORES   12'hFC1
-`define RV2ISA_CPR_STATS_EN   12'h7C1
-
-//------------------------------------------------------------------------
-// Helper Tasks
-//------------------------------------------------------------------------
-
-module rv2isa_InstTasks();
-
-  //----------------------------------------------------------------------
-  // Immediate decoding -- only outputs signals at the width required for
-  // line tracing
-  //----------------------------------------------------------------------
-  function [11:0] imm_i( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // I-type immediate
-    imm_i = { inst[31], inst[30:25], inst[24:21], inst[20] };
-  end
-  endfunction
-
-  function [4:0] imm_shamt( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // I-type immediate, specialized for shift amounts
-    imm_shamt = { inst[24:21], inst[20] };
-  end
-  endfunction
-
-  function [11:0] imm_s( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // S-type immediate
-    imm_s = { inst[31], inst[30:25], inst[11:8], inst[7] };
-  end
-  endfunction
-
-  function [12:0] imm_b( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // B-type immediate
-    imm_b = { inst[31], inst[7], inst[30:25], inst[11:8], 1'b0 };
-  end
-  endfunction
-
-  function [19:0] imm_u_sh12( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // U-type immediate, shifted right by 12
-    imm_u_sh12 = { inst[31], inst[30:20], inst[19:12] };
-  end
-  endfunction
-
-  function [20:0] imm_j( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-    // J-type immediate
-    imm_j = { inst[31], inst[19:12], inst[20], inst[30:25], inst[24:21], 1'b0 };
-  end
-  endfunction
-
-  //----------------------------------------------------------------------
-  // Disasm
-  //----------------------------------------------------------------------
-
-  reg [3*8-1:0]                     rs1_str;
-  reg [3*8-1:0]                     rs2_str;
-  reg [3*8-1:0]                     rd_str;
-  reg [9*8-1:0]                     csr_str;
-  reg [2*8-1:0]                     funct_str;
-
-  logic [`RV2ISA_INST_RS1_NBITS-1:0] rs1;
-  logic [`RV2ISA_INST_RS2_NBITS-1:0] rs2;
-  logic [`RV2ISA_INST_RD_NBITS-1:0]  rd;
-  logic [`RV2ISA_INST_CSR_NBITS-1:0] csr;
-  logic [`RV2ISA_INST_FUNCT7_NBITS-1:0] funct;
-
-  function [25*8-1:0] disasm( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-
-    // Unpack the fields
-
-    rs1      = inst[`RV2ISA_INST_RS1];
-    rs2      = inst[`RV2ISA_INST_RS2];
-    rd       = inst[`RV2ISA_INST_RD];
-    csr      = inst[`RV2ISA_INST_CSR];
-    // xcel
-    funct    = inst[`RV2ISA_INST_FUNCT7];
-
-    // Create fixed-width register specifiers
-
-    if ( rs1 <= 9 )
-      $sformat( rs1_str, "x0%0d", rs1 );
-    else
-      $sformat( rs1_str, "x%d",  rs1 );
-
-    if ( rs2 <= 9 )
-      $sformat( rs2_str, "x0%0d", rs2 );
-    else
-      $sformat( rs2_str, "x%d",  rs2 );
-
-    if ( rd <= 9 )
-      $sformat( rd_str, "x0%0d", rd );
-    else
-      $sformat( rd_str, "x%d",  rd );
-
-    // if ( csr == `RV2ISA_CPR_PROC2MNGR )
-      // $sformat( csr_str, "proc2mngr" );
-    // else if ( csr == `RV2ISA_CPR_MNGR2PROC )
-      // $sformat( csr_str, "mngr2proc" );
-    // else if ( csr == `RV2ISA_CPR_COREID )
-      // $sformat( csr_str, "coreid   " );
-    // else if ( csr == `RV2ISA_CPR_NUMCORES )
-      // $sformat( csr_str, "numcores " );
-    // else if ( csr == `RV2ISA_CPR_STATS_EN )
-      // $sformat( csr_str, "stats_en " );
-    // else
-    $sformat( csr_str, "    0x%x", csr );
-
-    $sformat( funct_str, "%x", funct[1:0]);
-
-    // Actual disassembly
-
-    casez ( inst )
-      `RV2ISA_INST_CSRR  : $sformat( disasm, "csrr   %s, %s  ",        rd_str,  csr_str );
-      `RV2ISA_INST_CSRW  : $sformat( disasm, "csrw   %s, %s  ",        csr_str, rs1_str );
-      `RV2ISA_INST_NOP   : $sformat( disasm, "nop                    " );
-      `RV2ISA_ZERO       : $sformat( disasm, "                       " );
-
-      `RV2ISA_INST_ADD   : $sformat( disasm, "add    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_SUB   : $sformat( disasm, "sub    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_AND   : $sformat( disasm, "and    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_OR    : $sformat( disasm, "or     %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_XOR   : $sformat( disasm, "xor    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_SLT   : $sformat( disasm, "slt    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_SLTU  : $sformat( disasm, "sltu   %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-      `RV2ISA_INST_MUL   : $sformat( disasm, "mul    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
-
-      `RV2ISA_INST_ADDI  : $sformat( disasm, "addi   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_ANDI  : $sformat( disasm, "andi   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_ORI   : $sformat( disasm, "ori    %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_XORI  : $sformat( disasm, "xori   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_SLTI  : $sformat( disasm, "slti   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-      `RV2ISA_INST_SLTIU : $sformat( disasm, "sltiu  %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
-
-      `RV2ISA_INST_SRA   : $sformat( disasm, "sra    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SRL   : $sformat( disasm, "srl    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SLL   : $sformat( disasm, "sll    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SRAI  : $sformat( disasm, "srai   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SRLI  : $sformat( disasm, "srli   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-      `RV2ISA_INST_SLLI  : $sformat( disasm, "slli   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
-
-      `RV2ISA_INST_LUI   : $sformat( disasm, "lui    %s, 0x%x    ",    rd_str,  imm_u_sh12(inst));
-      `RV2ISA_INST_AUIPC : $sformat( disasm, "auipc  %s, 0x%x    ",    rd_str,  imm_u_sh12(inst));
-
-      `RV2ISA_INST_LW    : $sformat( disasm, "lw     %s, 0x%x(%s) ",   rd_str,  imm_i(inst), rs1_str );
-      `RV2ISA_INST_SW    : $sformat( disasm, "sw     %s, 0x%x(%s) ",   rs2_str, imm_s(inst), rs1_str );
-
-      `RV2ISA_INST_JAL   : $sformat( disasm, "jal    %s, 0x%x   ",     rd_str, imm_j(inst) );
-      `RV2ISA_INST_JALR  : $sformat( disasm, "jalr   %s, %s, 0x%x ",   rd_str, rs1_str, imm_i(inst) );
-
-      `RV2ISA_INST_BEQ   : $sformat( disasm, "beq    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BNE   : $sformat( disasm, "bne    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BLT   : $sformat( disasm, "blt    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BGE   : $sformat( disasm, "bge    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BLTU  : $sformat( disasm, "bltu   %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-      `RV2ISA_INST_BGEU  : $sformat( disasm, "bgeu   %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
-
-      `RV2ISA_INST_CUST0 : $sformat( disasm, "cust0 %s, %s, %s, %s", rd_str, rs1_str, rs2_str, funct_str );
-      default            : $sformat( disasm, "illegal inst           " );
-    endcase
-
-  end
-  endfunction
-
-  //----------------------------------------------------------------------
-  // Disasm Tiny
-  //----------------------------------------------------------------------
-
-  function [4*8-1:0] disasm_tiny( input [`RV2ISA_INST_NBITS-1:0] inst );
-  begin
-
-    casez ( inst )
-      `RV2ISA_INST_CSRR  : disasm_tiny = "csrr";
-      `RV2ISA_INST_CSRW  : disasm_tiny = "csrw";
-      `RV2ISA_INST_NOP   : disasm_tiny = "nop ";
-
-      `RV2ISA_INST_ADD   : disasm_tiny = "add ";
-      `RV2ISA_INST_SUB   : disasm_tiny = "sub ";
-      `RV2ISA_INST_AND   : disasm_tiny = "and ";
-      `RV2ISA_INST_OR    : disasm_tiny = "or  ";
-      `RV2ISA_INST_XOR   : disasm_tiny = "xor ";
-      `RV2ISA_INST_SLT   : disasm_tiny = "slt ";
-      `RV2ISA_INST_SLTU  : disasm_tiny = "sltu";
-      `RV2ISA_INST_MUL   : disasm_tiny = "mul ";
-
-      `RV2ISA_INST_ADDI  : disasm_tiny = "addi";
-      `RV2ISA_INST_ANDI  : disasm_tiny = "andi";
-      `RV2ISA_INST_ORI   : disasm_tiny = "ori ";
-      `RV2ISA_INST_XORI  : disasm_tiny = "xori";
-      `RV2ISA_INST_SLTI  : disasm_tiny = "slti";
-      `RV2ISA_INST_SLTIU : disasm_tiny = "sltI";
-
-      `RV2ISA_INST_SRA   : disasm_tiny = "sra ";
-      `RV2ISA_INST_SRL   : disasm_tiny = "srl ";
-      `RV2ISA_INST_SLL   : disasm_tiny = "sll ";
-      `RV2ISA_INST_SRAI  : disasm_tiny = "srai";
-      `RV2ISA_INST_SRLI  : disasm_tiny = "srli";
-      `RV2ISA_INST_SLLI  : disasm_tiny = "slli";
-
-      `RV2ISA_INST_LUI   : disasm_tiny = "lui ";
-      `RV2ISA_INST_AUIPC : disasm_tiny = "auiP";
-
-      `RV2ISA_INST_LW    : disasm_tiny = "lw  ";
-      `RV2ISA_INST_SW    : disasm_tiny = "sw  ";
-
-      `RV2ISA_INST_JAL   : disasm_tiny = "jal ";
-      `RV2ISA_INST_JALR  : disasm_tiny = "jalr";
-
-      `RV2ISA_INST_BEQ   : disasm_tiny = "beq ";
-      `RV2ISA_INST_BNE   : disasm_tiny = "bne ";
-      `RV2ISA_INST_BLT   : disasm_tiny = "blt ";
-      `RV2ISA_INST_BGE   : disasm_tiny = "bge ";
-      `RV2ISA_INST_BLTU  : disasm_tiny = "bltu";
-      `RV2ISA_INST_BGEU  : disasm_tiny = "bgeu";
-
-      `RV2ISA_INST_CUST0 : disasm_tiny = "cus0";
-
-      default            : disasm_tiny = "????";
-    endcase
-
-  end
-  endfunction
-
-endmodule
-
-//------------------------------------------------------------------------
-// Unpack instruction
-//------------------------------------------------------------------------
-
-module rv2isa_InstUnpack
-(
-  // Packed message
-
-  input  [`RV2ISA_INST_NBITS-1:0]        inst,
-
-  // Packed fields
-
-  output [`RV2ISA_INST_OPCODE_NBITS-1:0] opcode,
-  output [`RV2ISA_INST_RD_NBITS-1:0]     rd,
-  output [`RV2ISA_INST_RS1_NBITS-1:0]    rs1,
-  output [`RV2ISA_INST_RS2_NBITS-1:0]    rs2,
-  output [`RV2ISA_INST_FUNCT3_NBITS-1:0] funct3,
-  output [`RV2ISA_INST_FUNCT7_NBITS-1:0] funct7,
-  output [`RV2ISA_INST_CSR_NBITS-1:0]    csr
-);
-
-  assign opcode   = inst[`RV2ISA_INST_OPCODE];
-  assign rd       = inst[`RV2ISA_INST_RD];
-  assign rs1      = inst[`RV2ISA_INST_RS1];
-  assign rs2      = inst[`RV2ISA_INST_RS2];
-  assign funct3   = inst[`RV2ISA_INST_FUNCT3];
-  assign csr      = inst[`RV2ISA_INST_CSR];
-
-endmodule
-
-//------------------------------------------------------------------------
-// Convert message to string
-//------------------------------------------------------------------------
-
-`ifndef SYNTHESIS
-
-module rv2isa_InstTrace
-(
-  input                          clk,
-  input                          reset,
-  input [`RV2ISA_INST_NBITS-1:0] inst
-);
-
-  rv2isa_InstTasks rv2isa();
-
-  `VC_TRACE_BEGIN
-  begin
-    vc_trace.append_str( trace_str, rv2isa.disasm( inst ) );
-    vc_trace.append_str( trace_str, " | " );
-    vc_trace.append_str( trace_str, rv2isa.disasm_tiny( inst ) );
-  end
-  `VC_TRACE_END
-
-endmodule
-
-`endif /* SYNTHESIS */
-
-`endif /* PROC_TINY_RV2_INST_V */
-
-
-`line 9 "proc/ProcDpathComponentsVRTL.v" 0
-
-//------------------------------------------------------------------------
-// Generate intermediate (imm) based on type
-//------------------------------------------------------------------------
-
-module proc_ImmGenVRTL
-(
-  input  logic [ 2:0] imm_type,
-  input  logic [31:0] inst,
-  output logic [31:0] imm
-);
-
-  always_comb begin
-    case ( imm_type )
-      3'd0: // I-type
-        imm = { {21{inst[31]}}, inst[30:25], inst[24:21], inst[20] };
-
-      3'd2: // B-type
-        imm = { {20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0 };
-
-      //''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''
-      // Add more immediate types
-      //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''\/
-
-      3'd1: // S-type
-        imm = { {21{inst[31]}}, inst[30:25], inst[11:8], inst[7] };
-
-      3'd3: // U-type
-        imm = { inst[31], inst[30:20], inst[19:12], 12'b0 };
-
-      3'd4: // J-type
-        imm = { {12{inst[31]}}, inst[19:12], inst[20], inst[30:25], inst[24:21], 1'b0 };
-
-      //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''/\
-
-      default:
-        imm = 32'bx;
-
-    endcase
-  end
-
-endmodule
-
-//------------------------------------------------------------------------
-// ALU
-//------------------------------------------------------------------------
-
-`line 1 "vc/arithmetic.v" 0
-//========================================================================
-// Verilog Components: Arithmetic Components
-//========================================================================
-
-`ifndef VC_ARITHMETIC_V
-`define VC_ARITHMETIC_V
-
-//------------------------------------------------------------------------
-// Adders
-//------------------------------------------------------------------------
-
-module vc_Adder
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  input  logic               cin,
-  output logic [p_nbits-1:0] out,
-  output logic               cout
-);
-
-  // We need to convert cin into a 32-bit value to
-  // avoid verilator warnings
-
-  assign {cout,out} = in0 + in1 + {{(p_nbits-1){1'b0}},cin};
-
-endmodule
-
-module vc_SimpleAdder
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic [p_nbits-1:0] out
-);
-
-  assign out = in0 + in1;
-
-endmodule
-
-//------------------------------------------------------------------------
-// Subtractor
-//------------------------------------------------------------------------
-
-module vc_Subtractor
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic [p_nbits-1:0] out
-);
-
-  assign out = in0 - in1;
-
-endmodule
-
-//------------------------------------------------------------------------
-// Incrementer
-//------------------------------------------------------------------------
-
-module vc_Incrementer
-#(
-  parameter p_nbits     = 1,
-  parameter p_inc_value = 1
-)(
-  input  logic [p_nbits-1:0] in,
-  output logic [p_nbits-1:0] out
-);
-
-  assign out = in + p_inc_value;
-
-endmodule
-
-//------------------------------------------------------------------------
-// ZeroExtender
-//------------------------------------------------------------------------
-
-module vc_ZeroExtender
-#(
-  parameter p_in_nbits  = 1,
-  parameter p_out_nbits = 8
-)(
-  input  logic [p_in_nbits-1:0]  in,
-  output logic [p_out_nbits-1:0] out
-);
-
-  assign out = { {( p_out_nbits - p_in_nbits ){1'b0}}, in };
-
-endmodule
-
-//------------------------------------------------------------------------
-// SignExtender
-//------------------------------------------------------------------------
-
-module vc_SignExtender
-#(
- parameter p_in_nbits = 1,
- parameter p_out_nbits = 8
-)
-(
-  input  logic [p_in_nbits-1:0]  in,
-  output logic [p_out_nbits-1:0] out
-);
-
-  assign out = { {(p_out_nbits-p_in_nbits){in[p_in_nbits-1]}}, in };
-
-endmodule
-
-//------------------------------------------------------------------------
-// ZeroComparator
-//------------------------------------------------------------------------
-
-module vc_ZeroComparator
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in,
-  output logic               out
-);
-
-  assign out = ( in == {p_nbits{1'b0}} );
-
-endmodule
-
-//------------------------------------------------------------------------
-// EqComparator
-//------------------------------------------------------------------------
-
-module vc_EqComparator
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic               out
-);
-
-  assign out = ( in0 == in1 );
-
-endmodule
-
-//------------------------------------------------------------------------
-// LtComparator
-//------------------------------------------------------------------------
-
-module vc_LtComparator
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic               out
-);
-
-  assign out = ( in0 < in1 );
-
-endmodule
-
-//------------------------------------------------------------------------
-// GtComparator
-//------------------------------------------------------------------------
-
-module vc_GtComparator
-#(
-  parameter p_nbits = 1
-)(
-  input  logic [p_nbits-1:0] in0,
-  input  logic [p_nbits-1:0] in1,
-  output logic               out
-);
-
-  assign out = ( in0 > in1 );
-
-endmodule
-
-//------------------------------------------------------------------------
-// LeftLogicalShifter
-//------------------------------------------------------------------------
-
-module vc_LeftLogicalShifter
-#(
-  parameter p_nbits       = 1,
-  parameter p_shamt_nbits = 1 )
-(
-  input  logic       [p_nbits-1:0] in,
-  input  logic [p_shamt_nbits-1:0] shamt,
-  output logic       [p_nbits-1:0] out
-);
-
-  assign out = ( in << shamt );
-
-endmodule
-
-//------------------------------------------------------------------------
-// RightLogicalShifter
-//------------------------------------------------------------------------
-
-module vc_RightLogicalShifter
-#(
-  parameter p_nbits       = 1,
-  parameter p_shamt_nbits = 1
-)(
-  input  logic       [p_nbits-1:0] in,
-  input  logic [p_shamt_nbits-1:0] shamt,
-  output logic       [p_nbits-1:0] out
-);
-
-  assign out = ( in >> shamt );
-
-endmodule
-
-`endif /* VC_ARITHMETIC_V */
-
-
-`line 57 "proc/ProcDpathComponentsVRTL.v" 0
-
-module proc_AluVRTL
-(
-  input  logic [31:0] in0,
-  input  logic [31:0] in1,
-  input  logic [ 3:0] fn,
-  output logic [31:0] out,
-  output logic        ops_eq,
-  output logic        ops_lt,
-  output logic        ops_ltu
-);
-
-  always_comb begin
-
-    case ( fn )
-      4'd0    : out = in0 + in1;                                // ADD
-      4'd11   : out = in0;                                      // CP OP0
-      4'd12   : out = in1;                                      // CP OP1
-
-      //''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''
-      // Add more alu function
-      //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''\/
-
-      4'd1    : out = in0 - in1;                                // SUB
-      4'd2    : out = in0 << in1[4:0];                          // SLL
-      4'd3    : out = in0 | in1;                                // OR
-      4'd4    : out = { 31'b0, ($signed(in0) < $signed(in1)) }; // SLT
-      4'd5    : out = { 31'b0, (in0 < in1) };                   // SLTU
-      4'd6    : out = in0 & in1;                                // AND
-      4'd7    : out = in0 ^ in1;                                // XOR
-      4'd8    : out = ~(in0 | in1);                             // NOR
-      4'd9    : out = in0 >> in1[4:0];                          // SRL
-      4'd10   : out = $signed(in0) >>> in1[4:0];                // SRA
-      4'd13   : begin
-                  out = in0 + in1;
-                  out[0] = 1'b0;
+      if ((inst__9 == CSRRX)) begin
+        cs = { y,br_na,n,am_x,n,imm_i,bm_imm,n,alu_cp1,nr,xm_a,wm_c,y,n,y,n };
+      end
+      else begin
+        if ((inst__9 == CSRR)) begin
+          cs = { y,br_na,n,am_x,n,imm_i,bm_csr,n,alu_cp1,nr,xm_a,wm_a,y,n,y,n };
+        end
+        else begin
+          if ((inst__9 == CSRW)) begin
+            cs = { y,br_na,n,am_rf,y,imm_i,bm_imm,n,alu_cp0,nr,xm_a,wm_a,n,n,n,y };
+          end
+          else begin
+            if ((inst__9 == ADD)) begin
+              cs = { y,br_na,n,am_rf,y,imm_x,bm_rf,y,alu_add,nr,xm_a,wm_a,y,n,n,n };
+            end
+            else begin
+              if ((inst__9 == SUB)) begin
+                cs = { y,br_na,n,am_rf,y,imm_x,bm_rf,y,alu_sub,nr,xm_a,wm_a,y,n,n,n };
+              end
+              else begin
+                if ((inst__9 == MUL)) begin
+                  cs = { y,br_na,n,am_rf,y,imm_x,bm_rf,y,alu_x,nr,xm_m,wm_a,y,y,n,n };
                 end
-
-      //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''/\
-
-      default : out = 32'b0;
-    endcase
-
-  end
-
-  // Calculate equality, zero, negative flags
-
-  vc_EqComparator #(32) cond_eq_comp
-  (
-    .in0  (in0),
-    .in1  (in1),
-    .out  (ops_eq)
-  );
-
-  assign ops_lt = $signed(in0) < $signed(in1);
-  assign ops_ltu = in0 < in1;
-
-endmodule
-
-`endif /* PROC_PROC_DPATH_COMPONENTS_V */
-
-
-`line 18 "proc/ProcDpathVRTL.v" 0
-
-module proc_ProcDpathVRTL
-#(
-  parameter p_num_cores = 1
-)
-(
-  input  logic        clk,
-  input  logic        reset,
-
-  input  logic [31:0] core_id,
-
-  // Instruction Memory Port
-
-  output logic [31:0]  imemreq_msg_addr,
-  input  mem_resp_4B_t imemresp_msg,
-
-  // Data Memory Port
-
-  output logic [31:0] dmemreq_msg_addr,
-  output logic [31:0] dmemreq_msg_data,
-  input  logic [31:0] dmemresp_msg_data,
-
-  // mngr communication ports
-
-  input  logic [31:0] mngr2proc_data,
-  output logic [31:0] proc2mngr_data,
-
-  // xcel communication ports
-
-  output logic [31:0] xcelreq_msg_data,
-  output logic [4:0]  xcelreq_msg_raddr,
-  input  logic [31:0] xcelresp_msg_data,
-
-  // control signals (ctrl->dpath)
-
-  output logic        imemresp_val_drop,
-  input  logic        imemresp_rdy_drop,
-  input  logic        imemresp_drop,
-
-  input  logic        reg_en_F,
-  input  logic [1:0]  pc_sel_F,
-
-  input  logic        reg_en_D,
-  input  logic [1:0]  op1_byp_sel_D,
-  input  logic [1:0]  op2_byp_sel_D,
-  input  logic        op1_sel_D,
-  input  logic [1:0]  op2_sel_D,
-  input  logic [1:0]  csrr_sel_D,
-  input  logic [2:0]  imm_type_D,
-  input  logic        imul_req_val_D,
-
-  input  logic        reg_en_X,
-  input  logic [3:0]  alu_fn_X,
-  input  logic [1:0]  ex_result_sel_X,
-  input  logic        imul_resp_rdy_X,
-
-  input  logic        reg_en_M,
-  input  logic [1:0]  wb_result_sel_M,
-
-  input  logic        reg_en_W,
-  input  logic [4:0]  rf_waddr_W,
-  input  logic        rf_wen_W,
-  input  logic        stats_en_wen_W,
-
-  // status signals (dpath->ctrl)
-
-  output logic [31:0] inst_D,
-  output logic        imul_req_rdy_D,
-
-  output logic        imul_resp_val_X,
-  output logic        br_cond_eq_X,
-  output logic        br_cond_lt_X,
-  output logic        br_cond_ltu_X,
-
-  // stats output
-
-  output logic        stats_en
-
-);
-
-  localparam c_reset_vector = 32'h200;
-  localparam c_reset_inst   = 32'h00000000;
-
-  // Fetch address
-  logic [31:0] pc_next_F;
-
-  assign imemreq_msg_addr = pc_next_F;
-
-  //--------------------------------------------------------------------
-  // F stage
-  //--------------------------------------------------------------------
-
-  logic [31:0] pc_F;
-  logic [31:0] pc_plus4_F;
-  logic [31:0] br_target_X;
-  logic [31:0] jal_target_D;
-  logic [31:0] jalr_target_X;
-
-  vc_EnResetReg #(32, c_reset_vector - 32'd4) pc_reg_F
-  (
-    .clk    (clk),
-    .reset  (reset),
-    .en     (reg_en_F),
-    .d      (pc_next_F),
-    .q      (pc_F)
-  );
-
-  vc_Incrementer #(32, 4) pc_incr_F
-  (
-    .in   (pc_F),
-    .out  (pc_plus4_F)
-  );
-
-  vc_Mux4 #(32) pc_sel_mux_F
-  (
-    .in0  (pc_plus4_F),
-    .in1  (br_target_X),
-    .in2  (jal_target_D),
-    .in3  (jalr_target_X),
-    .sel  (pc_sel_F),
-    .out  (pc_next_F)
-  );
-
-  //--------------------------------------------------------------------
-  // D stage
-  //--------------------------------------------------------------------
-
-  logic  [31:0] pc_D;
-  logic   [4:0] inst_rd_D;
-  logic   [4:0] inst_rs1_D;
-  logic   [4:0] inst_rs2_D;
-  logic  [31:0] imm_D;
-
-  vc_EnResetReg #(32) pc_reg_D
-  (
-    .clk    (clk),
-    .reset  (reset),
-    .en     (reg_en_D),
-    .d      (pc_F),
-    .q      (pc_D)
-  );
-
-  vc_EnResetReg #(32, c_reset_inst) inst_D_reg
-  (
-    .clk    (clk),
-    .reset  (reset),
-    .en     (reg_en_D),
-    .d      (imemresp_msg.data),
-    .q      (inst_D)
-  );
-
-  rv2isa_InstUnpack inst_unpack
-  (
-    .opcode   (),
-    .inst     (inst_D),
-    .rs1      (inst_rs1_D),
-    .rs2      (inst_rs2_D),
-    .rd       (inst_rd_D),
-    .funct3   (),
-    .funct7   (),
-    .csr      ()
-  );
-
-  proc_ImmGenVRTL imm_gen_D
-  (
-    .imm_type (imm_type_D),
-    .inst     (inst_D),
-    .imm      (imm_D)
-  );
-
-  logic [31:0] rf_rdata0_D;
-  logic [31:0] rf_rdata1_D;
-
-  logic [31:0] rf_wdata_W;
-
-  vc_Regfile_2r1w_zero rf
-  (
-    .clk      (clk),
-    .reset    (reset),
-    .rd_addr0 (inst_rs1_D),
-    .rd_data0 (rf_rdata0_D),
-    .rd_addr1 (inst_rs2_D),
-    .rd_data1 (rf_rdata1_D),
-    .wr_en    (rf_wen_W),
-    .wr_addr  (rf_waddr_W),
-    .wr_data  (rf_wdata_W)
-  );
-
-  logic [31:0] byp_data_X;
-  logic [31:0] byp_data_M;
-  logic [31:0] byp_data_W;
-
-  logic [31:0] op1_byp_D;
-  logic [31:0] op1_D;
-
-  // op1 bypass mux
-  vc_Mux4 #(32) op1_byp_mux_D
-  (
-    .in0  (rf_rdata0_D),
-    .in1  (byp_data_X),
-    .in2  (byp_data_M),
-    .in3  (byp_data_W),
-    .sel  (op1_byp_sel_D),
-    .out  (op1_byp_D)
-  );
-
-  // op1 select mux
-  vc_Mux2 #(32) op1_sel_mux_D
-  (
-    .in0  (op1_byp_D),
-    .in1  (pc_D),
-    .sel  (op1_sel_D),
-    .out  (op1_D)
-  );
-
-  logic [31:0] op2_byp_D;
-
-  // op2 bypass mux
-  vc_Mux4 #(32) op2_byp_mux_D
-  (
-    .in0  (rf_rdata1_D),
-    .in1  (byp_data_X),
-    .in2  (byp_data_M),
-    .in3  (byp_data_W),
-    .sel  (op2_byp_sel_D),
-    .out  (op2_byp_D)
-  );
-
-  logic [31:0] op2_D;
-
-  logic [31:0] csrr_data_D;
-
-  logic [31:0] num_cores;
-  assign num_cores = p_num_cores;
-
-  // csrr data select mux
-  vc_Mux3 #(32) csrr_sel_mux_D
-  (
-   .in0  (mngr2proc_data),
-   .in1  (num_cores),
-   .in2  (core_id),
-   .sel  (csrr_sel_D),
-   .out  (csrr_data_D)
-  );
-
-  // op2 select mux
-  // This mux chooses among RS2, imm, and the output of the above csrr
-  // csrr sel mux. Basically we are using two muxes here for pedagogy.
-  vc_Mux3 #(32) op2_sel_mux_D
-  (
-    .in0  (op2_byp_D),
-    .in1  (imm_D),
-    .in2  (csrr_data_D),
-    .sel  (op2_sel_D),
-    .out  (op2_D)
-  );
-
-  vc_Adder #(32) pc_plus_imm_D
-  (
-    .in0      (pc_D),
-    .in1      (imm_D),
-    .cin      (1'b0),
-    .out      (jal_target_D),
-    .cout     ()
-  );
-
-  logic [63:0] imul_req_msg_D;
-  assign imul_req_msg_D = {op1_D, op2_D};
-
-  logic [31:0] imul_resp_msg_X;
-
-  lab1_imul_IntMulVarLatVRTL imul
-  (
-    .clk       (clk),
-    .reset     (reset),
-
-    .req_val   (imul_req_val_D),
-    .req_rdy   (imul_req_rdy_D),
-    .req_msg   (imul_req_msg_D),
-
-    .resp_val  (imul_resp_val_X),
-    .resp_rdy  (imul_resp_rdy_X),
-    .resp_msg  (imul_resp_msg_X)
-  );
-
-  //--------------------------------------------------------------------
-  // X stage
-  //--------------------------------------------------------------------
-
-  logic [31:0] pc_X;
-  vc_EnResetReg #(32) pc_reg_X
-  (
-    .clk    (clk),
-    .reset  (reset),
-    .en     (reg_en_X),
-    .d      (pc_D),
-    .q      (pc_X)
-  );
-
-  logic [31:0] op1_X;
-  logic [31:0] op2_X;
-
-  vc_EnResetReg #(32, 0) op1_reg_X
-  (
-    .clk    (clk),
-    .reset  (reset),
-    .en     (reg_en_X),
-    .d      (op1_D),
-    .q      (op1_X)
-  );
-
-  vc_EnResetReg #(32, 0) op2_reg_X
-  (
-    .clk    (clk),
-    .reset  (reset),
-    .en     (reg_en_X),
-    .d      (op2_D),
-    .q      (op2_X)
-  );
-
-  vc_EnResetReg #(32, 0) br_target_reg_X
-  (
-    .clk    (clk),
-    .reset  (reset),
-    .en     (reg_en_X),
-    .d      (jal_target_D),
-    .q      (br_target_X)
-  );
-
-  vc_EnResetReg #(32, 0) dmem_write_data_reg_X
-  (
-    .clk    (clk),
-    .reset  (reset),
-    .en     (reg_en_X),
-    .d      (op2_byp_D),
-    .q      (dmemreq_msg_data)
-  );
-
-  assign xcelreq_msg_data  = op1_X;
-  assign xcelreq_msg_raddr = op2_X[4:0];
-
-  // ALU
-
-  logic [31:0] alu_result_X;
-  logic [31:0] ex_result_X;
-
-  proc_AluVRTL alu
-  (
-    .in0      (op1_X),
-    .in1      (op2_X),
-    .fn       (alu_fn_X),
-    .out      (alu_result_X),
-    .ops_eq   (br_cond_eq_X),
-    .ops_lt   (br_cond_lt_X),
-    .ops_ltu  (br_cond_ltu_X)
-  );
-
-  assign jalr_target_X = alu_result_X;
-
-  // PC+4 Incrementer, used for jalr instruction
-  logic [31:0] pc_plus4_X;
-  vc_Incrementer #(32, 4) pc_incr_X
-  (
-    .in   (pc_X),
-    .out  (pc_plus4_X)
-  );
-
-  // Select the output of the X stage
-  vc_Mux3 #(32) ex_result_sel_mux_X
-  (
-    .in0      (alu_result_X),
-    .in1      (imul_resp_msg_X),
-    .in2      (pc_plus4_X),
-    .sel      (ex_result_sel_X),
-    .out      (ex_result_X)
-  );
-
-  assign byp_data_X = ex_result_X;
-
-  assign dmemreq_msg_addr = alu_result_X;
-
-  //--------------------------------------------------------------------
-  // M stage
-  //--------------------------------------------------------------------
-
-  logic [31:0] ex_result_M;
-
-  vc_EnResetReg #(32, 0) ex_result_reg_M
-  (
-    .clk    (clk),
-    .reset  (reset),
-    .en     (reg_en_M),
-    .d      (ex_result_X),
-    .q      (ex_result_M)
-  );
-
-  logic [31:0] dmem_result_M;
-  logic [31:0] wb_result_M;
-
-  assign dmem_result_M = dmemresp_msg_data;
-
-  vc_Mux3 #(32) wb_result_sel_mux_M
-  (
-    .in0    (ex_result_M),
-    .in1    (dmem_result_M),
-    .in2    (xcelresp_msg_data),
-    .sel    (wb_result_sel_M),
-    .out    (wb_result_M)
-  );
-
-  assign byp_data_M = wb_result_M;
-
-  //--------------------------------------------------------------------
-  // W stage
-  //--------------------------------------------------------------------
-
-  logic [31:0] wb_result_W;
-
-  vc_EnResetReg #(32, 0) wb_result_reg_W
-  (
-    .clk    (clk),
-    .reset  (reset),
-    .en     (reg_en_W),
-    .d      (wb_result_M),
-    .q      (wb_result_W)
-  );
-
-  assign proc2mngr_data = wb_result_W;
-
-  assign rf_wdata_W = wb_result_W;
-
-  assign byp_data_W = wb_result_W;
-
-  // stats output
-  // note the stats en is full 32-bit here but the outside port is one
-  // bit.
-
-  logic [31:0] stats_en_W;
-
-  assign stats_en = | stats_en_W;
-
-  vc_EnResetReg #(32, 0) stats_en_reg_W
-  (
-   .clk    (clk),
-   .reset  (reset),
-   .en     (stats_en_wen_W),
-   .d      (wb_result_W),
-   .q      (stats_en_W)
-  );
-
-
-endmodule
-
-`endif /* PROC_PROC_DPATH_V */
-
-
-`line 15 "proc/ProcVRTL.v" 0
-`line 1 "proc/DropUnitVRTL.v" 0
-//========================================================================
-// Verilog Components: Drop Unit
-//========================================================================
-// Drop unit allows dropping a packet when the drop signal is high. This
-// is useful especially in pipelined processor, when a squash should drop
-// a late arriving memory response.
-
-`ifndef PROC_DROP_UNIT_V
-`define PROC_DROP_UNIT_V
-
-module vc_DropUnit
-#(
-  parameter   p_msg_nbits = 1
-)
-(
-  input  logic                   clk,
-  input  logic                   reset,
-
-  // the drop signal will drop the next arriving packet
-
-  input  logic                   drop,
-
-  input  logic [p_msg_nbits-1:0] in_msg,
-  input  logic                   in_val,
-  output logic                   in_rdy,
-
-  output logic [p_msg_nbits-1:0] out_msg,
-  output logic                   out_val,
-  input  logic                   out_rdy
-);
-
-  localparam c_state_pass = 1'b0;
-  localparam c_state_drop = 1'b1;
-
-  logic state;
-  logic next_state;
-  logic in_go;
-
-  assign in_go = in_rdy && in_val;
-
-  // assign output message same as input message
-
-  assign out_msg = in_msg;
-
-  // next state
-
-  always_comb begin
-    if ( state == c_state_pass ) begin
-
-      // we only go to drop state if there is a drop request and we cannot
-      // drop it right away (!in_go)
-      if ( drop && !in_go )
-        next_state = c_state_drop;
-      else
-        next_state = c_state_pass;
-
-    end else begin
-
-      // if we are in the drop mode and a message arrives, we can go back
-      // to pass state
-      if ( in_go )
-        next_state = c_state_pass;
-      else
-        next_state = c_state_drop;
-
+                else begin
+                  if ((inst__9 == AND)) begin
+                    cs = { y,br_na,n,am_rf,y,imm_x,bm_rf,y,alu_and,nr,xm_a,wm_a,y,n,n,n };
+                  end
+                  else begin
+                    if ((inst__9 == OR)) begin
+                      cs = { y,br_na,n,am_rf,y,imm_x,bm_rf,y,alu_or,nr,xm_a,wm_a,y,n,n,n };
+                    end
+                    else begin
+                      if ((inst__9 == XOR)) begin
+                        cs = { y,br_na,n,am_rf,y,imm_x,bm_rf,y,alu_xor,nr,xm_a,wm_a,y,n,n,n };
+                      end
+                      else begin
+                        if ((inst__9 == SLT)) begin
+                          cs = { y,br_na,n,am_rf,y,imm_x,bm_rf,y,alu_lt,nr,xm_a,wm_a,y,n,n,n };
+                        end
+                        else begin
+                          if ((inst__9 == SLTU)) begin
+                            cs = { y,br_na,n,am_rf,y,imm_x,bm_rf,y,alu_ltu,nr,xm_a,wm_a,y,n,n,n };
+                          end
+                          else begin
+                            if ((inst__9 == SRA)) begin
+                              cs = { y,br_na,n,am_rf,y,imm_x,bm_rf,y,alu_sra,nr,xm_a,wm_a,y,n,n,n };
+                            end
+                            else begin
+                              if ((inst__9 == SRL)) begin
+                                cs = { y,br_na,n,am_rf,y,imm_x,bm_rf,y,alu_srl,nr,xm_a,wm_a,y,n,n,n };
+                              end
+                              else begin
+                                if ((inst__9 == SLL)) begin
+                                  cs = { y,br_na,n,am_rf,y,imm_x,bm_rf,y,alu_sll,nr,xm_a,wm_a,y,n,n,n };
+                                end
+                                else begin
+                                  if ((inst__9 == ADDI)) begin
+                                    cs = { y,br_na,n,am_rf,y,imm_i,bm_imm,n,alu_add,nr,xm_a,wm_a,y,n,n,n };
+                                  end
+                                  else begin
+                                    if ((inst__9 == ANDI)) begin
+                                      cs = { y,br_na,n,am_rf,y,imm_i,bm_imm,n,alu_and,nr,xm_a,wm_a,y,n,n,n };
+                                    end
+                                    else begin
+                                      if ((inst__9 == ORI)) begin
+                                        cs = { y,br_na,n,am_rf,y,imm_i,bm_imm,n,alu_or,nr,xm_a,wm_a,y,n,n,n };
+                                      end
+                                      else begin
+                                        if ((inst__9 == XORI)) begin
+                                          cs = { y,br_na,n,am_rf,y,imm_i,bm_imm,n,alu_xor,nr,xm_a,wm_a,y,n,n,n };
+                                        end
+                                        else begin
+                                          if ((inst__9 == SLTI)) begin
+                                            cs = { y,br_na,n,am_rf,y,imm_i,bm_imm,n,alu_lt,nr,xm_a,wm_a,y,n,n,n };
+                                          end
+                                          else begin
+                                            if ((inst__9 == SLTIU)) begin
+                                              cs = { y,br_na,n,am_rf,y,imm_i,bm_imm,n,alu_ltu,nr,xm_a,wm_a,y,n,n,n };
+                                            end
+                                            else begin
+                                              if ((inst__9 == SRAI)) begin
+                                                cs = { y,br_na,n,am_rf,y,imm_i,bm_imm,n,alu_sra,nr,xm_a,wm_a,y,n,n,n };
+                                              end
+                                              else begin
+                                                if ((inst__9 == SRLI)) begin
+                                                  cs = { y,br_na,n,am_rf,y,imm_i,bm_imm,n,alu_srl,nr,xm_a,wm_a,y,n,n,n };
+                                                end
+                                                else begin
+                                                  if ((inst__9 == SLLI)) begin
+                                                    cs = { y,br_na,n,am_rf,y,imm_i,bm_imm,n,alu_sll,nr,xm_a,wm_a,y,n,n,n };
+                                                  end
+                                                  else begin
+                                                    if ((inst__9 == LUI)) begin
+                                                      cs = { y,br_na,n,am_x,n,imm_u,bm_imm,n,alu_cp1,nr,xm_a,wm_a,y,n,n,n };
+                                                    end
+                                                    else begin
+                                                      if ((inst__9 == AUIPC)) begin
+                                                        cs = { y,br_na,n,am_pc,n,imm_u,bm_imm,n,alu_add,nr,xm_a,wm_a,y,n,n,n };
+                                                      end
+                                                      else begin
+                                                        if ((inst__9 == LW)) begin
+                                                          cs = { y,br_na,n,am_rf,y,imm_i,bm_imm,n,alu_add,ld,xm_a,wm_m,y,n,n,n };
+                                                        end
+                                                        else begin
+                                                          if ((inst__9 == SW)) begin
+                                                            cs = { y,br_na,n,am_rf,y,imm_s,bm_imm,y,alu_add,st,xm_a,wm_m,n,n,n,n };
+                                                          end
+                                                          else begin
+                                                            if ((inst__9 == BNE)) begin
+                                                              cs = { y,br_ne,n,am_rf,y,imm_b,bm_rf,y,alu_x,nr,xm_a,wm_x,n,n,n,n };
+                                                            end
+                                                            else begin
+                                                              if ((inst__9 == BEQ)) begin
+                                                                cs = { y,br_eq,n,am_rf,y,imm_b,bm_rf,y,alu_x,nr,xm_a,wm_x,n,n,n,n };
+                                                              end
+                                                              else begin
+                                                                if ((inst__9 == BLT)) begin
+                                                                  cs = { y,br_lt,n,am_rf,y,imm_b,bm_rf,y,alu_lt,nr,xm_a,wm_x,n,n,n,n };
+                                                                end
+                                                                else begin
+                                                                  if ((inst__9 == BLTU)) begin
+                                                                    cs = { y,br_lu,n,am_rf,y,imm_b,bm_rf,y,alu_ltu,nr,xm_a,wm_x,n,n,n,n };
+                                                                  end
+                                                                  else begin
+                                                                    if ((inst__9 == BGE)) begin
+                                                                      cs = { y,br_ge,n,am_rf,y,imm_b,bm_rf,y,alu_lt,nr,xm_a,wm_x,n,n,n,n };
+                                                                    end
+                                                                    else begin
+                                                                      if ((inst__9 == BGEU)) begin
+                                                                        cs = { y,br_gu,n,am_rf,y,imm_b,bm_rf,y,alu_ltu,nr,xm_a,wm_x,n,n,n,n };
+                                                                      end
+                                                                      else begin
+                                                                        if ((inst__9 == JAL)) begin
+                                                                          cs = { y,br_na,y,am_x,n,imm_j,bm_x,n,alu_x,nr,xm_p,wm_a,y,n,n,n };
+                                                                        end
+                                                                        else begin
+                                                                          if ((inst__9 == JALR)) begin
+                                                                            cs = { y,jalr,n,am_rf,y,imm_i,bm_imm,n,alu_adz,nr,xm_p,wm_a,y,n,n,n };
+                                                                          end
+                                                                          else begin
+                                                                            cs = { n,br_x,n,am_x,n,imm_x,bm_x,n,alu_x,nr,xm_x,wm_x,n,n,n,n };
+                                                                          end
+                                                                        end
+                                                                      end
+                                                                    end
+                                                                  end
+                                                                end
+                                                              end
+                                                            end
+                                                          end
+                                                        end
+                                                      end
+                                                    end
+                                                  end
+                                                end
+                                              end
+                                            end
+                                          end
+                                        end
+                                      end
+                                    end
+                                  end
+                                end
+                              end
+                            end
+                          end
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
     end
-  end
-
-  // state outputs
-
-  always_comb begin
-    if ( state == c_state_pass ) begin
-
-      // we combinationally take care of dropping if the packet is already
-      // available
-      out_val = in_val && !drop;
-      in_rdy  = out_rdy;
-
-    end else begin
-
-      // we just drop the packet
-      out_val = 1'b0;
-      in_rdy  = 1'b1;
-
-    end
-  end
-
-  // state transitions
-
-  always_ff @( posedge clk ) begin
-
-    if ( reset )
-      state <= c_state_pass;
-    else
-      state <= next_state;
-
-  end
-
-endmodule
-
-`endif /* PROC_DROP_UNIT_V */
-
-
-`line 16 "proc/ProcVRTL.v" 0
-`line 1 "proc/XcelMsg.v" 0
-//========================================================================
-// XcelMsg : Accelerator message type
-//========================================================================
-
-`ifndef PROC_XCEL_MSG_V
-`define PROC_XCEL_MSG_V
-
-`line 1 "vc/trace.v" 0
-//========================================================================
-// Line Tracing
-//========================================================================
-
-`ifndef VC_TRACE_V
-`define VC_TRACE_V
-
-// NOTE: This macro is declared outside of the module to allow some vc
-// modules to see it and use it in their own params. Verilog does not
-// allow other modules to hierarchically reference the nbits localparam
-// inside this module in constant expressions (e.g., localparams).
-
-`define VC_TRACE_NCHARS 512
-`define VC_TRACE_NBITS  512*8
-
-`ifndef SYNTHESIS
-
-module vc_Trace
-(
-  input logic clk,
-  input logic reset
-);
-
-  integer len0;
-  integer len1;
-  integer idx0;
-  integer idx1;
-
-  // NOTE: If you change these, then you also need to change the
-  // hard-coded constant in the declaration of the trace function at the
-  // bottom of this file.
-  // NOTE: You would also need to change the VC_TRACE_NBITS and
-  // VC_TRACE_NCHARS macro at the top of this file.
-
-  localparam nchars = 512;
-  localparam nbits  = 512*8;
-
-  // This is the actual trace storage used when displaying a trace
-
-  logic [nbits-1:0] storage;
-
-  // Meant to be accesible from outside module
-
-  integer cycles_next = 0;
-  integer cycles      = 0;
-
-  // Get trace level from command line
-
-  logic [3:0] level;
-
-`ifndef VERILATOR
-  initial begin
-    if ( !$value$plusargs( "trace=%d", level ) ) begin
-      level = 0;
-    end
-  end
-`else
-  initial begin
-    level = 1;
-  end
-`endif // !`ifndef VERILATOR
-
-  // Track cycle count
-
-  always_ff @( posedge clk ) begin
-    cycles <= ( reset ) ? 0 : cycles_next;
-  end
-
-  //----------------------------------------------------------------------
-  // append_str
-  //----------------------------------------------------------------------
-  // Appends a string to the trace.
-
-  task append_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len0 = 1;
-    while ( str[len0*8+:8] != 0 ) begin
-      len0 = len0 + 1;
-    end
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = len0-1; idx1 >= 0; idx1 = idx1 - 1 )
-    begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8 +: 8 ];
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_str_ljust
-  //----------------------------------------------------------------------
-  // Appends a left-justified string to the trace.
-
-  task append_str_ljust
-  (
-    inout logic [nbits-1:0] trace,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    idx0 = trace[31:0];
-    idx1 = nchars;
-
-    while ( str[ idx1*8-1 -: 8 ] != 0 ) begin
-      trace[ idx0*8 +: 8 ] = str[ idx1*8-1 -: 8 ];
-      idx0 = idx0 - 1;
-      idx1 = idx1 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_chars
-  //----------------------------------------------------------------------
-  // Appends the given number of characters to the trace.
-
-  task append_chars
-  (
-    inout logic   [nbits-1:0] trace,
-    input logic         [7:0] char,
-    input integer             num
-  );
-  begin
-
-    idx0 = trace[31:0];
-
-    for ( idx1 = 0;
-          idx1 < num;
-          idx1 = idx1 + 1 )
-    begin
-      trace[idx0*8+:8] = char;
-      idx0 = idx0 - 1;
-    end
-
-    trace[31:0] = idx0;
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // append_val_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val signal.
-
-  task append_val_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( val )
-      append_str( trace, str );
-    else if ( !val )
-      append_chars( trace, " ", len1 );
-    else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
-    end
-
-  end
-  endtask
-
-  //----------------------------------------------------------------------
-  // val_rdy_str
-  //----------------------------------------------------------------------
-  // Append a string modified by val/rdy signals.
-
-  task append_val_rdy_str
-  (
-    inout logic [nbits-1:0] trace,
-    input logic             val,
-    input logic             rdy,
-    input logic [nbits-1:0] str
-  );
-  begin
-
-    len1 = 0;
-    while ( str[len1*8+:8] != 0 ) begin
-      len1 = len1 + 1;
-    end
-
-    if ( rdy && val ) begin
-      append_str( trace, str );
-    end
-    else if ( rdy && !val ) begin
-      append_chars( trace, " ", len1 );
-    end
-    else if ( !rdy && val ) begin
-      append_str( trace, "#" );
-      append_chars( trace, " ", len1-1 );
-    end
-    else if ( !rdy && !val ) begin
-      append_str( trace, "." );
-      append_chars( trace, " ", len1-1 );
+    inst_val_D = cs[(27)-1:26];
+    br_type_D = cs[(26)-1:23];
+    jal_D = cs[(23)-1:22];
+    op1_sel_D = cs[(22)-1:21];
+    rs1_en_D = cs[(21)-1:20];
+    imm_type_D = cs[(20)-1:17];
+    op2_sel_D = cs[(17)-1:15];
+    rs2_en_D = cs[(15)-1:14];
+    alu_fn_D = cs[(14)-1:10];
+    dmemreq_type_D = cs[(10)-1:8];
+    ex_result_sel_D = cs[(8)-1:6];
+    wb_result_sel_D = cs[(6)-1:4];
+    rf_wen_pending_D = cs[(4)-1:3];
+    mul_D = cs[(3)-1:2];
+    csrr_D = cs[(2)-1:1];
+    csrw_D = cs[(1)-1:0];
+    rf_waddr_D = inst_D[(12)-1:7];
+    csrr_sel_D = 0;
+    xcelreq_type_D = 0;
+    xcelreq_D = 0;
+    mngr2proc_rdy_D = 0;
+    proc2mngr_val_D = 0;
+    stats_en_wen_D = 0;
+    if (csrr_D) begin
+      if ((inst_D[(32)-1:20] == CSR_NUMCORES)) begin
+        csrr_sel_D = 1;
+      end
+      else begin
+        if ((inst_D[(32)-1:20] == CSR_COREID)) begin
+          csrr_sel_D = 2;
+        end
+        else begin
+          if ((inst_D[(32)-1:20] == CSR_MNGR2PROC)) begin
+            mngr2proc_rdy_D = 1;
+          end
+          else begin
+            xcelreq_type_D = TYPE_READ;
+            xcelreq_D = 1;
+          end
+        end
+      end
     end
     else begin
-      append_str( trace, "x" );
-      append_chars( trace, " ", len1-1 );
     end
-
+    if (csrw_D) begin
+      if ((inst_D[(32)-1:20] == CSR_PROC2MNGR)) begin
+        proc2mngr_val_D = 1;
+      end
+      else begin
+        if ((inst_D[(32)-1:20] == CSR_STATS_EN)) begin
+          stats_en_wen_D = 1;
+        end
+        else begin
+          xcelreq_type_D = TYPE_WRITE;
+          xcelreq_D = 1;
+        end
+      end
+    end
+    else begin
+    end
   end
-  endtask
 
-endmodule
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_jump_D():
+  //
+  //       if s.val_D and s.jal_D:
+  //         s.pc_redirect_D.value = 1
+  //       else:
+  //         s.pc_redirect_D.value = 0
 
-`endif /* SYNTHESIS */
+  // logic for comb_jump_D()
+  always @ (*) begin
+    if ((val_D&&jal_D)) begin
+      pc_redirect_D = 1;
+    end
+    else begin
+      pc_redirect_D = 0;
+    end
+  end
 
-//------------------------------------------------------------------------
-// VC_TRACE_NBITS_TO_NCHARS
-//------------------------------------------------------------------------
-// Macro to determine number of characters for a net
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_bypass_D():
+  //
+  //       s.op1_byp_sel_D.value = byp_d
+  //
+  //       if s.rs1_en_D:
+  //
+  //         if   s.val_X & ( s.inst_D[ RS1 ] == s.rf_waddr_X ) & ( s.rf_waddr_X != 0 ) \
+  //                      & s.rf_wen_pending_X:    s.op1_byp_sel_D.value = byp_x
+  //         elif s.val_M & ( s.inst_D[ RS1 ] == s.rf_waddr_M ) & ( s.rf_waddr_M != 0 ) \
+  //                      & s.rf_wen_pending_M:    s.op1_byp_sel_D.value = byp_m
+  //         elif s.val_W & ( s.inst_D[ RS1 ] == s.rf_waddr_W ) & ( s.rf_waddr_W != 0 ) \
+  //                      & s.rf_wen_pending_W:    s.op1_byp_sel_D.value = byp_w
+  //
+  //       s.op2_byp_sel_D.value = byp_d
+  //
+  //       if s.rs2_en_D:
+  //
+  //         if   s.val_X & ( s.inst_D[ RS2 ] == s.rf_waddr_X ) & ( s.rf_waddr_X != 0 ) \
+  //                      & s.rf_wen_pending_X:    s.op2_byp_sel_D.value = byp_x
+  //         elif s.val_M & ( s.inst_D[ RS2 ] == s.rf_waddr_M ) & ( s.rf_waddr_M != 0 ) \
+  //                      & s.rf_wen_pending_M:    s.op2_byp_sel_D.value = byp_m
+  //         elif s.val_W & ( s.inst_D[ RS2 ] == s.rf_waddr_W ) & ( s.rf_waddr_W != 0 ) \
+  //                      & s.rf_wen_pending_W:    s.op2_byp_sel_D.value = byp_w
 
-`define VC_TRACE_NBITS_TO_NCHARS( nbits_ ) ((nbits_+3)/4)
+  // logic for comb_bypass_D()
+  always @ (*) begin
+    op1_byp_sel_D = byp_d;
+    if (rs1_en_D) begin
+      if ((((val_X&(inst_D[(20)-1:15] == rf_waddr_X))&(rf_waddr_X != 0))&rf_wen_pending_X)) begin
+        op1_byp_sel_D = byp_x;
+      end
+      else begin
+        if ((((val_M&(inst_D[(20)-1:15] == rf_waddr_M))&(rf_waddr_M != 0))&rf_wen_pending_M)) begin
+          op1_byp_sel_D = byp_m;
+        end
+        else begin
+          if ((((val_W&(inst_D[(20)-1:15] == rf_waddr_W))&(rf_waddr_W != 0))&rf_wen_pending_W)) begin
+            op1_byp_sel_D = byp_w;
+          end
+          else begin
+          end
+        end
+      end
+    end
+    else begin
+    end
+    op2_byp_sel_D = byp_d;
+    if (rs2_en_D) begin
+      if ((((val_X&(inst_D[(25)-1:20] == rf_waddr_X))&(rf_waddr_X != 0))&rf_wen_pending_X)) begin
+        op2_byp_sel_D = byp_x;
+      end
+      else begin
+        if ((((val_M&(inst_D[(25)-1:20] == rf_waddr_M))&(rf_waddr_M != 0))&rf_wen_pending_M)) begin
+          op2_byp_sel_D = byp_m;
+        end
+        else begin
+          if ((((val_W&(inst_D[(25)-1:20] == rf_waddr_W))&(rf_waddr_W != 0))&rf_wen_pending_W)) begin
+            op2_byp_sel_D = byp_w;
+          end
+          else begin
+          end
+        end
+      end
+    end
+    else begin
+    end
+  end
 
-//------------------------------------------------------------------------
-// VC_TRACE_BEGIN
-//------------------------------------------------------------------------
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_hazard_D():
+  //
+  //       s.ostall_ld_X_rs1_D.value =\
+  //           s.rs1_en_D & s.val_X & s.rf_wen_pending_X \
+  //         & ( s.inst_D[ RS1 ] == s.rf_waddr_X ) & ( s.rf_waddr_X != 0 ) \
+  //         & ( s.dmemreq_type_X == ld )
+  //
+  //       s.ostall_ld_X_rs2_D.value =\
+  //           s.rs2_en_D & s.val_X & s.rf_wen_pending_X \
+  //         & ( s.inst_D[ RS2 ] == s.rf_waddr_X ) & ( s.rf_waddr_X != 0 ) \
+  //         & ( s.dmemreq_type_X == ld )
+  //
+  //       s.ostall_csrrx_X_rs1_D.value =\
+  //           s.rs1_en_D & s.val_X & s.rf_wen_pending_X \
+  //         & ( s.inst_D[ RS1 ] == s.rf_waddr_X ) & ( s.rf_waddr_X != 0 ) \
+  //         & s.xcelreq_X & (s.xcelreq_type_X == XcelReqMsg.TYPE_READ)
+  //
+  //       s.ostall_csrrx_X_rs2_D.value =\
+  //           s.rs2_en_D & s.val_X & s.rf_wen_pending_X \
+  //         & ( s.inst_D[ RS2 ] == s.rf_waddr_X ) & ( s.rf_waddr_X != 0 ) \
+  //         & s.xcelreq_X & (s.xcelreq_type_X == XcelReqMsg.TYPE_READ)
+  //
+  //       s.ostall_hazard_D.value =\
+  //           s.ostall_ld_X_rs1_D    | s.ostall_ld_X_rs2_D \
+  //         | s.ostall_csrrx_X_rs1_D | s.ostall_csrrx_X_rs2_D
 
-//`define VC_TRACE_BEGIN                                                  \
-//  export "DPI-C" task line_trace;                                       \
-//  vc_Trace vc_trace(clk,reset);                                         \
-//  task line_trace( inout bit [(512*8)-1:0] trace_str );
+  // logic for comb_hazard_D()
+  always @ (*) begin
+    ostall_ld_X_rs1_D = (((((rs1_en_D&val_X)&rf_wen_pending_X)&(inst_D[(20)-1:15] == rf_waddr_X))&(rf_waddr_X != 0))&(dmemreq_type_X == ld));
+    ostall_ld_X_rs2_D = (((((rs2_en_D&val_X)&rf_wen_pending_X)&(inst_D[(25)-1:20] == rf_waddr_X))&(rf_waddr_X != 0))&(dmemreq_type_X == ld));
+    ostall_csrrx_X_rs1_D = ((((((rs1_en_D&val_X)&rf_wen_pending_X)&(inst_D[(20)-1:15] == rf_waddr_X))&(rf_waddr_X != 0))&xcelreq_X)&(xcelreq_type_X == TYPE_READ));
+    ostall_csrrx_X_rs2_D = ((((((rs2_en_D&val_X)&rf_wen_pending_X)&(inst_D[(25)-1:20] == rf_waddr_X))&(rf_waddr_X != 0))&xcelreq_X)&(xcelreq_type_X == TYPE_READ));
+    ostall_hazard_D = (((ostall_ld_X_rs1_D|ostall_ld_X_rs2_D)|ostall_csrrx_X_rs1_D)|ostall_csrrx_X_rs2_D);
+  end
 
-`ifndef VERILATOR
-`define VC_TRACE_BEGIN                                                  \
-  vc_Trace vc_trace(clk,reset);                                         \
-                                                                        \
-  task display_trace;                                                   \
-  begin                                                                 \
-                                                                        \
-    if ( vc_trace.level > 0 ) begin                                     \
-      vc_trace.storage[15:0] = vc_trace.nchars-1;                       \
-                                                                        \
-      line_trace( vc_trace.storage );                                   \
-                                                                        \
-      $write( "%4d: ", vc_trace.cycles );                               \
-                                                                        \
-      vc_trace.idx0 = vc_trace.storage[15:0];                           \
-      for ( vc_trace.idx1 = vc_trace.nchars-1;                          \
-            vc_trace.idx1 > vc_trace.idx0;                              \
-            vc_trace.idx1 = vc_trace.idx1 - 1 )                         \
-      begin                                                             \
-        $write( "%s", vc_trace.storage[vc_trace.idx1*8+:8] );           \
-      end                                                               \
-      $write("\n");                                                     \
-                                                                        \
-    end                                                                 \
-                                                                        \
-    vc_trace.cycles_next = vc_trace.cycles + 1;                         \
-                                                                        \
-  end                                                                   \
-  endtask                                                               \
-                                                                        \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`else
-`define VC_TRACE_BEGIN                                                  \
-  export "DPI-C" task line_trace;                                       \
-  vc_Trace vc_trace(clk,reset);                                         \
-  task line_trace( inout bit [(512*8)-1:0] trace_str );
-`endif
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_D():
+  //
+  //       # ostall due to mngr2proc
+  //       s.ostall_mngr_D.value = s.mngr2proc_rdy_D & ~s.mngr2proc_val
+  //
+  //       # ostall due to imul
+  //       s.ostall_imul_D.value  = s.val_D & s.mul_D & ~s.imul_req_rdy_D
+  //
+  //       # put together all ostall conditions
+  //
+  //       s.ostall_D.value = s.val_D & ( s.ostall_mngr_D | s.ostall_hazard_D | s.ostall_imul_D );
+  //
+  //       # stall in D stage
+  //
+  //       s.stall_D.value = s.val_D & ( s.ostall_D | s.ostall_X |
+  //                                     s.ostall_M | s.ostall_W   )
+  //
+  //       # osquash due to jumps
+  //       # Note that, in the same combinational block, we have to calculate
+  //       # s.stall_D first then use it in osquash_D. Several people have
+  //       # stuck here just because they calculate osquash_D before stall_D!
+  //
+  //       s.osquash_D.value = s.val_D & ~s.stall_D & s.pc_redirect_D
+  //
+  //       # squash in D stage
+  //
+  //       s.squash_D.value = s.val_D & s.osquash_X
+  //
+  //       # mngr2proc port
+  //
+  //       s.mngr2proc_rdy.value = s.val_D & ~s.stall_D & s.mngr2proc_rdy_D
+  //
+  //       # imul request valid signal
+  //
+  //       s.imul_req_val_D.value = s.val_D & ~s.stall_D & ~s.squash_D & s.mul_D
+  //
+  //       # next valid bit
+  //
+  //       s.next_val_D.value = s.val_D & ~s.stall_D & ~s.squash_D
 
-//------------------------------------------------------------------------
-// VC_TRACE_END
-//------------------------------------------------------------------------
+  // logic for comb_D()
+  always @ (*) begin
+    ostall_mngr_D = (mngr2proc_rdy_D&~mngr2proc_val);
+    ostall_imul_D = ((val_D&mul_D)&~imul_req_rdy_D);
+    ostall_D = (val_D&((ostall_mngr_D|ostall_hazard_D)|ostall_imul_D));
+    stall_D = (val_D&(((ostall_D|ostall_X)|ostall_M)|ostall_W));
+    osquash_D = ((val_D&~stall_D)&pc_redirect_D);
+    squash_D = (val_D&osquash_X);
+    mngr2proc_rdy = ((val_D&~stall_D)&mngr2proc_rdy_D);
+    imul_req_val_D = (((val_D&~stall_D)&~squash_D)&mul_D);
+    next_val_D = ((val_D&~stall_D)&~squash_D);
+  end
 
-`define VC_TRACE_END \
-  endtask
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_reg_en_X():
+  //       s.reg_en_X.value  = ~s.stall_X
 
-`endif /* VC_TRACE_V */
+  // logic for comb_reg_en_X()
+  always @ (*) begin
+    reg_en_X = ~stall_X;
+  end
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_br_X():
+  //       s.pc_redirect_X.value = 0
+  //
+  //       if s.val_X:
+  //         if   s.br_type_X == br_eq: s.pc_redirect_X.value = s.br_cond_eq_X
+  //         elif s.br_type_X == br_lt: s.pc_redirect_X.value = s.br_cond_lt_X
+  //         elif s.br_type_X == br_lu: s.pc_redirect_X.value = s.br_cond_ltu_X
+  //         elif s.br_type_X == br_ne: s.pc_redirect_X.value = ~s.br_cond_eq_X
+  //         elif s.br_type_X == br_ge: s.pc_redirect_X.value = ~s.br_cond_lt_X
+  //         elif s.br_type_X == br_gu: s.pc_redirect_X.value = ~s.br_cond_ltu_X
+  //         elif s.br_type_X == jalr : s.pc_redirect_X.value = 1
+
+  // logic for comb_br_X()
+  always @ (*) begin
+    pc_redirect_X = 0;
+    if (val_X) begin
+      if ((br_type_X == br_eq)) begin
+        pc_redirect_X = br_cond_eq_X;
+      end
+      else begin
+        if ((br_type_X == br_lt)) begin
+          pc_redirect_X = br_cond_lt_X;
+        end
+        else begin
+          if ((br_type_X == br_lu)) begin
+            pc_redirect_X = br_cond_ltu_X;
+          end
+          else begin
+            if ((br_type_X == br_ne)) begin
+              pc_redirect_X = ~br_cond_eq_X;
+            end
+            else begin
+              if ((br_type_X == br_ge)) begin
+                pc_redirect_X = ~br_cond_lt_X;
+              end
+              else begin
+                if ((br_type_X == br_gu)) begin
+                  pc_redirect_X = ~br_cond_ltu_X;
+                end
+                else begin
+                  if ((br_type_X == jalr)) begin
+                    pc_redirect_X = 1;
+                  end
+                  else begin
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+    else begin
+    end
+  end
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_X():
+  //
+  //       # ostall due to xcelreq
+  //       s.ostall_xcel_X.value = s.xcelreq_X & ~s.xcelreq_rdy
+  //
+  //       # ostall due to dmemreq
+  //       s.ostall_dmem_X.value = ( s.dmemreq_type_X != nr ) & ~s.dmemreq_rdy
+  //
+  //       # ostall due to imul
+  //       s.ostall_imul_X.value = s.mul_X & ~s.imul_resp_val_X
+  //
+  //       s.ostall_X.value = s.val_X & ( s.ostall_dmem_X | s.ostall_imul_X | s.ostall_xcel_X )
+  //
+  //       # stall in X stage
+  //
+  //       s.stall_X.value  = s.val_X & ( s.ostall_X | s.ostall_M | s.ostall_W )
+  //
+  //       # osquash due to taken branches
+  //       # Note that, in the same combinational block, we have to calculate
+  //       # s.stall_X first then use it in osquash_X. Several people have
+  //       # stuck here just because they calculate osquash_X before stall_X!
+  //
+  //       s.osquash_X.value   = s.val_X & ~s.stall_X & s.pc_redirect_X
+  //
+  //       # send dmemreq if not stalling
+  //
+  //       s.dmemreq_val.value = s.val_X & ~s.stall_X & ( s.dmemreq_type_X != nr )
+  //
+  //       # send xcelreq if not stalling
+  //
+  //       s.xcelreq_val.value = s.val_X & ~s.stall_X & s.xcelreq_X
+  //       s.xcelreq_msg_type.value  = s.xcelreq_type_X
+  //
+  //       if s.dmemreq_type_X == st:
+  //         s.dmemreq_msg_type.value = 1  # store
+  //       else:
+  //         s.dmemreq_msg_type.value = 0  # don't care / load
+  //
+  //       # imul resp ready signal
+  //
+  //       s.imul_resp_rdy_X.value = s.val_X & ~s.stall_X & s.mul_X
+  //
+  //       # next valid bit
+  //
+  //       s.next_val_X.value  = s.val_X & ~s.stall_X
+
+  // logic for comb_X()
+  always @ (*) begin
+    ostall_xcel_X = (xcelreq_X&~xcelreq_rdy);
+    ostall_dmem_X = ((dmemreq_type_X != nr)&~dmemreq_rdy);
+    ostall_imul_X = (mul_X&~imul_resp_val_X);
+    ostall_X = (val_X&((ostall_dmem_X|ostall_imul_X)|ostall_xcel_X));
+    stall_X = (val_X&((ostall_X|ostall_M)|ostall_W));
+    osquash_X = ((val_X&~stall_X)&pc_redirect_X);
+    dmemreq_val = ((val_X&~stall_X)&(dmemreq_type_X != nr));
+    xcelreq_val = ((val_X&~stall_X)&xcelreq_X);
+    xcelreq_msg_type = xcelreq_type_X;
+    if ((dmemreq_type_X == st)) begin
+      dmemreq_msg_type = 1;
+    end
+    else begin
+      dmemreq_msg_type = 0;
+    end
+    imul_resp_rdy_X = ((val_X&~stall_X)&mul_X);
+    next_val_X = (val_X&~stall_X);
+  end
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_reg_en_M():
+  //       s.reg_en_M.value = ~s.stall_M
+
+  // logic for comb_reg_en_M()
+  always @ (*) begin
+    reg_en_M = ~stall_M;
+  end
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_M():
+  //
+  //       # ostall due to xcel resp
+  //       s.ostall_xcel_M.value = s.xcelreq_M & ~s.xcelresp_val
+  //
+  //       # ostall due to dmem resp
+  //       s.ostall_dmem_M.value = ( s.dmemreq_type_M != nr ) & ~s.dmemresp_val
+  //
+  //       s.ostall_M.value = s.val_M & ( s.ostall_dmem_M | s.ostall_xcel_M )
+  //
+  //       # stall in M stage
+  //
+  //       s.stall_M.value  = s.val_M & ( s.ostall_M | s.ostall_W )
+  //
+  //       # set dmemresp ready if not stalling
+  //
+  //       s.dmemresp_rdy.value = s.val_M & ~s.stall_M & ( s.dmemreq_type_M != nr )
+  //
+  //       # set xcelresp ready if not stalling
+  //
+  //       s.xcelresp_rdy.value = s.val_M & ~s.stall_M & s.xcelreq_M
+  //
+  //       # next valid bit
+  //
+  //       s.next_val_M.value   = s.val_M & ~s.stall_M
+
+  // logic for comb_M()
+  always @ (*) begin
+    ostall_xcel_M = (xcelreq_M&~xcelresp_val);
+    ostall_dmem_M = ((dmemreq_type_M != nr)&~dmemresp_val);
+    ostall_M = (val_M&(ostall_dmem_M|ostall_xcel_M));
+    stall_M = (val_M&(ostall_M|ostall_W));
+    dmemresp_rdy = ((val_M&~stall_M)&(dmemreq_type_M != nr));
+    xcelresp_rdy = ((val_M&~stall_M)&xcelreq_M);
+    next_val_M = (val_M&~stall_M);
+  end
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_W():
+  //       s.reg_en_W.value = ~s.stall_W
+
+  // logic for comb_W()
+  always @ (*) begin
+    reg_en_W = ~stall_W;
+  end
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_W():
+  //       # set RF write enable if valid
+  //
+  //       s.rf_wen_W.value       = s.val_W & s.rf_wen_pending_W
+  //       s.stats_en_wen_W.value = s.val_W & s.stats_en_wen_pending_W
+  //
+  //       # ostall due to proc2mngr
+  //
+  //       s.ostall_W.value      = s.val_W & s.proc2mngr_val_W & ~s.proc2mngr_rdy
+  //
+  //       # stall in W stage
+  //
+  //       s.stall_W.value       = s.val_W & s.ostall_W
+  //
+  //       # set proc2mngr val if not stalling
+  //
+  //       s.proc2mngr_val.value = s.val_W & ~s.stall_W & s.proc2mngr_val_W
+  //
+  //       s.commit_inst.value   = s.val_W & ~s.stall_W
+
+  // logic for comb_W()
+  always @ (*) begin
+    rf_wen_W = (val_W&rf_wen_pending_W);
+    stats_en_wen_W = (val_W&stats_en_wen_pending_W);
+    ostall_W = ((val_W&proc2mngr_val_W)&~proc2mngr_rdy);
+    stall_W = (val_W&ostall_W);
+    proc2mngr_val = ((val_W&~stall_W)&proc2mngr_val_W);
+    commit_inst = (val_W&~stall_W);
+  end
 
 
-`line 9 "proc/XcelMsg.v" 0
+endmodule // ProcCtrlPRTL_0x3dfd24416cd48613
+`default_nettype wire
 
-//-------------------------------------------------------------------------
-// XcelReqMsg
-//-------------------------------------------------------------------------
-// Accelerator request messages can either be to read or write an
-// accelerator register. Read requests include just a register specifier,
-// while write requests include an accelerator register specifier and the
-// actual data to write to the accelerator register.
-//
-// Message Format:
-//
-//    1b     5b      32b
-//  +------+-------+-----------+
-//  | type | raddr | data      |
-//  +------+-------+-----------+
-//
-
-typedef struct packed {
-  logic [0:0]  type_;
-  logic [4:0]  raddr;
-  logic [31:0] data;
-} XcelReqMsg;
-
-// xcel request type values
-`define XcelReqMsg_TYPE_READ     1'd0
-`define XcelReqMsg_TYPE_WRITE    1'd1
-
-//-------------------------------------------------------------------------
-// XcelRespMsg
-//-------------------------------------------------------------------------
-// Accelerator response messages can either be from a read or write of an
-// accelerator register. Read requests include the actual value read from
-// the accelerator register, while write requests currently include
-// nothing other than the type.
-//
-// Message Format:
-//
-//    1b     32b
-//  +------+-----------+
-//  | type | data      |
-//  +------+-----------+
-//
-typedef struct packed {
-  logic [0:0]  type_;
-  logic [31:0] data;
-} XcelRespMsg;
-
-`define XcelRespMsg_TYPE_READ     1'd0
-`define XcelRespMsg_TYPE_WRITE    1'd1
-
-`endif /* PROC_XCEL_MSG_V */
-
-
-`line 17 "proc/ProcVRTL.v" 0
-
-module proc_ProcVRTL
-#(
-  parameter p_num_cores = 1
-)
+//-----------------------------------------------------------------------------
+// DecodeInstType_0x477004d1d8d485d1
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: proc.TinyRV2InstPRTL {}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module DecodeInstType_0x477004d1d8d485d1
 (
-  input  logic         clk,
-  input  logic         reset,
-
-  // core_id is an input port rather than a parameter so that
-  // the module only needs to be compiled once. If it were a parameter,
-  // each core would be compiled separately.
-  input  logic [31:0]  core_id,
-
-  // From mngr streaming port
-
-  input  logic [31:0]  mngr2proc_msg,
-  input  logic         mngr2proc_val,
-  output logic         mngr2proc_rdy,
-
-  // To mngr streaming port
-
-  output logic [31:0]  proc2mngr_msg,
-  output logic         proc2mngr_val,
-  input  logic         proc2mngr_rdy,
-
-  // Xcelresp port
-
-  input  XcelRespMsg     xcelresp_msg,
-  input  logic           xcelresp_val,
-  output logic           xcelresp_rdy,
-
-  // Xcelreq port
-
-  output XcelReqMsg      xcelreq_msg,
-  output logic           xcelreq_val,
-  input  logic           xcelreq_rdy,
-
-  // Instruction Memory Request Port
-
-  output mem_req_4B_t  imemreq_msg,
-  output logic         imemreq_val,
-  input  logic         imemreq_rdy,
-
-  // Instruction Memory Response Port
-
-  input  mem_resp_4B_t imemresp_msg,
-  input  logic         imemresp_val,
-  output logic         imemresp_rdy,
-
-  // Data Memory Request Port
-
-  output mem_req_4B_t  dmemreq_msg,
-  output logic         dmemreq_val,
-  input  logic         dmemreq_rdy,
-
-  // Data Memory Response Port
-
-  input  mem_resp_4B_t dmemresp_msg,
-  input  logic         dmemresp_val,
-  output logic         dmemresp_rdy,
-
-  // stats output
-
-  output logic         commit_inst,
-
-  output logic         stats_en
-
+  input  wire [   0:0] clk,
+  input  wire [  31:0] in_,
+  output reg  [   7:0] out,
+  input  wire [   0:0] reset
 );
 
-  //----------------------------------------------------------------------
-  // data mem req/resp
-  //----------------------------------------------------------------------
-
-  // imemreq before pack
-
-  logic [31:0] imemreq_msg_addr;
-
-  // imemreq_enq signals after pack before bypass queue
-
-  mem_req_4B_t imemreq_enq_msg;
-  logic        imemreq_enq_val;
-  logic        imemreq_enq_rdy;
-
-  // dmem req before pack
-
-  logic [2:0 ] dmemreq_msg_type;
-  logic [31:0] dmemreq_msg_addr;
-  logic [31:0] dmemreq_msg_data;
-
-  // dmemreq after pack before bypass queue
-
-  mem_req_4B_t dmemreq_enq_msg;
-  logic        dmemreq_enq_val;
-  logic        dmemreq_enq_rdy;
-
-  // proc2mngr signals before bypass queue
-
-  logic [31:0] proc2mngr_enq_msg;
-  logic        proc2mngr_enq_val;
-  logic        proc2mngr_enq_rdy;
-
-  // imemresp signals after the drop unit
-
-  logic        imemresp_val_drop;
-  logic        imemresp_rdy_drop;
-
-  // imemresp drop signal
-
-  logic        imemresp_drop;
-
-  // accelerator specific
-
-  // xcelreq signals before bypass queue
-
-  XcelReqMsg   xcelreq_enq_msg;
-  logic        xcelreq_enq_val;
-  logic        xcelreq_enq_rdy;
-
-  logic [0:0]  xcelreq_msg_type;
-  logic [4:0]  xcelreq_msg_raddr;
-  logic [31:0] xcelreq_msg_data;
-
-  logic [31:0] xcelresp_msg_data;
-
-  assign xcelresp_msg_data = xcelresp_msg.data;
-
-  assign xcelreq_enq_msg.type_ = xcelreq_msg_type;
-  assign xcelreq_enq_msg.raddr = xcelreq_msg_raddr;
-  assign xcelreq_enq_msg.data  = xcelreq_msg_data;
-
-
-//''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''
-// Connect components
-//''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''\/
-
-  // control signals (ctrl->dpath)
-
-  logic        reg_en_F;
-  logic [1:0]  pc_sel_F;
-
-  logic        reg_en_D;
-  logic [1:0]  op1_byp_sel_D;
-  logic [1:0]  op2_byp_sel_D;
-  logic        op1_sel_D;
-  logic [1:0]  op2_sel_D;
-  logic [1:0]  csrr_sel_D;
-  logic [2:0]  imm_type_D;
-  logic        imul_req_val_D;
-
-  logic        reg_en_X;
-  logic [3:0]  alu_fn_X;
-  logic [1:0]  ex_result_sel_X;
-  logic        imul_resp_rdy_X;
-
-  logic        reg_en_M;
-  logic [1:0]  wb_result_sel_M;
-
-  logic        reg_en_W;
-  logic [4:0]  rf_waddr_W;
-  logic        rf_wen_W;
-  logic        stats_en_wen_W;
-
-  // status signals (dpath->ctrl)
-
-  logic [31:0] inst_D;
-  logic        imul_req_rdy_D;
-
-  logic        imul_resp_val_X;
-  logic        br_cond_eq_X;
-  logic        br_cond_lt_X;
-  logic        br_cond_ltu_X;
-
-//''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''/\
-
-  //----------------------------------------------------------------------
-  // Pack Memory Request Messages
-  //----------------------------------------------------------------------
-
-  assign imemreq_enq_msg.type_  = `VC_MEM_REQ_MSG_TYPE_READ;
-  assign imemreq_enq_msg.opaque = 8'b0;
-  assign imemreq_enq_msg.addr   = imemreq_msg_addr;
-  assign imemreq_enq_msg.len    = 2'd0;
-  assign imemreq_enq_msg.data   = 32'bx;
-
-  assign dmemreq_enq_msg.type_  = dmemreq_msg_type;
-  assign dmemreq_enq_msg.opaque = 8'b0;
-  assign dmemreq_enq_msg.addr   = dmemreq_msg_addr;
-  assign dmemreq_enq_msg.len    = 2'd0;
-  assign dmemreq_enq_msg.data   = dmemreq_msg_data;
-
-  //----------------------------------------------------------------------
-  // Imem Drop Unit
-  //----------------------------------------------------------------------
-
-  mem_resp_4B_t imemresp_msg_drop;
-
-  vc_DropUnit #($bits(mem_resp_4B_t)) imem_drop_unit
-  (
-    .clk      (clk),
-    .reset    (reset),
-
-    .drop     (imemresp_drop),
-
-    .in_msg   (imemresp_msg),
-    .in_val   (imemresp_val),
-    .in_rdy   (imemresp_rdy),
-
-    .out_msg  (imemresp_msg_drop),
-    .out_val  (imemresp_val_drop),
-    .out_rdy  (imemresp_rdy_drop)
-  );
-
-
-//''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''
-// Add components
-//''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''\/
-
-  //----------------------------------------------------------------------
-  // Control Unit
-  //----------------------------------------------------------------------
-
-  proc_ProcCtrlVRTL ctrl
-  (
-    .clk                    (clk),
-    .reset                  (reset),
-
-    // Instruction Memory Port
-
-    .imemreq_val            (imemreq_enq_val),
-    .imemreq_rdy            (imemreq_enq_rdy),
-    .imemresp_val           (imemresp_val_drop),
-    .imemresp_rdy           (imemresp_rdy_drop),
-
-    // Drop signal
-
-    .imemresp_drop          (imemresp_drop),
-
-    // Data Memory Port
-
-    .dmemreq_val            (dmemreq_enq_val),
-    .dmemreq_rdy            (dmemreq_enq_rdy),
-    .dmemreq_msg_type       (dmemreq_msg_type),
-    .dmemresp_val           (dmemresp_val),
-    .dmemresp_rdy           (dmemresp_rdy),
-
-    // mngr communication ports
-
-    .mngr2proc_val          (mngr2proc_val),
-    .mngr2proc_rdy          (mngr2proc_rdy),
-    .proc2mngr_val          (proc2mngr_enq_val),
-    .proc2mngr_rdy          (proc2mngr_enq_rdy),
-
-    // xcel ports
-
-    .xcelreq_val            (xcelreq_enq_val),
-    .xcelreq_rdy            (xcelreq_enq_rdy),
-    .xcelreq_msg_type       (xcelreq_msg_type),
-
-    .xcelresp_val           (xcelresp_val),
-    .xcelresp_rdy           (xcelresp_rdy),
-
-    // control signals (ctrl->dpath)
-
-    .reg_en_F               (reg_en_F),
-    .pc_sel_F               (pc_sel_F),
-
-    .reg_en_D               (reg_en_D),
-    .op1_byp_sel_D          (op1_byp_sel_D),
-    .op2_byp_sel_D          (op2_byp_sel_D),
-    .op1_sel_D              (op1_sel_D),
-    .op2_sel_D              (op2_sel_D),
-    .csrr_sel_D             (csrr_sel_D),
-    .imm_type_D             (imm_type_D),
-    .imul_req_val_D         (imul_req_val_D),
-
-    .reg_en_X               (reg_en_X),
-    .alu_fn_X               (alu_fn_X),
-    .ex_result_sel_X        (ex_result_sel_X),
-    .imul_resp_rdy_X        (imul_resp_rdy_X),
-
-    .reg_en_M               (reg_en_M),
-    .wb_result_sel_M        (wb_result_sel_M),
-
-    .reg_en_W               (reg_en_W),
-    .rf_waddr_W             (rf_waddr_W),
-    .rf_wen_W               (rf_wen_W),
-    .stats_en_wen_W         (stats_en_wen_W),
-
-    // status signals (dpath->ctrl)
-
-    .inst_D                 (inst_D),
-    .imul_req_rdy_D         (imul_req_rdy_D),
-
-    .imul_resp_val_X        (imul_resp_val_X),
-    .br_cond_eq_X           (br_cond_eq_X),
-    .br_cond_lt_X           (br_cond_lt_X),
-    .br_cond_ltu_X          (br_cond_ltu_X),
-
-    .commit_inst            (commit_inst)
-  );
-
-//''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''/\
-
-  //----------------------------------------------------------------------
-  // Bypass Queue
-  //----------------------------------------------------------------------
-
-  logic [1:0] imem_queue_num_free_entries;
-
-  vc_Queue#(`VC_QUEUE_BYPASS,$bits(mem_req_4B_t),2) imem_queue
-  (
-    .clk     (clk),
-    .reset   (reset),
-    .num_free_entries(imem_queue_num_free_entries),
-    .enq_val (imemreq_enq_val),
-    .enq_rdy (imemreq_enq_rdy),
-    .enq_msg (imemreq_enq_msg),
-    .deq_val (imemreq_val),
-    .deq_rdy (imemreq_rdy),
-    .deq_msg (imemreq_msg)
-  );
-
-  logic dmem_queue_num_free_entries;
-
-  vc_Queue#(`VC_QUEUE_BYPASS,$bits(mem_req_4B_t),1) dmem_queue
-  (
-    .clk     (clk),
-    .reset   (reset),
-    .num_free_entries(dmem_queue_num_free_entries),
-    .enq_val (dmemreq_enq_val),
-    .enq_rdy (dmemreq_enq_rdy),
-    .enq_msg (dmemreq_enq_msg),
-    .deq_val (dmemreq_val),
-    .deq_rdy (dmemreq_rdy),
-    .deq_msg (dmemreq_msg)
-  );
-
-  logic proc2mngr_queue_num_free_entries;
-
-  vc_Queue#(`VC_QUEUE_BYPASS,32,1) proc2mngr_queue
-  (
-    .clk     (clk),
-    .reset   (reset),
-    .num_free_entries(proc2mngr_queue_num_free_entries),
-    .enq_val (proc2mngr_enq_val),
-    .enq_rdy (proc2mngr_enq_rdy),
-    .enq_msg (proc2mngr_enq_msg),
-    .deq_val (proc2mngr_val),
-    .deq_rdy (proc2mngr_rdy),
-    .deq_msg (proc2mngr_msg)
-  );
-
-
-  // xcel
-
-  logic xcelreq_queue_num_free_entries;
-
-  vc_Queue#(`VC_QUEUE_BYPASS,$bits(xcelreq_msg),1) xcelreq_queue
-  (
-    .clk     (clk),
-    .reset   (reset),
-    .num_free_entries(xcelreq_queue_num_free_entries),
-    .enq_val (xcelreq_enq_val),
-    .enq_rdy (xcelreq_enq_rdy),
-    .enq_msg (xcelreq_enq_msg),
-    .deq_val (xcelreq_val),
-    .deq_rdy (xcelreq_rdy),
-    .deq_msg (xcelreq_msg)
-  );
-
-  //----------------------------------------------------------------------
-  // Datapath
-  //----------------------------------------------------------------------
-
-  proc_ProcDpathVRTL
-  #(
-    .p_num_cores             (p_num_cores)
-  )
-  dpath
-  (
-    .clk                     (clk),
-    .reset                   (reset),
-
-    // core id
-    .core_id                 (core_id),
-
-    // Instruction Memory Port
-
-    .imemreq_msg_addr        (imemreq_msg_addr),
-    .imemresp_msg            (imemresp_msg_drop),
-
-    // Data Memory Port
-
-    .dmemreq_msg_addr        (dmemreq_msg_addr),
-    .dmemreq_msg_data        (dmemreq_msg_data),
-    .dmemresp_msg_data       (dmemresp_msg.data),
-
-    // mngr communication ports
-
-    .mngr2proc_data          (mngr2proc_msg),
-    .proc2mngr_data          (proc2mngr_enq_msg),
-
-    // xcel ports
-
-    .xcelreq_msg_data        (xcelreq_msg_data),
-    .xcelreq_msg_raddr      (xcelreq_msg_raddr),
-    .xcelresp_msg_data       (xcelresp_msg_data),
-
-    // control signals (ctrl->dpath)
-
-    .imemresp_val_drop       (imemresp_val_drop),
-    .imemresp_rdy_drop       (imemresp_rdy_drop),
-    .imemresp_drop           (imemresp_drop),
-
-    .reg_en_F                (reg_en_F),
-    .pc_sel_F                (pc_sel_F),
-
-    .reg_en_D                (reg_en_D),
-    .op1_byp_sel_D           (op1_byp_sel_D),
-    .op2_byp_sel_D           (op2_byp_sel_D),
-    .op1_sel_D               (op1_sel_D),
-    .op2_sel_D               (op2_sel_D),
-    .csrr_sel_D              (csrr_sel_D),
-    .imm_type_D              (imm_type_D),
-    .imul_req_val_D          (imul_req_val_D),
-
-    .reg_en_X                (reg_en_X),
-    .alu_fn_X                (alu_fn_X),
-    .ex_result_sel_X         (ex_result_sel_X),
-    .imul_resp_rdy_X         (imul_resp_rdy_X),
-
-    .reg_en_M                (reg_en_M),
-    .wb_result_sel_M         (wb_result_sel_M),
-
-    .reg_en_W                (reg_en_W),
-    .rf_waddr_W              (rf_waddr_W),
-    .rf_wen_W                (rf_wen_W),
-    .stats_en_wen_W          (stats_en_wen_W),
-
-    // status signals (dpath->ctrl)
-
-    .inst_D                  (inst_D),
-    .imul_req_rdy_D          (imul_req_rdy_D),
-
-    .imul_resp_val_X         (imul_resp_val_X),
-    .br_cond_eq_X            (br_cond_eq_X),
-    .br_cond_lt_X            (br_cond_lt_X),
-    .br_cond_ltu_X           (br_cond_ltu_X),
-
-    // stats_en
-
-    .stats_en                (stats_en)
-  );
-
-  //----------------------------------------------------------------------
-  // Line tracing
-  //----------------------------------------------------------------------
-
-  `ifndef SYNTHESIS
-
-  rv2isa_InstTasks rv2isa();
-
-  logic [`VC_TRACE_NBITS-1:0] str;
-  `VC_TRACE_BEGIN
-  begin
-    if ( !ctrl.val_F )
-      vc_trace.append_chars( trace_str, " ", 8 );
-    else if ( ctrl.squash_F ) begin
-      vc_trace.append_str( trace_str, "~" );
-      vc_trace.append_chars( trace_str, " ", 8-1 );
-    end else if ( ctrl.stall_F ) begin
-      vc_trace.append_str( trace_str, "#" );
-      vc_trace.append_chars( trace_str, " ", 8-1 );
-    end else begin
-      $sformat( str, "%x", dpath.pc_F );
-      vc_trace.append_str( trace_str, str );
+  // localparam declarations
+  localparam ADD = 9;
+  localparam ADDI = 10;
+  localparam AND = 18;
+  localparam ANDI = 19;
+  localparam AUIPC = 13;
+  localparam BEQ = 24;
+  localparam BGE = 27;
+  localparam BGEU = 29;
+  localparam BLT = 26;
+  localparam BLTU = 28;
+  localparam BNE = 25;
+  localparam CSRR = 33;
+  localparam CSRRX = 36;
+  localparam CSRW = 34;
+  localparam JAL = 30;
+  localparam JALR = 31;
+  localparam LUI = 12;
+  localparam LW = 1;
+  localparam MUL = 32;
+  localparam NOP = 0;
+  localparam OR = 16;
+  localparam ORI = 17;
+  localparam SLL = 3;
+  localparam SLLI = 4;
+  localparam SLT = 20;
+  localparam SLTI = 21;
+  localparam SLTIU = 23;
+  localparam SLTU = 22;
+  localparam SRA = 7;
+  localparam SRAI = 8;
+  localparam SRL = 5;
+  localparam SRLI = 6;
+  localparam SUB = 11;
+  localparam SW = 2;
+  localparam XOR = 14;
+  localparam XORI = 15;
+  localparam ZERO = 35;
+
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_logic():
+  //
+  //       s.out.value = ZERO
+  //
+  //       if   s.in_ == 0b10011:               s.out.value = NOP
+  //       elif s.in_[OPCODE] == 0b0110011:
+  //         if   s.in_[FUNCT7] == 0b0000000:
+  //           if   s.in_[FUNCT3] == 0b000:     s.out.value = ADD
+  //           elif s.in_[FUNCT3] == 0b001:     s.out.value = SLL
+  //           elif s.in_[FUNCT3] == 0b010:     s.out.value = SLT
+  //           elif s.in_[FUNCT3] == 0b011:     s.out.value = SLTU
+  //           elif s.in_[FUNCT3] == 0b100:     s.out.value = XOR
+  //           elif s.in_[FUNCT3] == 0b101:     s.out.value = SRL
+  //           elif s.in_[FUNCT3] == 0b110:     s.out.value = OR
+  //           elif s.in_[FUNCT3] == 0b111:     s.out.value = AND
+  //         elif s.in_[FUNCT7] == 0b0100000:
+  //           if   s.in_[FUNCT3] == 0b000:     s.out.value = SUB
+  //           elif s.in_[FUNCT3] == 0b101:     s.out.value = SRA
+  //         elif s.in_[FUNCT7] == 0b0000001:
+  //           if   s.in_[FUNCT3] == 0b000:     s.out.value = MUL
+  //
+  //       elif s.in_[OPCODE] == 0b0010011:
+  //         if   s.in_[FUNCT3] == 0b000:       s.out.value = ADDI
+  //         elif s.in_[FUNCT3] == 0b010:       s.out.value = SLTI
+  //         elif s.in_[FUNCT3] == 0b011:       s.out.value = SLTIU
+  //         elif s.in_[FUNCT3] == 0b100:       s.out.value = XORI
+  //         elif s.in_[FUNCT3] == 0b110:       s.out.value = ORI
+  //         elif s.in_[FUNCT3] == 0b111:       s.out.value = ANDI
+  //         elif s.in_[FUNCT3] == 0b001:       s.out.value = SLLI
+  //         elif s.in_[FUNCT3] == 0b101:
+  //           if   s.in_[FUNCT7] == 0b0000000: s.out.value = SRLI
+  //           elif s.in_[FUNCT7] == 0b0100000: s.out.value = SRAI
+  //
+  //       elif s.in_[OPCODE] == 0b0100011:
+  //         if   s.in_[FUNCT3] == 0b010:       s.out.value = SW
+  //
+  //       elif s.in_[OPCODE] == 0b0000011:
+  //         if   s.in_[FUNCT3] == 0b010:       s.out.value = LW
+  //
+  //       elif s.in_[OPCODE] == 0b1100011:
+  //         if   s.in_[FUNCT3] == 0b000:       s.out.value = BEQ
+  //         elif s.in_[FUNCT3] == 0b001:       s.out.value = BNE
+  //         elif s.in_[FUNCT3] == 0b100:       s.out.value = BLT
+  //         elif s.in_[FUNCT3] == 0b101:       s.out.value = BGE
+  //         elif s.in_[FUNCT3] == 0b110:       s.out.value = BLTU
+  //         elif s.in_[FUNCT3] == 0b111:       s.out.value = BGEU
+  //
+  //       elif s.in_[OPCODE] == 0b0110111:     s.out.value = LUI
+  //
+  //       elif s.in_[OPCODE] == 0b0010111:     s.out.value = AUIPC
+  //
+  //       elif s.in_[OPCODE] == 0b1101111:     s.out.value = JAL
+  //
+  //       elif s.in_[OPCODE] == 0b1100111:     s.out.value = JALR
+  //
+  //       elif s.in_[OPCODE] == 0b1110011:
+  //         if   s.in_[FUNCT3] == 0b001:       s.out.value = CSRW
+  //         elif s.in_[FUNCT3] == 0b010:
+  //           if s.in_[FUNCT7] == 0b0111111:   s.out.value = CSRRX
+  //           else:                            s.out.value = CSRR
+
+  // logic for comb_logic()
+  always @ (*) begin
+    out = ZERO;
+    if ((in_ == 19)) begin
+      out = NOP;
     end
-
-    vc_trace.append_str( trace_str, "|" );
-
-    if ( !ctrl.val_D )
-      vc_trace.append_chars( trace_str, " ", 23 );
-    else if ( ctrl.squash_D ) begin
-      vc_trace.append_str( trace_str, "~" );
-      vc_trace.append_chars( trace_str, " ", 23-1 );
-    end else if ( ctrl.stall_D ) begin
-      vc_trace.append_str( trace_str, "#" );
-      vc_trace.append_chars( trace_str, " ", 23-1 );
-    end else
-      vc_trace.append_str( trace_str, { 3896'b0, rv2isa.disasm( ctrl.inst_D ) } );
-
-    vc_trace.append_str( trace_str, "|" );
-
-    if ( !ctrl.val_X )
-      vc_trace.append_chars( trace_str, " ", 4 );
-    else if ( ctrl.stall_X ) begin
-      vc_trace.append_str( trace_str, "#" );
-      vc_trace.append_chars( trace_str, " ", 4-1 );
-    end else
-      vc_trace.append_str( trace_str, { 4064'b0, rv2isa.disasm_tiny( ctrl.inst_X ) } );
-
-    vc_trace.append_str( trace_str, "|" );
-
-    if ( !ctrl.val_M )
-      vc_trace.append_chars( trace_str, " ", 4 );
-    else if ( ctrl.stall_M ) begin
-      vc_trace.append_str( trace_str, "#" );
-      vc_trace.append_chars( trace_str, " ", 4-1 );
-    end else
-      vc_trace.append_str( trace_str, { 4064'b0, rv2isa.disasm_tiny( ctrl.inst_M ) } );
-
-    vc_trace.append_str( trace_str, "|" );
-
-    if ( !ctrl.val_W )
-      vc_trace.append_chars( trace_str, " ", 4 );
-    else if ( ctrl.stall_W ) begin
-      vc_trace.append_str( trace_str, "#" );
-      vc_trace.append_chars( trace_str, " ", 4-1 );
-    end else
-      vc_trace.append_str( trace_str, { 4064'b0, rv2isa.disasm_tiny( ctrl.inst_W ) } );
-
+    else begin
+      if ((in_[(7)-1:0] == 51)) begin
+        if ((in_[(32)-1:25] == 0)) begin
+          if ((in_[(15)-1:12] == 0)) begin
+            out = ADD;
+          end
+          else begin
+            if ((in_[(15)-1:12] == 1)) begin
+              out = SLL;
+            end
+            else begin
+              if ((in_[(15)-1:12] == 2)) begin
+                out = SLT;
+              end
+              else begin
+                if ((in_[(15)-1:12] == 3)) begin
+                  out = SLTU;
+                end
+                else begin
+                  if ((in_[(15)-1:12] == 4)) begin
+                    out = XOR;
+                  end
+                  else begin
+                    if ((in_[(15)-1:12] == 5)) begin
+                      out = SRL;
+                    end
+                    else begin
+                      if ((in_[(15)-1:12] == 6)) begin
+                        out = OR;
+                      end
+                      else begin
+                        if ((in_[(15)-1:12] == 7)) begin
+                          out = AND;
+                        end
+                        else begin
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+        else begin
+          if ((in_[(32)-1:25] == 32)) begin
+            if ((in_[(15)-1:12] == 0)) begin
+              out = SUB;
+            end
+            else begin
+              if ((in_[(15)-1:12] == 5)) begin
+                out = SRA;
+              end
+              else begin
+              end
+            end
+          end
+          else begin
+            if ((in_[(32)-1:25] == 1)) begin
+              if ((in_[(15)-1:12] == 0)) begin
+                out = MUL;
+              end
+              else begin
+              end
+            end
+            else begin
+            end
+          end
+        end
+      end
+      else begin
+        if ((in_[(7)-1:0] == 19)) begin
+          if ((in_[(15)-1:12] == 0)) begin
+            out = ADDI;
+          end
+          else begin
+            if ((in_[(15)-1:12] == 2)) begin
+              out = SLTI;
+            end
+            else begin
+              if ((in_[(15)-1:12] == 3)) begin
+                out = SLTIU;
+              end
+              else begin
+                if ((in_[(15)-1:12] == 4)) begin
+                  out = XORI;
+                end
+                else begin
+                  if ((in_[(15)-1:12] == 6)) begin
+                    out = ORI;
+                  end
+                  else begin
+                    if ((in_[(15)-1:12] == 7)) begin
+                      out = ANDI;
+                    end
+                    else begin
+                      if ((in_[(15)-1:12] == 1)) begin
+                        out = SLLI;
+                      end
+                      else begin
+                        if ((in_[(15)-1:12] == 5)) begin
+                          if ((in_[(32)-1:25] == 0)) begin
+                            out = SRLI;
+                          end
+                          else begin
+                            if ((in_[(32)-1:25] == 32)) begin
+                              out = SRAI;
+                            end
+                            else begin
+                            end
+                          end
+                        end
+                        else begin
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+        else begin
+          if ((in_[(7)-1:0] == 35)) begin
+            if ((in_[(15)-1:12] == 2)) begin
+              out = SW;
+            end
+            else begin
+            end
+          end
+          else begin
+            if ((in_[(7)-1:0] == 3)) begin
+              if ((in_[(15)-1:12] == 2)) begin
+                out = LW;
+              end
+              else begin
+              end
+            end
+            else begin
+              if ((in_[(7)-1:0] == 99)) begin
+                if ((in_[(15)-1:12] == 0)) begin
+                  out = BEQ;
+                end
+                else begin
+                  if ((in_[(15)-1:12] == 1)) begin
+                    out = BNE;
+                  end
+                  else begin
+                    if ((in_[(15)-1:12] == 4)) begin
+                      out = BLT;
+                    end
+                    else begin
+                      if ((in_[(15)-1:12] == 5)) begin
+                        out = BGE;
+                      end
+                      else begin
+                        if ((in_[(15)-1:12] == 6)) begin
+                          out = BLTU;
+                        end
+                        else begin
+                          if ((in_[(15)-1:12] == 7)) begin
+                            out = BGEU;
+                          end
+                          else begin
+                          end
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+              else begin
+                if ((in_[(7)-1:0] == 55)) begin
+                  out = LUI;
+                end
+                else begin
+                  if ((in_[(7)-1:0] == 23)) begin
+                    out = AUIPC;
+                  end
+                  else begin
+                    if ((in_[(7)-1:0] == 111)) begin
+                      out = JAL;
+                    end
+                    else begin
+                      if ((in_[(7)-1:0] == 103)) begin
+                        out = JALR;
+                      end
+                      else begin
+                        if ((in_[(7)-1:0] == 115)) begin
+                          if ((in_[(15)-1:12] == 1)) begin
+                            out = CSRW;
+                          end
+                          else begin
+                            if ((in_[(15)-1:12] == 2)) begin
+                              if ((in_[(32)-1:25] == 63)) begin
+                                out = CSRRX;
+                              end
+                              else begin
+                                out = CSRR;
+                              end
+                            end
+                            else begin
+                            end
+                          end
+                        end
+                        else begin
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
   end
-  `VC_TRACE_END
 
-  vc_MemReqMsg4BTrace imemreq_trace
+
+endmodule // DecodeInstType_0x477004d1d8d485d1
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// DropUnitPRTL_0x219cef4ae91b957
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: proc.DropUnitPRTL {"nbits": 32}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module DropUnitPRTL_0x219cef4ae91b957
+(
+  input  wire [   0:0] clk,
+  input  wire [   0:0] drop,
+  input  wire [  31:0] in__msg,
+  output reg  [   0:0] in__rdy,
+  input  wire [   0:0] in__val,
+  output wire [  31:0] out_msg,
+  input  wire [   0:0] out_rdy,
+  output reg  [   0:0] out_val,
+  input  wire [   0:0] reset
+);
+
+  // register declarations
+  reg    [   0:0] do_wait__0;
+  reg    [   0:0] in_go__0;
+  reg    [   0:0] snoop_state$in_;
+
+  // localparam declarations
+  localparam SNOOP = 0;
+  localparam WAIT = 1;
+
+  // snoop_state temporaries
+  wire   [   0:0] snoop_state$reset;
+  wire   [   0:0] snoop_state$clk;
+  wire   [   0:0] snoop_state$out;
+
+  RegRst_0x3f928fe66716045e snoop_state
   (
-    .clk   (clk),
-    .reset (reset),
-    .val   (imemreq_val),
-    .rdy   (imemreq_rdy),
-    .msg   (imemreq_msg)
+    .reset ( snoop_state$reset ),
+    .in_   ( snoop_state$in_ ),
+    .clk   ( snoop_state$clk ),
+    .out   ( snoop_state$out )
   );
 
-  vc_MemReqMsg4BTrace dmemreq_trace
+  // signal connections
+  assign out_msg           = in__msg;
+  assign snoop_state$clk   = clk;
+  assign snoop_state$reset = reset;
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def state_transitions():
+  //
+  //       in_go   = s.in_.rdy and s.in_.val
+  //       do_wait = s.drop    and not in_go
+  //
+  //       if s.snoop_state.out.value == SNOOP:
+  //         if do_wait: s.snoop_state.in_.value = WAIT
+  //         else:       s.snoop_state.in_.value = SNOOP
+  //
+  //       elif s.snoop_state.out == WAIT:
+  //         if in_go: s.snoop_state.in_.value = SNOOP
+  //         else:     s.snoop_state.in_.value = WAIT
+
+  // logic for state_transitions()
+  always @ (*) begin
+    in_go__0 = (in__rdy&&in__val);
+    do_wait__0 = (drop&&!in_go__0);
+    if ((snoop_state$out == SNOOP)) begin
+      if (do_wait__0) begin
+        snoop_state$in_ = WAIT;
+      end
+      else begin
+        snoop_state$in_ = SNOOP;
+      end
+    end
+    else begin
+      if ((snoop_state$out == WAIT)) begin
+        if (in_go__0) begin
+          snoop_state$in_ = SNOOP;
+        end
+        else begin
+          snoop_state$in_ = WAIT;
+        end
+      end
+      else begin
+      end
+    end
+  end
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def set_outputs():
+  //
+  //       if   s.snoop_state.out == SNOOP:
+  //         s.out.val.value = s.in_.val and not s.drop
+  //         s.in_.rdy.value = s.out.rdy
+  //
+  //       elif s.snoop_state.out == WAIT:
+  //         s.out.val.value = 0
+  //         s.in_.rdy.value = 1
+
+  // logic for set_outputs()
+  always @ (*) begin
+    if ((snoop_state$out == SNOOP)) begin
+      out_val = (in__val&&!drop);
+      in__rdy = out_rdy;
+    end
+    else begin
+      if ((snoop_state$out == WAIT)) begin
+        out_val = 0;
+        in__rdy = 1;
+      end
+      else begin
+      end
+    end
+  end
+
+
+endmodule // DropUnitPRTL_0x219cef4ae91b957
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// RegRst_0x3f928fe66716045e
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.regs {"dtype": 1, "reset_value": 0}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module RegRst_0x3f928fe66716045e
+(
+  input  wire [   0:0] clk,
+  input  wire [   0:0] in_,
+  output reg  [   0:0] out,
+  input  wire [   0:0] reset
+);
+
+  // localparam declarations
+  localparam reset_value = 0;
+
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.posedge_clk
+  // def seq_logic():
+  //       if s.reset:
+  //         s.out.next = reset_value
+  //       else:
+  //         s.out.next = s.in_
+
+  // logic for seq_logic()
+  always @ (posedge clk) begin
+    if (reset) begin
+      out <= reset_value;
+    end
+    else begin
+      out <= in_;
+    end
+  end
+
+
+endmodule // RegRst_0x3f928fe66716045e
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// TwoElementBypassQueue_0x371fd9c705010e2
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.queues {"dtype": 77}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module TwoElementBypassQueue_0x371fd9c705010e2
+(
+  input  wire [   0:0] clk,
+  output wire [  76:0] deq_msg,
+  input  wire [   0:0] deq_rdy,
+  output wire [   0:0] deq_val,
+  output reg  [   0:0] empty,
+  input  wire [  76:0] enq_msg,
+  output wire [   0:0] enq_rdy,
+  input  wire [   0:0] enq_val,
+  output reg  [   0:0] full,
+  input  wire [   0:0] reset
+);
+
+  // queue1 temporaries
+  wire   [   0:0] queue1$clk;
+  wire   [  76:0] queue1$enq_msg;
+  wire   [   0:0] queue1$enq_val;
+  wire   [   0:0] queue1$reset;
+  wire   [   0:0] queue1$deq_rdy;
+  wire   [   0:0] queue1$enq_rdy;
+  wire   [   0:0] queue1$full;
+  wire   [  76:0] queue1$deq_msg;
+  wire   [   0:0] queue1$deq_val;
+
+  SingleElementBypassQueue_0x371fd9c705010e2 queue1
   (
-    .clk   (clk),
-    .reset (reset),
-    .val   (dmemreq_val),
-    .rdy   (dmemreq_rdy),
-    .msg   (dmemreq_msg)
+    .clk     ( queue1$clk ),
+    .enq_msg ( queue1$enq_msg ),
+    .enq_val ( queue1$enq_val ),
+    .reset   ( queue1$reset ),
+    .deq_rdy ( queue1$deq_rdy ),
+    .enq_rdy ( queue1$enq_rdy ),
+    .full    ( queue1$full ),
+    .deq_msg ( queue1$deq_msg ),
+    .deq_val ( queue1$deq_val )
   );
 
-  vc_MemRespMsg4BTrace imemresp_trace
+  // queue0 temporaries
+  wire   [   0:0] queue0$clk;
+  wire   [  76:0] queue0$enq_msg;
+  wire   [   0:0] queue0$enq_val;
+  wire   [   0:0] queue0$reset;
+  wire   [   0:0] queue0$deq_rdy;
+  wire   [   0:0] queue0$enq_rdy;
+  wire   [   0:0] queue0$full;
+  wire   [  76:0] queue0$deq_msg;
+  wire   [   0:0] queue0$deq_val;
+
+  SingleElementBypassQueue_0x371fd9c705010e2 queue0
   (
-    .clk   (clk),
-    .reset (reset),
-    .val   (imemresp_val),
-    .rdy   (imemresp_rdy),
-    .msg   (imemresp_msg)
+    .clk     ( queue0$clk ),
+    .enq_msg ( queue0$enq_msg ),
+    .enq_val ( queue0$enq_val ),
+    .reset   ( queue0$reset ),
+    .deq_rdy ( queue0$deq_rdy ),
+    .enq_rdy ( queue0$enq_rdy ),
+    .full    ( queue0$full ),
+    .deq_msg ( queue0$deq_msg ),
+    .deq_val ( queue0$deq_val )
   );
 
-  vc_MemRespMsg4BTrace dmemresp_trace
+  // signal connections
+  assign deq_msg        = queue1$deq_msg;
+  assign deq_val        = queue1$deq_val;
+  assign enq_rdy        = queue0$enq_rdy;
+  assign queue0$clk     = clk;
+  assign queue0$deq_rdy = queue1$enq_rdy;
+  assign queue0$enq_msg = enq_msg;
+  assign queue0$enq_val = enq_val;
+  assign queue0$reset   = reset;
+  assign queue1$clk     = clk;
+  assign queue1$deq_rdy = deq_rdy;
+  assign queue1$enq_msg = queue0$deq_msg;
+  assign queue1$enq_val = queue0$deq_val;
+  assign queue1$reset   = reset;
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def full_empty():
+  //       s.full.value  = s.queue0.full & s.queue1.full
+  //       s.empty.value = (~s.queue0.full) & (~s.queue1.full)
+
+  // logic for full_empty()
+  always @ (*) begin
+    full = (queue0$full&queue1$full);
+    empty = (~queue0$full&~queue1$full);
+  end
+
+
+endmodule // TwoElementBypassQueue_0x371fd9c705010e2
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// SingleElementBypassQueue_0x371fd9c705010e2
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.queues {"dtype": 77}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module SingleElementBypassQueue_0x371fd9c705010e2
+(
+  input  wire [   0:0] clk,
+  output wire [  76:0] deq_msg,
+  input  wire [   0:0] deq_rdy,
+  output wire [   0:0] deq_val,
+  input  wire [  76:0] enq_msg,
+  output wire [   0:0] enq_rdy,
+  input  wire [   0:0] enq_val,
+  output wire [   0:0] full,
+  input  wire [   0:0] reset
+);
+
+  // ctrl temporaries
+  wire   [   0:0] ctrl$clk;
+  wire   [   0:0] ctrl$enq_val;
+  wire   [   0:0] ctrl$reset;
+  wire   [   0:0] ctrl$deq_rdy;
+  wire   [   0:0] ctrl$bypass_mux_sel;
+  wire   [   0:0] ctrl$wen;
+  wire   [   0:0] ctrl$deq_val;
+  wire   [   0:0] ctrl$full;
+  wire   [   0:0] ctrl$enq_rdy;
+
+  SingleElementBypassQueueCtrl_0x10bc624c3d616f27 ctrl
   (
-    .clk   (clk),
-    .reset (reset),
-    .val   (dmemresp_val),
-    .rdy   (dmemresp_rdy),
-    .msg   (dmemresp_msg)
+    .clk            ( ctrl$clk ),
+    .enq_val        ( ctrl$enq_val ),
+    .reset          ( ctrl$reset ),
+    .deq_rdy        ( ctrl$deq_rdy ),
+    .bypass_mux_sel ( ctrl$bypass_mux_sel ),
+    .wen            ( ctrl$wen ),
+    .deq_val        ( ctrl$deq_val ),
+    .full           ( ctrl$full ),
+    .enq_rdy        ( ctrl$enq_rdy )
   );
 
-  `endif
+  // dpath temporaries
+  wire   [   0:0] dpath$wen;
+  wire   [   0:0] dpath$bypass_mux_sel;
+  wire   [   0:0] dpath$clk;
+  wire   [   0:0] dpath$reset;
+  wire   [  76:0] dpath$enq_bits;
+  wire   [  76:0] dpath$deq_bits;
 
-endmodule
+  SingleElementBypassQueueDpath_0x371fd9c705010e2 dpath
+  (
+    .wen            ( dpath$wen ),
+    .bypass_mux_sel ( dpath$bypass_mux_sel ),
+    .clk            ( dpath$clk ),
+    .reset          ( dpath$reset ),
+    .enq_bits       ( dpath$enq_bits ),
+    .deq_bits       ( dpath$deq_bits )
+  );
 
-`endif /* PROC_PROC_V */
+  // signal connections
+  assign ctrl$clk             = clk;
+  assign ctrl$deq_rdy         = deq_rdy;
+  assign ctrl$enq_val         = enq_val;
+  assign ctrl$reset           = reset;
+  assign deq_msg              = dpath$deq_bits;
+  assign deq_val              = ctrl$deq_val;
+  assign dpath$bypass_mux_sel = ctrl$bypass_mux_sel;
+  assign dpath$clk            = clk;
+  assign dpath$enq_bits       = enq_msg;
+  assign dpath$reset          = reset;
+  assign dpath$wen            = ctrl$wen;
+  assign enq_rdy              = ctrl$enq_rdy;
+  assign full                 = ctrl$full;
+
+
+
+endmodule // SingleElementBypassQueue_0x371fd9c705010e2
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// SingleElementBypassQueueCtrl_0x10bc624c3d616f27
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.queues {}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module SingleElementBypassQueueCtrl_0x10bc624c3d616f27
+(
+  output reg  [   0:0] bypass_mux_sel,
+  input  wire [   0:0] clk,
+  input  wire [   0:0] deq_rdy,
+  output reg  [   0:0] deq_val,
+  output reg  [   0:0] enq_rdy,
+  input  wire [   0:0] enq_val,
+  output reg  [   0:0] full,
+  input  wire [   0:0] reset,
+  output reg  [   0:0] wen
+);
+
+  // register declarations
+  reg    [   0:0] do_bypass;
+  reg    [   0:0] do_deq;
+  reg    [   0:0] do_enq;
+
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.posedge_clk
+  // def seq():
+  //
+  //       # TODO: can't use temporaries here, verilog simulation semantics
+  //       #       don't match the Python semantics!
+  //       ## helper signals
+  //
+  //       #do_deq    = s.deq_rdy and s.deq_val
+  //       #do_enq    = s.enq_rdy and s.enq_val
+  //       #do_bypass = ~s.full and do_deq and do_enq
+  //
+  //       # full bit calculation: the full bit is cleared when a dequeue
+  //       # transaction occurs; the full bit is set when the queue storage is
+  //       # empty and a enqueue transaction occurs and when we are not bypassing
+  //
+  //       if   s.reset:                      s.full.next = 0
+  //       elif s.do_deq:                     s.full.next = 0
+  //       elif s.do_enq and not s.do_bypass: s.full.next = 1
+  //       else:                              s.full.next = s.full
+
+  // logic for seq()
+  always @ (posedge clk) begin
+    if (reset) begin
+      full <= 0;
+    end
+    else begin
+      if (do_deq) begin
+        full <= 0;
+      end
+      else begin
+        if ((do_enq&&!do_bypass)) begin
+          full <= 1;
+        end
+        else begin
+          full <= full;
+        end
+      end
+    end
+  end
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb():
+  //
+  //       # bypass is always enabled when the queue is empty
+  //
+  //       s.bypass_mux_sel.value = ~s.full
+  //
+  //       # wen control signal: set the write enable signal if the storage queue
+  //       # is empty and a valid enqueue request is present
+  //
+  //       s.wen.value = ~s.full & s.enq_val
+  //
+  //       # enq_rdy signal is asserted when the single element queue storage is
+  //       # empty
+  //
+  //       s.enq_rdy.value = ~s.full
+  //
+  //       # deq_val signal is asserted when the single element queue storage is
+  //       # full or when the queue is empty but we are bypassing
+  //
+  //       s.deq_val.value = s.full | ( ~s.full & s.enq_val )
+  //
+  //       # TODO: figure out how to make these work as temporaries
+  //       # helper signals
+  //
+  //       s.do_deq.value    = s.deq_rdy and s.deq_val
+  //       s.do_enq.value    = s.enq_rdy and s.enq_val
+  //       s.do_bypass.value = ~s.full and s.do_deq and s.do_enq
+
+  // logic for comb()
+  always @ (*) begin
+    bypass_mux_sel = ~full;
+    wen = (~full&enq_val);
+    enq_rdy = ~full;
+    deq_val = (full|(~full&enq_val));
+    do_deq = (deq_rdy&&deq_val);
+    do_enq = (enq_rdy&&enq_val);
+    do_bypass = (~full&&do_deq&&do_enq);
+  end
+
+
+endmodule // SingleElementBypassQueueCtrl_0x10bc624c3d616f27
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// SingleElementBypassQueueDpath_0x371fd9c705010e2
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.queues {"dtype": 77}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module SingleElementBypassQueueDpath_0x371fd9c705010e2
+(
+  input  wire [   0:0] bypass_mux_sel,
+  input  wire [   0:0] clk,
+  output wire [  76:0] deq_bits,
+  input  wire [  76:0] enq_bits,
+  input  wire [   0:0] reset,
+  input  wire [   0:0] wen
+);
+
+  // bypass_mux temporaries
+  wire   [   0:0] bypass_mux$reset;
+  wire   [  76:0] bypass_mux$in_$000;
+  wire   [  76:0] bypass_mux$in_$001;
+  wire   [   0:0] bypass_mux$clk;
+  wire   [   0:0] bypass_mux$sel;
+  wire   [  76:0] bypass_mux$out;
+
+  Mux_0x64719cfd118f0912 bypass_mux
+  (
+    .reset   ( bypass_mux$reset ),
+    .in_$000 ( bypass_mux$in_$000 ),
+    .in_$001 ( bypass_mux$in_$001 ),
+    .clk     ( bypass_mux$clk ),
+    .sel     ( bypass_mux$sel ),
+    .out     ( bypass_mux$out )
+  );
+
+  // queue temporaries
+  wire   [   0:0] queue$reset;
+  wire   [  76:0] queue$in_;
+  wire   [   0:0] queue$clk;
+  wire   [   0:0] queue$en;
+  wire   [  76:0] queue$out;
+
+  RegEn_0x33930f124eddbcb queue
+  (
+    .reset ( queue$reset ),
+    .in_   ( queue$in_ ),
+    .clk   ( queue$clk ),
+    .en    ( queue$en ),
+    .out   ( queue$out )
+  );
+
+  // signal connections
+  assign bypass_mux$clk     = clk;
+  assign bypass_mux$in_$000 = queue$out;
+  assign bypass_mux$in_$001 = enq_bits;
+  assign bypass_mux$reset   = reset;
+  assign bypass_mux$sel     = bypass_mux_sel;
+  assign deq_bits           = bypass_mux$out;
+  assign queue$clk          = clk;
+  assign queue$en           = wen;
+  assign queue$in_          = enq_bits;
+  assign queue$reset        = reset;
+
+
+
+endmodule // SingleElementBypassQueueDpath_0x371fd9c705010e2
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// Mux_0x64719cfd118f0912
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.Mux {"dtype": 77, "nports": 2}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module Mux_0x64719cfd118f0912
+(
+  input  wire [   0:0] clk,
+  input  wire [  76:0] in_$000,
+  input  wire [  76:0] in_$001,
+  output reg  [  76:0] out,
+  input  wire [   0:0] reset,
+  input  wire [   0:0] sel
+);
+
+  // localparam declarations
+  localparam nports = 2;
+
+
+  // array declarations
+  wire   [  76:0] in_[0:1];
+  assign in_[  0] = in_$000;
+  assign in_[  1] = in_$001;
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_logic():
+  //       assert s.sel < nports
+  //       s.out.v = s.in_[ s.sel ]
+
+  // logic for comb_logic()
+  always @ (*) begin
+    out = in_[sel];
+  end
+
+
+endmodule // Mux_0x64719cfd118f0912
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// RegEn_0x33930f124eddbcb
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.regs {"dtype": 77}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module RegEn_0x33930f124eddbcb
+(
+  input  wire [   0:0] clk,
+  input  wire [   0:0] en,
+  input  wire [  76:0] in_,
+  output reg  [  76:0] out,
+  input  wire [   0:0] reset
+);
+
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.posedge_clk
+  // def seq_logic():
+  //       if s.en:
+  //         s.out.next = s.in_
+
+  // logic for seq_logic()
+  always @ (posedge clk) begin
+    if (en) begin
+      out <= in_;
+    end
+    else begin
+    end
+  end
+
+
+endmodule // RegEn_0x33930f124eddbcb
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// SingleElementBypassQueue_0x371f9f91cd6eedb
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.queues {"dtype": 38}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module SingleElementBypassQueue_0x371f9f91cd6eedb
+(
+  input  wire [   0:0] clk,
+  output wire [  37:0] deq_msg,
+  input  wire [   0:0] deq_rdy,
+  output wire [   0:0] deq_val,
+  input  wire [  37:0] enq_msg,
+  output wire [   0:0] enq_rdy,
+  input  wire [   0:0] enq_val,
+  output wire [   0:0] full,
+  input  wire [   0:0] reset
+);
+
+  // ctrl temporaries
+  wire   [   0:0] ctrl$clk;
+  wire   [   0:0] ctrl$enq_val;
+  wire   [   0:0] ctrl$reset;
+  wire   [   0:0] ctrl$deq_rdy;
+  wire   [   0:0] ctrl$bypass_mux_sel;
+  wire   [   0:0] ctrl$wen;
+  wire   [   0:0] ctrl$deq_val;
+  wire   [   0:0] ctrl$full;
+  wire   [   0:0] ctrl$enq_rdy;
+
+  SingleElementBypassQueueCtrl_0x10bc624c3d616f27 ctrl
+  (
+    .clk            ( ctrl$clk ),
+    .enq_val        ( ctrl$enq_val ),
+    .reset          ( ctrl$reset ),
+    .deq_rdy        ( ctrl$deq_rdy ),
+    .bypass_mux_sel ( ctrl$bypass_mux_sel ),
+    .wen            ( ctrl$wen ),
+    .deq_val        ( ctrl$deq_val ),
+    .full           ( ctrl$full ),
+    .enq_rdy        ( ctrl$enq_rdy )
+  );
+
+  // dpath temporaries
+  wire   [   0:0] dpath$wen;
+  wire   [   0:0] dpath$bypass_mux_sel;
+  wire   [   0:0] dpath$clk;
+  wire   [   0:0] dpath$reset;
+  wire   [  37:0] dpath$enq_bits;
+  wire   [  37:0] dpath$deq_bits;
+
+  SingleElementBypassQueueDpath_0x371f9f91cd6eedb dpath
+  (
+    .wen            ( dpath$wen ),
+    .bypass_mux_sel ( dpath$bypass_mux_sel ),
+    .clk            ( dpath$clk ),
+    .reset          ( dpath$reset ),
+    .enq_bits       ( dpath$enq_bits ),
+    .deq_bits       ( dpath$deq_bits )
+  );
+
+  // signal connections
+  assign ctrl$clk             = clk;
+  assign ctrl$deq_rdy         = deq_rdy;
+  assign ctrl$enq_val         = enq_val;
+  assign ctrl$reset           = reset;
+  assign deq_msg              = dpath$deq_bits;
+  assign deq_val              = ctrl$deq_val;
+  assign dpath$bypass_mux_sel = ctrl$bypass_mux_sel;
+  assign dpath$clk            = clk;
+  assign dpath$enq_bits       = enq_msg;
+  assign dpath$reset          = reset;
+  assign dpath$wen            = ctrl$wen;
+  assign enq_rdy              = ctrl$enq_rdy;
+  assign full                 = ctrl$full;
+
+
+
+endmodule // SingleElementBypassQueue_0x371f9f91cd6eedb
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// SingleElementBypassQueueDpath_0x371f9f91cd6eedb
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.queues {"dtype": 38}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module SingleElementBypassQueueDpath_0x371f9f91cd6eedb
+(
+  input  wire [   0:0] bypass_mux_sel,
+  input  wire [   0:0] clk,
+  output wire [  37:0] deq_bits,
+  input  wire [  37:0] enq_bits,
+  input  wire [   0:0] reset,
+  input  wire [   0:0] wen
+);
+
+  // bypass_mux temporaries
+  wire   [   0:0] bypass_mux$reset;
+  wire   [  37:0] bypass_mux$in_$000;
+  wire   [  37:0] bypass_mux$in_$001;
+  wire   [   0:0] bypass_mux$clk;
+  wire   [   0:0] bypass_mux$sel;
+  wire   [  37:0] bypass_mux$out;
+
+  Mux_0xfec1f50a6a4e91d bypass_mux
+  (
+    .reset   ( bypass_mux$reset ),
+    .in_$000 ( bypass_mux$in_$000 ),
+    .in_$001 ( bypass_mux$in_$001 ),
+    .clk     ( bypass_mux$clk ),
+    .sel     ( bypass_mux$sel ),
+    .out     ( bypass_mux$out )
+  );
+
+  // queue temporaries
+  wire   [   0:0] queue$reset;
+  wire   [  37:0] queue$in_;
+  wire   [   0:0] queue$clk;
+  wire   [   0:0] queue$en;
+  wire   [  37:0] queue$out;
+
+  RegEn_0x3392d4dd268de74 queue
+  (
+    .reset ( queue$reset ),
+    .in_   ( queue$in_ ),
+    .clk   ( queue$clk ),
+    .en    ( queue$en ),
+    .out   ( queue$out )
+  );
+
+  // signal connections
+  assign bypass_mux$clk     = clk;
+  assign bypass_mux$in_$000 = queue$out;
+  assign bypass_mux$in_$001 = enq_bits;
+  assign bypass_mux$reset   = reset;
+  assign bypass_mux$sel     = bypass_mux_sel;
+  assign deq_bits           = bypass_mux$out;
+  assign queue$clk          = clk;
+  assign queue$en           = wen;
+  assign queue$in_          = enq_bits;
+  assign queue$reset        = reset;
+
+
+
+endmodule // SingleElementBypassQueueDpath_0x371f9f91cd6eedb
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// Mux_0xfec1f50a6a4e91d
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.Mux {"dtype": 38, "nports": 2}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module Mux_0xfec1f50a6a4e91d
+(
+  input  wire [   0:0] clk,
+  input  wire [  37:0] in_$000,
+  input  wire [  37:0] in_$001,
+  output reg  [  37:0] out,
+  input  wire [   0:0] reset,
+  input  wire [   0:0] sel
+);
+
+  // localparam declarations
+  localparam nports = 2;
+
+
+  // array declarations
+  wire   [  37:0] in_[0:1];
+  assign in_[  0] = in_$000;
+  assign in_[  1] = in_$001;
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_logic():
+  //       assert s.sel < nports
+  //       s.out.v = s.in_[ s.sel ]
+
+  // logic for comb_logic()
+  always @ (*) begin
+    out = in_[sel];
+  end
+
+
+endmodule // Mux_0xfec1f50a6a4e91d
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// RegEn_0x3392d4dd268de74
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.regs {"dtype": 38}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module RegEn_0x3392d4dd268de74
+(
+  input  wire [   0:0] clk,
+  input  wire [   0:0] en,
+  input  wire [  37:0] in_,
+  output reg  [  37:0] out,
+  input  wire [   0:0] reset
+);
+
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.posedge_clk
+  // def seq_logic():
+  //       if s.en:
+  //         s.out.next = s.in_
+
+  // logic for seq_logic()
+  always @ (posedge clk) begin
+    if (en) begin
+      out <= in_;
+    end
+    else begin
+    end
+  end
+
+
+endmodule // RegEn_0x3392d4dd268de74
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// ProcDpathPRTL_0x4a10d55468bee90e
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: proc.ProcDpathPRTL {"num_cores": 1}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module ProcDpathPRTL_0x4a10d55468bee90e
+(
+  input  wire [   3:0] alu_fn_X,
+  output wire [   0:0] br_cond_eq_X,
+  output wire [   0:0] br_cond_lt_X,
+  output wire [   0:0] br_cond_ltu_X,
+  input  wire [   0:0] clk,
+  input  wire [  31:0] core_id,
+  input  wire [   1:0] csrr_sel_D,
+  output wire [  31:0] dmemreq_msg_addr,
+  output wire [  31:0] dmemreq_msg_data,
+  input  wire [  31:0] dmemresp_msg_data,
+  input  wire [   1:0] ex_result_sel_X,
+  output reg  [  76:0] imemreq_msg,
+  input  wire [  31:0] imemresp_msg_data,
+  input  wire [   2:0] imm_type_D,
+  output wire [   0:0] imul_req_rdy_D,
+  input  wire [   0:0] imul_req_val_D,
+  input  wire [   0:0] imul_resp_rdy_X,
+  output wire [   0:0] imul_resp_val_X,
+  output wire [  31:0] inst_D,
+  input  wire [  31:0] mngr2proc_data,
+  input  wire [   1:0] op1_byp_sel_D,
+  input  wire [   0:0] op1_sel_D,
+  input  wire [   1:0] op2_byp_sel_D,
+  input  wire [   1:0] op2_sel_D,
+  input  wire [   1:0] pc_sel_F,
+  output wire [  31:0] proc2mngr_data,
+  input  wire [   0:0] reg_en_D,
+  input  wire [   0:0] reg_en_F,
+  input  wire [   0:0] reg_en_M,
+  input  wire [   0:0] reg_en_W,
+  input  wire [   0:0] reg_en_X,
+  input  wire [   0:0] reset,
+  input  wire [   4:0] rf_waddr_W,
+  input  wire [   0:0] rf_wen_W,
+  output reg  [   0:0] stats_en,
+  input  wire [   0:0] stats_en_wen_W,
+  input  wire [   1:0] wb_result_sel_M,
+  output wire [  31:0] xcelreq_msg_data,
+  output wire [   4:0] xcelreq_msg_raddr,
+  input  wire [  31:0] xcelresp_msg_data
+);
+
+  // wire declarations
+  wire   [  31:0] jalr_target_X;
+  wire   [  31:0] rf_rdata1_D;
+  wire   [  31:0] rf_wdata_W;
+  wire   [  31:0] byp_data_M;
+  wire   [  31:0] byp_data_W;
+  wire   [  31:0] byp_data_X;
+  wire   [  31:0] pc_plus4_F;
+  wire   [  31:0] br_target_X;
+  wire   [  31:0] rf_rdata0_D;
+  wire   [  31:0] pc_F;
+  wire   [  31:0] jal_target_D;
+
+
+  // dmem_write_data_reg_X temporaries
+  wire   [   0:0] dmem_write_data_reg_X$reset;
+  wire   [   0:0] dmem_write_data_reg_X$en;
+  wire   [   0:0] dmem_write_data_reg_X$clk;
+  wire   [  31:0] dmem_write_data_reg_X$in_;
+  wire   [  31:0] dmem_write_data_reg_X$out;
+
+  RegEnRst_0x5c03eb7daf20f305 dmem_write_data_reg_X
+  (
+    .reset ( dmem_write_data_reg_X$reset ),
+    .en    ( dmem_write_data_reg_X$en ),
+    .clk   ( dmem_write_data_reg_X$clk ),
+    .in_   ( dmem_write_data_reg_X$in_ ),
+    .out   ( dmem_write_data_reg_X$out )
+  );
+
+  // imul temporaries
+  wire   [   0:0] imul$resp_rdy;
+  wire   [   0:0] imul$clk;
+  wire   [  63:0] imul$req_msg;
+  wire   [   0:0] imul$req_val;
+  wire   [   0:0] imul$reset;
+  wire   [  31:0] imul$resp_msg;
+  wire   [   0:0] imul$resp_val;
+  wire   [   0:0] imul$req_rdy;
+
+  IntMulScycleRTL imul
+  (
+    .resp_rdy ( imul$resp_rdy ),
+    .clk      ( imul$clk ),
+    .req_msg  ( imul$req_msg ),
+    .req_val  ( imul$req_val ),
+    .reset    ( imul$reset ),
+    .resp_msg ( imul$resp_msg ),
+    .resp_val ( imul$resp_val ),
+    .req_rdy  ( imul$req_rdy )
+  );
+
+  // op2_sel_mux_D temporaries
+  wire   [   0:0] op2_sel_mux_D$reset;
+  wire   [  31:0] op2_sel_mux_D$in_$000;
+  wire   [  31:0] op2_sel_mux_D$in_$001;
+  wire   [  31:0] op2_sel_mux_D$in_$002;
+  wire   [   0:0] op2_sel_mux_D$clk;
+  wire   [   1:0] op2_sel_mux_D$sel;
+  wire   [  31:0] op2_sel_mux_D$out;
+
+  Mux_0x4144ab3fc268acb4 op2_sel_mux_D
+  (
+    .reset   ( op2_sel_mux_D$reset ),
+    .in_$000 ( op2_sel_mux_D$in_$000 ),
+    .in_$001 ( op2_sel_mux_D$in_$001 ),
+    .in_$002 ( op2_sel_mux_D$in_$002 ),
+    .clk     ( op2_sel_mux_D$clk ),
+    .sel     ( op2_sel_mux_D$sel ),
+    .out     ( op2_sel_mux_D$out )
+  );
+
+  // pc_reg_X temporaries
+  wire   [   0:0] pc_reg_X$reset;
+  wire   [   0:0] pc_reg_X$en;
+  wire   [   0:0] pc_reg_X$clk;
+  wire   [  31:0] pc_reg_X$in_;
+  wire   [  31:0] pc_reg_X$out;
+
+  RegEnRst_0x5c03eb7daf20f305 pc_reg_X
+  (
+    .reset ( pc_reg_X$reset ),
+    .en    ( pc_reg_X$en ),
+    .clk   ( pc_reg_X$clk ),
+    .in_   ( pc_reg_X$in_ ),
+    .out   ( pc_reg_X$out )
+  );
+
+  // csrr_sel_mux_D temporaries
+  wire   [   0:0] csrr_sel_mux_D$reset;
+  wire   [  31:0] csrr_sel_mux_D$in_$000;
+  wire   [  31:0] csrr_sel_mux_D$in_$001;
+  wire   [  31:0] csrr_sel_mux_D$in_$002;
+  wire   [   0:0] csrr_sel_mux_D$clk;
+  wire   [   1:0] csrr_sel_mux_D$sel;
+  wire   [  31:0] csrr_sel_mux_D$out;
+
+  Mux_0x4144ab3fc268acb4 csrr_sel_mux_D
+  (
+    .reset   ( csrr_sel_mux_D$reset ),
+    .in_$000 ( csrr_sel_mux_D$in_$000 ),
+    .in_$001 ( csrr_sel_mux_D$in_$001 ),
+    .in_$002 ( csrr_sel_mux_D$in_$002 ),
+    .clk     ( csrr_sel_mux_D$clk ),
+    .sel     ( csrr_sel_mux_D$sel ),
+    .out     ( csrr_sel_mux_D$out )
+  );
+
+  // pc_reg_D temporaries
+  wire   [   0:0] pc_reg_D$reset;
+  wire   [   0:0] pc_reg_D$en;
+  wire   [   0:0] pc_reg_D$clk;
+  wire   [  31:0] pc_reg_D$in_;
+  wire   [  31:0] pc_reg_D$out;
+
+  RegEnRst_0x5c03eb7daf20f305 pc_reg_D
+  (
+    .reset ( pc_reg_D$reset ),
+    .en    ( pc_reg_D$en ),
+    .clk   ( pc_reg_D$clk ),
+    .in_   ( pc_reg_D$in_ ),
+    .out   ( pc_reg_D$out )
+  );
+
+  // pc_reg_F temporaries
+  wire   [   0:0] pc_reg_F$reset;
+  wire   [   0:0] pc_reg_F$en;
+  wire   [   0:0] pc_reg_F$clk;
+  wire   [  31:0] pc_reg_F$in_;
+  wire   [  31:0] pc_reg_F$out;
+
+  RegEnRst_0x574b81e599753a8a pc_reg_F
+  (
+    .reset ( pc_reg_F$reset ),
+    .en    ( pc_reg_F$en ),
+    .clk   ( pc_reg_F$clk ),
+    .in_   ( pc_reg_F$in_ ),
+    .out   ( pc_reg_F$out )
+  );
+
+  // op1_reg_X temporaries
+  wire   [   0:0] op1_reg_X$reset;
+  wire   [   0:0] op1_reg_X$en;
+  wire   [   0:0] op1_reg_X$clk;
+  wire   [  31:0] op1_reg_X$in_;
+  wire   [  31:0] op1_reg_X$out;
+
+  RegEnRst_0x5c03eb7daf20f305 op1_reg_X
+  (
+    .reset ( op1_reg_X$reset ),
+    .en    ( op1_reg_X$en ),
+    .clk   ( op1_reg_X$clk ),
+    .in_   ( op1_reg_X$in_ ),
+    .out   ( op1_reg_X$out )
+  );
+
+  // alu_X temporaries
+  wire   [   0:0] alu_X$clk;
+  wire   [  31:0] alu_X$in0;
+  wire   [  31:0] alu_X$in1;
+  wire   [   3:0] alu_X$fn;
+  wire   [   0:0] alu_X$reset;
+  wire   [   0:0] alu_X$ops_lt;
+  wire   [   0:0] alu_X$ops_ltu;
+  wire   [  31:0] alu_X$out;
+  wire   [   0:0] alu_X$ops_eq;
+
+  AluPRTL_0x6f5034674aabb7c alu_X
+  (
+    .clk     ( alu_X$clk ),
+    .in0     ( alu_X$in0 ),
+    .in1     ( alu_X$in1 ),
+    .fn      ( alu_X$fn ),
+    .reset   ( alu_X$reset ),
+    .ops_lt  ( alu_X$ops_lt ),
+    .ops_ltu ( alu_X$ops_ltu ),
+    .out     ( alu_X$out ),
+    .ops_eq  ( alu_X$ops_eq )
+  );
+
+  // op2_byp_mux_D temporaries
+  wire   [   0:0] op2_byp_mux_D$reset;
+  wire   [  31:0] op2_byp_mux_D$in_$000;
+  wire   [  31:0] op2_byp_mux_D$in_$001;
+  wire   [  31:0] op2_byp_mux_D$in_$002;
+  wire   [  31:0] op2_byp_mux_D$in_$003;
+  wire   [   0:0] op2_byp_mux_D$clk;
+  wire   [   1:0] op2_byp_mux_D$sel;
+  wire   [  31:0] op2_byp_mux_D$out;
+
+  Mux_0x4144ab3fc2596af7 op2_byp_mux_D
+  (
+    .reset   ( op2_byp_mux_D$reset ),
+    .in_$000 ( op2_byp_mux_D$in_$000 ),
+    .in_$001 ( op2_byp_mux_D$in_$001 ),
+    .in_$002 ( op2_byp_mux_D$in_$002 ),
+    .in_$003 ( op2_byp_mux_D$in_$003 ),
+    .clk     ( op2_byp_mux_D$clk ),
+    .sel     ( op2_byp_mux_D$sel ),
+    .out     ( op2_byp_mux_D$out )
+  );
+
+  // ex_result_sel_mux_X temporaries
+  wire   [   0:0] ex_result_sel_mux_X$reset;
+  wire   [  31:0] ex_result_sel_mux_X$in_$000;
+  wire   [  31:0] ex_result_sel_mux_X$in_$001;
+  wire   [  31:0] ex_result_sel_mux_X$in_$002;
+  wire   [   0:0] ex_result_sel_mux_X$clk;
+  wire   [   1:0] ex_result_sel_mux_X$sel;
+  wire   [  31:0] ex_result_sel_mux_X$out;
+
+  Mux_0x4144ab3fc268acb4 ex_result_sel_mux_X
+  (
+    .reset   ( ex_result_sel_mux_X$reset ),
+    .in_$000 ( ex_result_sel_mux_X$in_$000 ),
+    .in_$001 ( ex_result_sel_mux_X$in_$001 ),
+    .in_$002 ( ex_result_sel_mux_X$in_$002 ),
+    .clk     ( ex_result_sel_mux_X$clk ),
+    .sel     ( ex_result_sel_mux_X$sel ),
+    .out     ( ex_result_sel_mux_X$out )
+  );
+
+  // op2_reg_X temporaries
+  wire   [   0:0] op2_reg_X$reset;
+  wire   [   0:0] op2_reg_X$en;
+  wire   [   0:0] op2_reg_X$clk;
+  wire   [  31:0] op2_reg_X$in_;
+  wire   [  31:0] op2_reg_X$out;
+
+  RegEnRst_0x5c03eb7daf20f305 op2_reg_X
+  (
+    .reset ( op2_reg_X$reset ),
+    .en    ( op2_reg_X$en ),
+    .clk   ( op2_reg_X$clk ),
+    .in_   ( op2_reg_X$in_ ),
+    .out   ( op2_reg_X$out )
+  );
+
+  // stats_en_reg_W temporaries
+  wire   [   0:0] stats_en_reg_W$reset;
+  wire   [   0:0] stats_en_reg_W$en;
+  wire   [   0:0] stats_en_reg_W$clk;
+  wire   [  31:0] stats_en_reg_W$in_;
+  wire   [  31:0] stats_en_reg_W$out;
+
+  RegEnRst_0x5c03eb7daf20f305 stats_en_reg_W
+  (
+    .reset ( stats_en_reg_W$reset ),
+    .en    ( stats_en_reg_W$en ),
+    .clk   ( stats_en_reg_W$clk ),
+    .in_   ( stats_en_reg_W$in_ ),
+    .out   ( stats_en_reg_W$out )
+  );
+
+  // rf temporaries
+  wire   [   4:0] rf$rd_addr$000;
+  wire   [   4:0] rf$rd_addr$001;
+  wire   [  31:0] rf$wr_data;
+  wire   [   0:0] rf$clk;
+  wire   [   4:0] rf$wr_addr;
+  wire   [   0:0] rf$wr_en;
+  wire   [   0:0] rf$reset;
+  wire   [  31:0] rf$rd_data$000;
+  wire   [  31:0] rf$rd_data$001;
+
+  RegisterFile_0x423b6d418e8d6ae7 rf
+  (
+    .rd_addr$000 ( rf$rd_addr$000 ),
+    .rd_addr$001 ( rf$rd_addr$001 ),
+    .wr_data     ( rf$wr_data ),
+    .clk         ( rf$clk ),
+    .wr_addr     ( rf$wr_addr ),
+    .wr_en       ( rf$wr_en ),
+    .reset       ( rf$reset ),
+    .rd_data$000 ( rf$rd_data$000 ),
+    .rd_data$001 ( rf$rd_data$001 )
+  );
+
+  // pc_sel_mux_F temporaries
+  wire   [   0:0] pc_sel_mux_F$reset;
+  wire   [  31:0] pc_sel_mux_F$in_$000;
+  wire   [  31:0] pc_sel_mux_F$in_$001;
+  wire   [  31:0] pc_sel_mux_F$in_$002;
+  wire   [  31:0] pc_sel_mux_F$in_$003;
+  wire   [   0:0] pc_sel_mux_F$clk;
+  wire   [   1:0] pc_sel_mux_F$sel;
+  wire   [  31:0] pc_sel_mux_F$out;
+
+  Mux_0x4144ab3fc2596af7 pc_sel_mux_F
+  (
+    .reset   ( pc_sel_mux_F$reset ),
+    .in_$000 ( pc_sel_mux_F$in_$000 ),
+    .in_$001 ( pc_sel_mux_F$in_$001 ),
+    .in_$002 ( pc_sel_mux_F$in_$002 ),
+    .in_$003 ( pc_sel_mux_F$in_$003 ),
+    .clk     ( pc_sel_mux_F$clk ),
+    .sel     ( pc_sel_mux_F$sel ),
+    .out     ( pc_sel_mux_F$out )
+  );
+
+  // wb_result_sel_mux_M temporaries
+  wire   [   0:0] wb_result_sel_mux_M$reset;
+  wire   [  31:0] wb_result_sel_mux_M$in_$000;
+  wire   [  31:0] wb_result_sel_mux_M$in_$001;
+  wire   [  31:0] wb_result_sel_mux_M$in_$002;
+  wire   [   0:0] wb_result_sel_mux_M$clk;
+  wire   [   1:0] wb_result_sel_mux_M$sel;
+  wire   [  31:0] wb_result_sel_mux_M$out;
+
+  Mux_0x4144ab3fc268acb4 wb_result_sel_mux_M
+  (
+    .reset   ( wb_result_sel_mux_M$reset ),
+    .in_$000 ( wb_result_sel_mux_M$in_$000 ),
+    .in_$001 ( wb_result_sel_mux_M$in_$001 ),
+    .in_$002 ( wb_result_sel_mux_M$in_$002 ),
+    .clk     ( wb_result_sel_mux_M$clk ),
+    .sel     ( wb_result_sel_mux_M$sel ),
+    .out     ( wb_result_sel_mux_M$out )
+  );
+
+  // pc_incr_X temporaries
+  wire   [   0:0] pc_incr_X$reset;
+  wire   [  31:0] pc_incr_X$in_;
+  wire   [   0:0] pc_incr_X$clk;
+  wire   [  31:0] pc_incr_X$out;
+
+  Incrementer_0x64b7d65fea759127 pc_incr_X
+  (
+    .reset ( pc_incr_X$reset ),
+    .in_   ( pc_incr_X$in_ ),
+    .clk   ( pc_incr_X$clk ),
+    .out   ( pc_incr_X$out )
+  );
+
+  // op1_byp_mux_D temporaries
+  wire   [   0:0] op1_byp_mux_D$reset;
+  wire   [  31:0] op1_byp_mux_D$in_$000;
+  wire   [  31:0] op1_byp_mux_D$in_$001;
+  wire   [  31:0] op1_byp_mux_D$in_$002;
+  wire   [  31:0] op1_byp_mux_D$in_$003;
+  wire   [   0:0] op1_byp_mux_D$clk;
+  wire   [   1:0] op1_byp_mux_D$sel;
+  wire   [  31:0] op1_byp_mux_D$out;
+
+  Mux_0x4144ab3fc2596af7 op1_byp_mux_D
+  (
+    .reset   ( op1_byp_mux_D$reset ),
+    .in_$000 ( op1_byp_mux_D$in_$000 ),
+    .in_$001 ( op1_byp_mux_D$in_$001 ),
+    .in_$002 ( op1_byp_mux_D$in_$002 ),
+    .in_$003 ( op1_byp_mux_D$in_$003 ),
+    .clk     ( op1_byp_mux_D$clk ),
+    .sel     ( op1_byp_mux_D$sel ),
+    .out     ( op1_byp_mux_D$out )
+  );
+
+  // pc_incr_F temporaries
+  wire   [   0:0] pc_incr_F$reset;
+  wire   [  31:0] pc_incr_F$in_;
+  wire   [   0:0] pc_incr_F$clk;
+  wire   [  31:0] pc_incr_F$out;
+
+  Incrementer_0x64b7d65fea759127 pc_incr_F
+  (
+    .reset ( pc_incr_F$reset ),
+    .in_   ( pc_incr_F$in_ ),
+    .clk   ( pc_incr_F$clk ),
+    .out   ( pc_incr_F$out )
+  );
+
+  // pc_plus_imm_D temporaries
+  wire   [   0:0] pc_plus_imm_D$clk;
+  wire   [  31:0] pc_plus_imm_D$in0;
+  wire   [  31:0] pc_plus_imm_D$in1;
+  wire   [   0:0] pc_plus_imm_D$reset;
+  wire   [   0:0] pc_plus_imm_D$cin;
+  wire   [   0:0] pc_plus_imm_D$cout;
+  wire   [  31:0] pc_plus_imm_D$out;
+
+  Adder_0x2d6e5ef952489e2 pc_plus_imm_D
+  (
+    .clk   ( pc_plus_imm_D$clk ),
+    .in0   ( pc_plus_imm_D$in0 ),
+    .in1   ( pc_plus_imm_D$in1 ),
+    .reset ( pc_plus_imm_D$reset ),
+    .cin   ( pc_plus_imm_D$cin ),
+    .cout  ( pc_plus_imm_D$cout ),
+    .out   ( pc_plus_imm_D$out )
+  );
+
+  // imm_gen_D temporaries
+  wire   [   2:0] imm_gen_D$imm_type;
+  wire   [   0:0] imm_gen_D$clk;
+  wire   [  31:0] imm_gen_D$inst;
+  wire   [   0:0] imm_gen_D$reset;
+  wire   [  31:0] imm_gen_D$imm;
+
+  ImmGenPRTL_0x6f5034674aabb7c imm_gen_D
+  (
+    .imm_type ( imm_gen_D$imm_type ),
+    .clk      ( imm_gen_D$clk ),
+    .inst     ( imm_gen_D$inst ),
+    .reset    ( imm_gen_D$reset ),
+    .imm      ( imm_gen_D$imm )
+  );
+
+  // op1_sel_mux_D temporaries
+  wire   [   0:0] op1_sel_mux_D$reset;
+  wire   [  31:0] op1_sel_mux_D$in_$000;
+  wire   [  31:0] op1_sel_mux_D$in_$001;
+  wire   [   0:0] op1_sel_mux_D$clk;
+  wire   [   0:0] op1_sel_mux_D$sel;
+  wire   [  31:0] op1_sel_mux_D$out;
+
+  Mux_0x4144ab3fc277ef7d op1_sel_mux_D
+  (
+    .reset   ( op1_sel_mux_D$reset ),
+    .in_$000 ( op1_sel_mux_D$in_$000 ),
+    .in_$001 ( op1_sel_mux_D$in_$001 ),
+    .clk     ( op1_sel_mux_D$clk ),
+    .sel     ( op1_sel_mux_D$sel ),
+    .out     ( op1_sel_mux_D$out )
+  );
+
+  // wb_result_reg_W temporaries
+  wire   [   0:0] wb_result_reg_W$reset;
+  wire   [   0:0] wb_result_reg_W$en;
+  wire   [   0:0] wb_result_reg_W$clk;
+  wire   [  31:0] wb_result_reg_W$in_;
+  wire   [  31:0] wb_result_reg_W$out;
+
+  RegEnRst_0x5c03eb7daf20f305 wb_result_reg_W
+  (
+    .reset ( wb_result_reg_W$reset ),
+    .en    ( wb_result_reg_W$en ),
+    .clk   ( wb_result_reg_W$clk ),
+    .in_   ( wb_result_reg_W$in_ ),
+    .out   ( wb_result_reg_W$out )
+  );
+
+  // ex_result_reg_M temporaries
+  wire   [   0:0] ex_result_reg_M$reset;
+  wire   [   0:0] ex_result_reg_M$en;
+  wire   [   0:0] ex_result_reg_M$clk;
+  wire   [  31:0] ex_result_reg_M$in_;
+  wire   [  31:0] ex_result_reg_M$out;
+
+  RegEnRst_0x5c03eb7daf20f305 ex_result_reg_M
+  (
+    .reset ( ex_result_reg_M$reset ),
+    .en    ( ex_result_reg_M$en ),
+    .clk   ( ex_result_reg_M$clk ),
+    .in_   ( ex_result_reg_M$in_ ),
+    .out   ( ex_result_reg_M$out )
+  );
+
+  // br_target_reg_X temporaries
+  wire   [   0:0] br_target_reg_X$reset;
+  wire   [   0:0] br_target_reg_X$en;
+  wire   [   0:0] br_target_reg_X$clk;
+  wire   [  31:0] br_target_reg_X$in_;
+  wire   [  31:0] br_target_reg_X$out;
+
+  RegEnRst_0x5c03eb7daf20f305 br_target_reg_X
+  (
+    .reset ( br_target_reg_X$reset ),
+    .en    ( br_target_reg_X$en ),
+    .clk   ( br_target_reg_X$clk ),
+    .in_   ( br_target_reg_X$in_ ),
+    .out   ( br_target_reg_X$out )
+  );
+
+  // inst_D_reg temporaries
+  wire   [   0:0] inst_D_reg$reset;
+  wire   [   0:0] inst_D_reg$en;
+  wire   [   0:0] inst_D_reg$clk;
+  wire   [  31:0] inst_D_reg$in_;
+  wire   [  31:0] inst_D_reg$out;
+
+  RegEnRst_0x5c03eb7daf20f305 inst_D_reg
+  (
+    .reset ( inst_D_reg$reset ),
+    .en    ( inst_D_reg$en ),
+    .clk   ( inst_D_reg$clk ),
+    .in_   ( inst_D_reg$in_ ),
+    .out   ( inst_D_reg$out )
+  );
+
+  // signal connections
+  assign alu_X$clk                   = clk;
+  assign alu_X$fn                    = alu_fn_X;
+  assign alu_X$in0                   = op1_reg_X$out;
+  assign alu_X$in1                   = op2_reg_X$out;
+  assign alu_X$reset                 = reset;
+  assign br_cond_eq_X                = alu_X$ops_eq;
+  assign br_cond_lt_X                = alu_X$ops_lt;
+  assign br_cond_ltu_X               = alu_X$ops_ltu;
+  assign br_target_X                 = br_target_reg_X$out;
+  assign br_target_reg_X$clk         = clk;
+  assign br_target_reg_X$en          = reg_en_X;
+  assign br_target_reg_X$in_         = pc_plus_imm_D$out;
+  assign br_target_reg_X$reset       = reset;
+  assign byp_data_M                  = wb_result_sel_mux_M$out;
+  assign byp_data_W                  = wb_result_reg_W$out;
+  assign byp_data_X                  = ex_result_sel_mux_X$out;
+  assign csrr_sel_mux_D$clk          = clk;
+  assign csrr_sel_mux_D$in_$000      = mngr2proc_data;
+  assign csrr_sel_mux_D$in_$001      = 32'd1;
+  assign csrr_sel_mux_D$in_$002      = core_id;
+  assign csrr_sel_mux_D$reset        = reset;
+  assign csrr_sel_mux_D$sel          = csrr_sel_D;
+  assign dmem_write_data_reg_X$clk   = clk;
+  assign dmem_write_data_reg_X$en    = reg_en_X;
+  assign dmem_write_data_reg_X$in_   = op2_byp_mux_D$out;
+  assign dmem_write_data_reg_X$reset = reset;
+  assign dmemreq_msg_addr            = alu_X$out;
+  assign dmemreq_msg_data            = dmem_write_data_reg_X$out;
+  assign ex_result_reg_M$clk         = clk;
+  assign ex_result_reg_M$en          = reg_en_M;
+  assign ex_result_reg_M$in_         = ex_result_sel_mux_X$out;
+  assign ex_result_reg_M$reset       = reset;
+  assign ex_result_sel_mux_X$clk     = clk;
+  assign ex_result_sel_mux_X$in_$000 = alu_X$out;
+  assign ex_result_sel_mux_X$in_$001 = imul$resp_msg;
+  assign ex_result_sel_mux_X$in_$002 = pc_incr_X$out;
+  assign ex_result_sel_mux_X$reset   = reset;
+  assign ex_result_sel_mux_X$sel     = ex_result_sel_X;
+  assign imm_gen_D$clk               = clk;
+  assign imm_gen_D$imm_type          = imm_type_D;
+  assign imm_gen_D$inst              = inst_D;
+  assign imm_gen_D$reset             = reset;
+  assign imul$clk                    = clk;
+  assign imul$req_msg[31:0]          = op2_sel_mux_D$out;
+  assign imul$req_msg[63:32]         = op1_sel_mux_D$out;
+  assign imul$req_val                = imul_req_val_D;
+  assign imul$reset                  = reset;
+  assign imul$resp_rdy               = imul_resp_rdy_X;
+  assign imul_req_rdy_D              = imul$req_rdy;
+  assign imul_resp_val_X             = imul$resp_val;
+  assign inst_D                      = inst_D_reg$out;
+  assign inst_D_reg$clk              = clk;
+  assign inst_D_reg$en               = reg_en_D;
+  assign inst_D_reg$in_              = imemresp_msg_data;
+  assign inst_D_reg$reset            = reset;
+  assign jal_target_D                = pc_plus_imm_D$out;
+  assign jalr_target_X               = alu_X$out;
+  assign op1_byp_mux_D$clk           = clk;
+  assign op1_byp_mux_D$in_$000       = rf_rdata0_D;
+  assign op1_byp_mux_D$in_$001       = byp_data_X;
+  assign op1_byp_mux_D$in_$002       = byp_data_M;
+  assign op1_byp_mux_D$in_$003       = byp_data_W;
+  assign op1_byp_mux_D$reset         = reset;
+  assign op1_byp_mux_D$sel           = op1_byp_sel_D;
+  assign op1_reg_X$clk               = clk;
+  assign op1_reg_X$en                = reg_en_X;
+  assign op1_reg_X$in_               = op1_sel_mux_D$out;
+  assign op1_reg_X$reset             = reset;
+  assign op1_sel_mux_D$clk           = clk;
+  assign op1_sel_mux_D$in_$000       = op1_byp_mux_D$out;
+  assign op1_sel_mux_D$in_$001       = pc_reg_D$out;
+  assign op1_sel_mux_D$reset         = reset;
+  assign op1_sel_mux_D$sel           = op1_sel_D;
+  assign op2_byp_mux_D$clk           = clk;
+  assign op2_byp_mux_D$in_$000       = rf_rdata1_D;
+  assign op2_byp_mux_D$in_$001       = byp_data_X;
+  assign op2_byp_mux_D$in_$002       = byp_data_M;
+  assign op2_byp_mux_D$in_$003       = byp_data_W;
+  assign op2_byp_mux_D$reset         = reset;
+  assign op2_byp_mux_D$sel           = op2_byp_sel_D;
+  assign op2_reg_X$clk               = clk;
+  assign op2_reg_X$en                = reg_en_X;
+  assign op2_reg_X$in_               = op2_sel_mux_D$out;
+  assign op2_reg_X$reset             = reset;
+  assign op2_sel_mux_D$clk           = clk;
+  assign op2_sel_mux_D$in_$000       = op2_byp_mux_D$out;
+  assign op2_sel_mux_D$in_$001       = imm_gen_D$imm;
+  assign op2_sel_mux_D$in_$002       = csrr_sel_mux_D$out;
+  assign op2_sel_mux_D$reset         = reset;
+  assign op2_sel_mux_D$sel           = op2_sel_D;
+  assign pc_F                        = pc_reg_F$out;
+  assign pc_incr_F$clk               = clk;
+  assign pc_incr_F$in_               = pc_F;
+  assign pc_incr_F$reset             = reset;
+  assign pc_incr_X$clk               = clk;
+  assign pc_incr_X$in_               = pc_reg_X$out;
+  assign pc_incr_X$reset             = reset;
+  assign pc_plus4_F                  = pc_incr_F$out;
+  assign pc_plus_imm_D$clk           = clk;
+  assign pc_plus_imm_D$in0           = pc_reg_D$out;
+  assign pc_plus_imm_D$in1           = imm_gen_D$imm;
+  assign pc_plus_imm_D$reset         = reset;
+  assign pc_reg_D$clk                = clk;
+  assign pc_reg_D$en                 = reg_en_D;
+  assign pc_reg_D$in_                = pc_F;
+  assign pc_reg_D$reset              = reset;
+  assign pc_reg_F$clk                = clk;
+  assign pc_reg_F$en                 = reg_en_F;
+  assign pc_reg_F$in_                = pc_sel_mux_F$out;
+  assign pc_reg_F$reset              = reset;
+  assign pc_reg_X$clk                = clk;
+  assign pc_reg_X$en                 = reg_en_X;
+  assign pc_reg_X$in_                = pc_reg_D$out;
+  assign pc_reg_X$reset              = reset;
+  assign pc_sel_mux_F$clk            = clk;
+  assign pc_sel_mux_F$in_$000        = pc_plus4_F;
+  assign pc_sel_mux_F$in_$001        = br_target_X;
+  assign pc_sel_mux_F$in_$002        = jal_target_D;
+  assign pc_sel_mux_F$in_$003        = jalr_target_X;
+  assign pc_sel_mux_F$reset          = reset;
+  assign pc_sel_mux_F$sel            = pc_sel_F;
+  assign proc2mngr_data              = wb_result_reg_W$out;
+  assign rf$clk                      = clk;
+  assign rf$rd_addr$000              = inst_D[19:15];
+  assign rf$rd_addr$001              = inst_D[24:20];
+  assign rf$reset                    = reset;
+  assign rf$wr_addr                  = rf_waddr_W;
+  assign rf$wr_data                  = rf_wdata_W;
+  assign rf$wr_en                    = rf_wen_W;
+  assign rf_rdata0_D                 = rf$rd_data$000;
+  assign rf_rdata1_D                 = rf$rd_data$001;
+  assign rf_wdata_W                  = wb_result_reg_W$out;
+  assign stats_en_reg_W$clk          = clk;
+  assign stats_en_reg_W$en           = stats_en_wen_W;
+  assign stats_en_reg_W$in_          = wb_result_reg_W$out;
+  assign stats_en_reg_W$reset        = reset;
+  assign wb_result_reg_W$clk         = clk;
+  assign wb_result_reg_W$en          = reg_en_W;
+  assign wb_result_reg_W$in_         = wb_result_sel_mux_M$out;
+  assign wb_result_reg_W$reset       = reset;
+  assign wb_result_sel_mux_M$clk     = clk;
+  assign wb_result_sel_mux_M$in_$000 = ex_result_reg_M$out;
+  assign wb_result_sel_mux_M$in_$001 = dmemresp_msg_data;
+  assign wb_result_sel_mux_M$in_$002 = xcelresp_msg_data;
+  assign wb_result_sel_mux_M$reset   = reset;
+  assign wb_result_sel_mux_M$sel     = wb_result_sel_M;
+  assign xcelreq_msg_data            = op1_reg_X$out;
+  assign xcelreq_msg_raddr           = op2_reg_X$out[4:0];
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def imem_req_F():
+  //       s.imemreq_msg.addr.value  = s.pc_sel_mux_F.out
+
+  // logic for imem_req_F()
+  always @ (*) begin
+    imemreq_msg[(66)-1:34] = pc_sel_mux_F$out;
+  end
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def stats_en_logic_W():
+  //       s.stats_en.value = reduce_or( s.stats_en_reg_W.out ) # reduction with bitwise OR
+
+  // logic for stats_en_logic_W()
+  always @ (*) begin
+    stats_en = (|stats_en_reg_W$out);
+  end
+
+
+endmodule // ProcDpathPRTL_0x4a10d55468bee90e
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// RegEnRst_0x5c03eb7daf20f305
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.regs {"dtype": 32, "reset_value": 0}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module RegEnRst_0x5c03eb7daf20f305
+(
+  input  wire [   0:0] clk,
+  input  wire [   0:0] en,
+  input  wire [  31:0] in_,
+  output reg  [  31:0] out,
+  input  wire [   0:0] reset
+);
+
+  // localparam declarations
+  localparam reset_value = 0;
+
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.posedge_clk
+  // def seq_logic():
+  //       if s.reset:
+  //         s.out.next = reset_value
+  //       elif s.en:
+  //         s.out.next = s.in_
+
+  // logic for seq_logic()
+  always @ (posedge clk) begin
+    if (reset) begin
+      out <= reset_value;
+    end
+    else begin
+      if (en) begin
+        out <= in_;
+      end
+      else begin
+      end
+    end
+  end
+
+
+endmodule // RegEnRst_0x5c03eb7daf20f305
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// IntMulScycleRTL
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: lab1_imul.IntMulScyclePRTL {"nstages": 2}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module IntMulScycleRTL
+(
+  input  wire [   0:0] clk,
+  input  wire [  63:0] req_msg,
+  output wire [   0:0] req_rdy,
+  input  wire [   0:0] req_val,
+  input  wire [   0:0] reset,
+  output wire [  31:0] resp_msg,
+  input  wire [   0:0] resp_rdy,
+  output wire [   0:0] resp_val
+);
+
+  // register declarations
+  reg    [  31:0] resp_queue$enq_msg;
+  reg    [  63:0] result;
+
+  // a_reg temporaries
+  wire   [   0:0] a_reg$reset;
+  wire   [  31:0] a_reg$in_;
+  wire   [   0:0] a_reg$clk;
+  wire   [   0:0] a_reg$en;
+  wire   [  31:0] a_reg$out;
+
+  RegEn_0x3392d4dd30174d2 a_reg
+  (
+    .reset ( a_reg$reset ),
+    .in_   ( a_reg$in_ ),
+    .clk   ( a_reg$clk ),
+    .en    ( a_reg$en ),
+    .out   ( a_reg$out )
+  );
+
+  // resp_queue temporaries
+  wire   [   0:0] resp_queue$clk;
+  wire   [   0:0] resp_queue$enq_val;
+  wire   [   0:0] resp_queue$reset;
+  wire   [   0:0] resp_queue$deq_rdy;
+  wire   [   0:0] resp_queue$enq_rdy;
+  wire   [   0:0] resp_queue$full;
+  wire   [  31:0] resp_queue$deq_msg;
+  wire   [   0:0] resp_queue$deq_val;
+
+  SingleElementBypassQueue_0x371f9f91c7b6145 resp_queue
+  (
+    .clk     ( resp_queue$clk ),
+    .enq_msg ( resp_queue$enq_msg ),
+    .enq_val ( resp_queue$enq_val ),
+    .reset   ( resp_queue$reset ),
+    .deq_rdy ( resp_queue$deq_rdy ),
+    .enq_rdy ( resp_queue$enq_rdy ),
+    .full    ( resp_queue$full ),
+    .deq_msg ( resp_queue$deq_msg ),
+    .deq_val ( resp_queue$deq_val )
+  );
+
+  // val_reg temporaries
+  wire   [   0:0] val_reg$reset;
+  wire   [   0:0] val_reg$in_;
+  wire   [   0:0] val_reg$clk;
+  wire   [   0:0] val_reg$en;
+  wire   [   0:0] val_reg$out;
+
+  RegEn_0x5e7e932e291f44db val_reg
+  (
+    .reset ( val_reg$reset ),
+    .in_   ( val_reg$in_ ),
+    .clk   ( val_reg$clk ),
+    .en    ( val_reg$en ),
+    .out   ( val_reg$out )
+  );
+
+  // b_reg temporaries
+  wire   [   0:0] b_reg$reset;
+  wire   [  31:0] b_reg$in_;
+  wire   [   0:0] b_reg$clk;
+  wire   [   0:0] b_reg$en;
+  wire   [  31:0] b_reg$out;
+
+  RegEn_0x3392d4dd30174d2 b_reg
+  (
+    .reset ( b_reg$reset ),
+    .in_   ( b_reg$in_ ),
+    .clk   ( b_reg$clk ),
+    .en    ( b_reg$en ),
+    .out   ( b_reg$out )
+  );
+
+  // signal connections
+  assign a_reg$clk          = clk;
+  assign a_reg$en           = resp_queue$enq_rdy;
+  assign a_reg$in_          = req_msg[63:32];
+  assign a_reg$reset        = reset;
+  assign b_reg$clk          = clk;
+  assign b_reg$en           = resp_queue$enq_rdy;
+  assign b_reg$in_          = req_msg[31:0];
+  assign b_reg$reset        = reset;
+  assign req_rdy            = resp_queue$enq_rdy;
+  assign resp_msg           = resp_queue$deq_msg;
+  assign resp_queue$clk     = clk;
+  assign resp_queue$deq_rdy = resp_rdy;
+  assign resp_queue$enq_val = val_reg$out;
+  assign resp_queue$reset   = reset;
+  assign resp_val           = resp_queue$deq_val;
+  assign val_reg$clk        = clk;
+  assign val_reg$en         = resp_queue$enq_rdy;
+  assign val_reg$in_        = req_val;
+  assign val_reg$reset      = reset;
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def block():
+  //       s.result.value = s.a_reg.out * s.b_reg.out
+  //       s.resp_queue.enq.msg.value = s.result[0:32]
+
+  // logic for block()
+  always @ (*) begin
+    result = (a_reg$out*b_reg$out);
+    resp_queue$enq_msg = result[(32)-1:0];
+  end
+
+
+endmodule // IntMulScycleRTL
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// RegEn_0x3392d4dd30174d2
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.regs {"dtype": 32}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module RegEn_0x3392d4dd30174d2
+(
+  input  wire [   0:0] clk,
+  input  wire [   0:0] en,
+  input  wire [  31:0] in_,
+  output reg  [  31:0] out,
+  input  wire [   0:0] reset
+);
+
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.posedge_clk
+  // def seq_logic():
+  //       if s.en:
+  //         s.out.next = s.in_
+
+  // logic for seq_logic()
+  always @ (posedge clk) begin
+    if (en) begin
+      out <= in_;
+    end
+    else begin
+    end
+  end
+
+
+endmodule // RegEn_0x3392d4dd30174d2
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// SingleElementBypassQueue_0x371f9f91c7b6145
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.queues {"dtype": 32}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module SingleElementBypassQueue_0x371f9f91c7b6145
+(
+  input  wire [   0:0] clk,
+  output wire [  31:0] deq_msg,
+  input  wire [   0:0] deq_rdy,
+  output wire [   0:0] deq_val,
+  input  wire [  31:0] enq_msg,
+  output wire [   0:0] enq_rdy,
+  input  wire [   0:0] enq_val,
+  output wire [   0:0] full,
+  input  wire [   0:0] reset
+);
+
+  // ctrl temporaries
+  wire   [   0:0] ctrl$clk;
+  wire   [   0:0] ctrl$enq_val;
+  wire   [   0:0] ctrl$reset;
+  wire   [   0:0] ctrl$deq_rdy;
+  wire   [   0:0] ctrl$bypass_mux_sel;
+  wire   [   0:0] ctrl$wen;
+  wire   [   0:0] ctrl$deq_val;
+  wire   [   0:0] ctrl$full;
+  wire   [   0:0] ctrl$enq_rdy;
+
+  SingleElementBypassQueueCtrl_0x10bc624c3d616f27 ctrl
+  (
+    .clk            ( ctrl$clk ),
+    .enq_val        ( ctrl$enq_val ),
+    .reset          ( ctrl$reset ),
+    .deq_rdy        ( ctrl$deq_rdy ),
+    .bypass_mux_sel ( ctrl$bypass_mux_sel ),
+    .wen            ( ctrl$wen ),
+    .deq_val        ( ctrl$deq_val ),
+    .full           ( ctrl$full ),
+    .enq_rdy        ( ctrl$enq_rdy )
+  );
+
+  // dpath temporaries
+  wire   [   0:0] dpath$wen;
+  wire   [   0:0] dpath$bypass_mux_sel;
+  wire   [   0:0] dpath$clk;
+  wire   [   0:0] dpath$reset;
+  wire   [  31:0] dpath$enq_bits;
+  wire   [  31:0] dpath$deq_bits;
+
+  SingleElementBypassQueueDpath_0x371f9f91c7b6145 dpath
+  (
+    .wen            ( dpath$wen ),
+    .bypass_mux_sel ( dpath$bypass_mux_sel ),
+    .clk            ( dpath$clk ),
+    .reset          ( dpath$reset ),
+    .enq_bits       ( dpath$enq_bits ),
+    .deq_bits       ( dpath$deq_bits )
+  );
+
+  // signal connections
+  assign ctrl$clk             = clk;
+  assign ctrl$deq_rdy         = deq_rdy;
+  assign ctrl$enq_val         = enq_val;
+  assign ctrl$reset           = reset;
+  assign deq_msg              = dpath$deq_bits;
+  assign deq_val              = ctrl$deq_val;
+  assign dpath$bypass_mux_sel = ctrl$bypass_mux_sel;
+  assign dpath$clk            = clk;
+  assign dpath$enq_bits       = enq_msg;
+  assign dpath$reset          = reset;
+  assign dpath$wen            = ctrl$wen;
+  assign enq_rdy              = ctrl$enq_rdy;
+  assign full                 = ctrl$full;
+
+
+
+endmodule // SingleElementBypassQueue_0x371f9f91c7b6145
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// SingleElementBypassQueueDpath_0x371f9f91c7b6145
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.queues {"dtype": 32}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module SingleElementBypassQueueDpath_0x371f9f91c7b6145
+(
+  input  wire [   0:0] bypass_mux_sel,
+  input  wire [   0:0] clk,
+  output wire [  31:0] deq_bits,
+  input  wire [  31:0] enq_bits,
+  input  wire [   0:0] reset,
+  input  wire [   0:0] wen
+);
+
+  // bypass_mux temporaries
+  wire   [   0:0] bypass_mux$reset;
+  wire   [  31:0] bypass_mux$in_$000;
+  wire   [  31:0] bypass_mux$in_$001;
+  wire   [   0:0] bypass_mux$clk;
+  wire   [   0:0] bypass_mux$sel;
+  wire   [  31:0] bypass_mux$out;
+
+  Mux_0x4144ab3fc277ef7d bypass_mux
+  (
+    .reset   ( bypass_mux$reset ),
+    .in_$000 ( bypass_mux$in_$000 ),
+    .in_$001 ( bypass_mux$in_$001 ),
+    .clk     ( bypass_mux$clk ),
+    .sel     ( bypass_mux$sel ),
+    .out     ( bypass_mux$out )
+  );
+
+  // queue temporaries
+  wire   [   0:0] queue$reset;
+  wire   [  31:0] queue$in_;
+  wire   [   0:0] queue$clk;
+  wire   [   0:0] queue$en;
+  wire   [  31:0] queue$out;
+
+  RegEn_0x3392d4dd30174d2 queue
+  (
+    .reset ( queue$reset ),
+    .in_   ( queue$in_ ),
+    .clk   ( queue$clk ),
+    .en    ( queue$en ),
+    .out   ( queue$out )
+  );
+
+  // signal connections
+  assign bypass_mux$clk     = clk;
+  assign bypass_mux$in_$000 = queue$out;
+  assign bypass_mux$in_$001 = enq_bits;
+  assign bypass_mux$reset   = reset;
+  assign bypass_mux$sel     = bypass_mux_sel;
+  assign deq_bits           = bypass_mux$out;
+  assign queue$clk          = clk;
+  assign queue$en           = wen;
+  assign queue$in_          = enq_bits;
+  assign queue$reset        = reset;
+
+
+
+endmodule // SingleElementBypassQueueDpath_0x371f9f91c7b6145
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// Mux_0x4144ab3fc277ef7d
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.Mux {"dtype": 32, "nports": 2}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module Mux_0x4144ab3fc277ef7d
+(
+  input  wire [   0:0] clk,
+  input  wire [  31:0] in_$000,
+  input  wire [  31:0] in_$001,
+  output reg  [  31:0] out,
+  input  wire [   0:0] reset,
+  input  wire [   0:0] sel
+);
+
+  // localparam declarations
+  localparam nports = 2;
+
+
+  // array declarations
+  wire   [  31:0] in_[0:1];
+  assign in_[  0] = in_$000;
+  assign in_[  1] = in_$001;
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_logic():
+  //       assert s.sel < nports
+  //       s.out.v = s.in_[ s.sel ]
+
+  // logic for comb_logic()
+  always @ (*) begin
+    out = in_[sel];
+  end
+
+
+endmodule // Mux_0x4144ab3fc277ef7d
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// RegEn_0x5e7e932e291f44db
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.regs {"dtype": 1}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module RegEn_0x5e7e932e291f44db
+(
+  input  wire [   0:0] clk,
+  input  wire [   0:0] en,
+  input  wire [   0:0] in_,
+  output reg  [   0:0] out,
+  input  wire [   0:0] reset
+);
+
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.posedge_clk
+  // def seq_logic():
+  //       if s.en:
+  //         s.out.next = s.in_
+
+  // logic for seq_logic()
+  always @ (posedge clk) begin
+    if (en) begin
+      out <= in_;
+    end
+    else begin
+    end
+  end
+
+
+endmodule // RegEn_0x5e7e932e291f44db
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// Mux_0x4144ab3fc268acb4
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.Mux {"dtype": 32, "nports": 3}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module Mux_0x4144ab3fc268acb4
+(
+  input  wire [   0:0] clk,
+  input  wire [  31:0] in_$000,
+  input  wire [  31:0] in_$001,
+  input  wire [  31:0] in_$002,
+  output reg  [  31:0] out,
+  input  wire [   0:0] reset,
+  input  wire [   1:0] sel
+);
+
+  // localparam declarations
+  localparam nports = 3;
+
+
+  // array declarations
+  wire   [  31:0] in_[0:2];
+  assign in_[  0] = in_$000;
+  assign in_[  1] = in_$001;
+  assign in_[  2] = in_$002;
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_logic():
+  //       assert s.sel < nports
+  //       s.out.v = s.in_[ s.sel ]
+
+  // logic for comb_logic()
+  always @ (*) begin
+    out = in_[sel];
+  end
+
+
+endmodule // Mux_0x4144ab3fc268acb4
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// RegEnRst_0x574b81e599753a8a
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.regs {"dtype": 32, "reset_value": 508}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module RegEnRst_0x574b81e599753a8a
+(
+  input  wire [   0:0] clk,
+  input  wire [   0:0] en,
+  input  wire [  31:0] in_,
+  output reg  [  31:0] out,
+  input  wire [   0:0] reset
+);
+
+  // localparam declarations
+  localparam reset_value = 32'h3ffffff8;
+
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.posedge_clk
+  // def seq_logic():
+  //       if s.reset:
+  //         s.out.next = reset_value
+  //       elif s.en:
+  //         s.out.next = s.in_
+
+  // logic for seq_logic()
+  always @ (posedge clk) begin
+    if (reset) begin
+      out <= reset_value;
+    end
+    else begin
+      if (en) begin
+        out <= in_;
+      end
+      else begin
+      end
+    end
+  end
+
+
+endmodule // RegEnRst_0x574b81e599753a8a
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// AluPRTL_0x6f5034674aabb7c
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: proc.ProcDpathComponentsPRTL {}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module AluPRTL_0x6f5034674aabb7c
+(
+  input  wire [   0:0] clk,
+  input  wire [   3:0] fn,
+  input  wire [  31:0] in0,
+  input  wire [  31:0] in1,
+  output reg  [   0:0] ops_eq,
+  output reg  [   0:0] ops_lt,
+  output reg  [   0:0] ops_ltu,
+  output reg  [  31:0] out,
+  input  wire [   0:0] reset
+);
+
+  // register declarations
+  reg    [  32:0] tmp_a;
+  reg    [  63:0] tmp_b;
+
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_logic():
+  //
+  //       s.tmp_a.value = 0
+  //       s.tmp_b.value = 0
+  //
+  //       if   s.fn ==  0: s.out.value = s.in0 + s.in1       # ADD
+  //       elif s.fn == 11: s.out.value = s.in0               # CP OP0
+  //       elif s.fn == 12: s.out.value = s.in1               # CP OP1
+  //
+  //       #''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  //       # Add more ALU functions
+  //       #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''\/
+  //
+  //       elif s.fn ==  1: s.out.value = s.in0 - s.in1       # SUB
+  //       elif s.fn ==  2: s.out.value = s.in0 << s.in1[0:5] # SLL
+  //       elif s.fn ==  3: s.out.value = s.in0 | s.in1       # OR
+  //
+  //       elif s.fn ==  4:                                   # SLT
+  //         s.tmp_a.value = sext( s.in0, 33 ) - sext( s.in1, 33 )
+  //         s.out.value   = s.tmp_a[32]
+  //
+  //       elif s.fn ==  5: s.out.value = s.in0 < s.in1       # SLTU
+  //       elif s.fn ==  6: s.out.value = s.in0 & s.in1       # AND
+  //       elif s.fn ==  7: s.out.value = s.in0 ^ s.in1       # XOR
+  //       elif s.fn ==  8: s.out.value = ~( s.in0 | s.in1 )  # NOR
+  //       elif s.fn ==  9: s.out.value = s.in0 >> (s.in1[0:5]) # SRL
+  //
+  //       elif s.fn == 10:                                   # SRA
+  //         s.tmp_b.value = sext( s.in0, 64 ) >> s.in1[0:5]
+  //         s.out.value   = s.tmp_b[0:32]
+  //
+  //       elif s.fn == 13:                                   # ADDZ for clearing LSB
+  //         s.tmp_b.value = s.in0 + s.in1
+  //         s.out[0].value = 0
+  //         s.out.value[1:32] = s.tmp_b[1:32]
+  //         
+  //
+  //       #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''/\
+  //
+  //       else:            s.out.value = 0                   # Unknown
+  //
+  //       s.ops_eq.value = ( s.in0 == s.in1 )
+  //
+  //       #''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  //       # Add more ALU functions
+  //       # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''\/
+  //
+  //       s.ops_lt.value  = s.tmp_a[32]
+  //       s.ops_ltu.value = ( s.in0 < s.in1 )
+
+  // logic for comb_logic()
+  always @ (*) begin
+    tmp_a = 0;
+    tmp_b = 0;
+    if ((fn == 0)) begin
+      out = (in0+in1);
+    end
+    else begin
+      if ((fn == 11)) begin
+        out = in0;
+      end
+      else begin
+        if ((fn == 12)) begin
+          out = in1;
+        end
+        else begin
+          if ((fn == 1)) begin
+            out = (in0-in1);
+          end
+          else begin
+            if ((fn == 2)) begin
+              out = (in0<<in1[(5)-1:0]);
+            end
+            else begin
+              if ((fn == 3)) begin
+                out = (in0|in1);
+              end
+              else begin
+                if ((fn == 4)) begin
+                  tmp_a = ({ { 33-32 { in0[31] } }, in0 }-{ { 33-32 { in1[31] } }, in1 });
+                  out = tmp_a[32];
+                end
+                else begin
+                  if ((fn == 5)) begin
+                    out = (in0 < in1);
+                  end
+                  else begin
+                    if ((fn == 6)) begin
+                      out = (in0&in1);
+                    end
+                    else begin
+                      if ((fn == 7)) begin
+                        out = (in0^in1);
+                      end
+                      else begin
+                        if ((fn == 8)) begin
+                          out = ~(in0|in1);
+                        end
+                        else begin
+                          if ((fn == 9)) begin
+                            out = (in0>>in1[(5)-1:0]);
+                          end
+                          else begin
+                            if ((fn == 10)) begin
+                              tmp_b = ({ { 64-32 { in0[31] } }, in0 }>>in1[(5)-1:0]);
+                              out = tmp_b[(32)-1:0];
+                            end
+                            else begin
+                              if ((fn == 13)) begin
+                                tmp_b = (in0+in1);
+                                out[0] = 0;
+                                out[(32)-1:1] = tmp_b[(32)-1:1];
+                              end
+                              else begin
+                                out = 0;
+                              end
+                            end
+                          end
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+    ops_eq = (in0 == in1);
+    ops_lt = tmp_a[32];
+    ops_ltu = (in0 < in1);
+  end
+
+
+endmodule // AluPRTL_0x6f5034674aabb7c
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// Mux_0x4144ab3fc2596af7
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.Mux {"dtype": 32, "nports": 4}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module Mux_0x4144ab3fc2596af7
+(
+  input  wire [   0:0] clk,
+  input  wire [  31:0] in_$000,
+  input  wire [  31:0] in_$001,
+  input  wire [  31:0] in_$002,
+  input  wire [  31:0] in_$003,
+  output reg  [  31:0] out,
+  input  wire [   0:0] reset,
+  input  wire [   1:0] sel
+);
+
+  // localparam declarations
+  localparam nports = 4;
+
+
+  // array declarations
+  wire   [  31:0] in_[0:3];
+  assign in_[  0] = in_$000;
+  assign in_[  1] = in_$001;
+  assign in_[  2] = in_$002;
+  assign in_[  3] = in_$003;
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_logic():
+  //       assert s.sel < nports
+  //       s.out.v = s.in_[ s.sel ]
+
+  // logic for comb_logic()
+  always @ (*) begin
+    out = in_[sel];
+  end
+
+
+endmodule // Mux_0x4144ab3fc2596af7
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// RegisterFile_0x423b6d418e8d6ae7
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.RegisterFile {"const_zero": true, "dtype": 32, "nregs": 32, "rd_ports": 2, "wr_ports": 1}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module RegisterFile_0x423b6d418e8d6ae7
+(
+  input  wire [   0:0] clk,
+  input  wire [   4:0] rd_addr$000,
+  input  wire [   4:0] rd_addr$001,
+  output wire [  31:0] rd_data$000,
+  output wire [  31:0] rd_data$001,
+  input  wire [   0:0] reset,
+  input  wire [   4:0] wr_addr,
+  input  wire [  31:0] wr_data,
+  input  wire [   0:0] wr_en
+);
+
+  // wire declarations
+  wire   [  31:0] regs$000;
+  wire   [  31:0] regs$001;
+  wire   [  31:0] regs$002;
+  wire   [  31:0] regs$003;
+  wire   [  31:0] regs$004;
+  wire   [  31:0] regs$005;
+  wire   [  31:0] regs$006;
+  wire   [  31:0] regs$007;
+  wire   [  31:0] regs$008;
+  wire   [  31:0] regs$009;
+  wire   [  31:0] regs$010;
+  wire   [  31:0] regs$011;
+  wire   [  31:0] regs$012;
+  wire   [  31:0] regs$013;
+  wire   [  31:0] regs$014;
+  wire   [  31:0] regs$015;
+  wire   [  31:0] regs$016;
+  wire   [  31:0] regs$017;
+  wire   [  31:0] regs$018;
+  wire   [  31:0] regs$019;
+  wire   [  31:0] regs$020;
+  wire   [  31:0] regs$021;
+  wire   [  31:0] regs$022;
+  wire   [  31:0] regs$023;
+  wire   [  31:0] regs$024;
+  wire   [  31:0] regs$025;
+  wire   [  31:0] regs$026;
+  wire   [  31:0] regs$027;
+  wire   [  31:0] regs$028;
+  wire   [  31:0] regs$029;
+  wire   [  31:0] regs$030;
+  wire   [  31:0] regs$031;
+
+
+  // localparam declarations
+  localparam nregs = 32;
+  localparam rd_ports = 2;
+
+  // loop variable declarations
+  integer i;
+
+
+  // array declarations
+  wire   [   4:0] rd_addr[0:1];
+  assign rd_addr[  0] = rd_addr$000;
+  assign rd_addr[  1] = rd_addr$001;
+  reg    [  31:0] rd_data[0:1];
+  assign rd_data$000 = rd_data[  0];
+  assign rd_data$001 = rd_data[  1];
+  reg    [  31:0] regs[0:31];
+  assign regs$000 = regs[  0];
+  assign regs$001 = regs[  1];
+  assign regs$002 = regs[  2];
+  assign regs$003 = regs[  3];
+  assign regs$004 = regs[  4];
+  assign regs$005 = regs[  5];
+  assign regs$006 = regs[  6];
+  assign regs$007 = regs[  7];
+  assign regs$008 = regs[  8];
+  assign regs$009 = regs[  9];
+  assign regs$010 = regs[ 10];
+  assign regs$011 = regs[ 11];
+  assign regs$012 = regs[ 12];
+  assign regs$013 = regs[ 13];
+  assign regs$014 = regs[ 14];
+  assign regs$015 = regs[ 15];
+  assign regs$016 = regs[ 16];
+  assign regs$017 = regs[ 17];
+  assign regs$018 = regs[ 18];
+  assign regs$019 = regs[ 19];
+  assign regs$020 = regs[ 20];
+  assign regs$021 = regs[ 21];
+  assign regs$022 = regs[ 22];
+  assign regs$023 = regs[ 23];
+  assign regs$024 = regs[ 24];
+  assign regs$025 = regs[ 25];
+  assign regs$026 = regs[ 26];
+  assign regs$027 = regs[ 27];
+  assign regs$028 = regs[ 28];
+  assign regs$029 = regs[ 29];
+  assign regs$030 = regs[ 30];
+  assign regs$031 = regs[ 31];
+
+  // PYMTL SOURCE:
+  //
+  // @s.posedge_clk
+  // def seq_logic_const_zero():
+  //         if s.wr_en and s.wr_addr != 0:
+  //           s.regs[ s.wr_addr ].next = s.wr_data
+
+  // logic for seq_logic_const_zero()
+  always @ (posedge clk) begin
+    if ((wr_en&&(wr_addr != 0))) begin
+      regs[wr_addr] <= wr_data;
+    end
+    else begin
+    end
+  end
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_logic():
+  //         for i in range( rd_ports ):
+  //           assert s.rd_addr[i] < nregs
+  //           if s.rd_addr[i] == 0:
+  //             s.rd_data[i].value = 0
+  //           else:
+  //             s.rd_data[i].value = s.regs[ s.rd_addr[i] ]
+
+  // logic for comb_logic()
+  always @ (*) begin
+    for (i=0; i < rd_ports; i=i+1)
+    begin
+      if ((rd_addr[i] == 0)) begin
+        rd_data[i] = 0;
+      end
+      else begin
+        rd_data[i] = regs[rd_addr[i]];
+      end
+    end
+  end
+
+
+endmodule // RegisterFile_0x423b6d418e8d6ae7
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// Incrementer_0x64b7d65fea759127
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.arith {"increment_amount": 4, "nbits": 32}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module Incrementer_0x64b7d65fea759127
+(
+  input  wire [   0:0] clk,
+  input  wire [  31:0] in_,
+  output reg  [  31:0] out,
+  input  wire [   0:0] reset
+);
+
+  // localparam declarations
+  localparam increment_amount = 4;
+
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_logic():
+  //       s.out.value = s.in_ + increment_amount
+
+  // logic for comb_logic()
+  always @ (*) begin
+    out = (in_+increment_amount);
+  end
+
+
+endmodule // Incrementer_0x64b7d65fea759127
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// Adder_0x2d6e5ef952489e2
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: pclib.rtl.arith {"nbits": 32}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module Adder_0x2d6e5ef952489e2
+(
+  input  wire [   0:0] cin,
+  input  wire [   0:0] clk,
+  output wire [   0:0] cout,
+  input  wire [  31:0] in0,
+  input  wire [  31:0] in1,
+  output wire [  31:0] out,
+  input  wire [   0:0] reset
+);
+
+  // register declarations
+  reg    [  32:0] t0__0;
+  reg    [  32:0] t1__0;
+  reg    [  32:0] temp;
+
+  // localparam declarations
+  localparam twidth = 33;
+
+  // signal connections
+  assign cout = temp[32];
+  assign out  = temp[31:0];
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_logic():
+  //
+  //       # Zero extend the inputs by one bit so we can generate an extra
+  //       # carry out bit
+  //
+  //       t0 = zext( s.in0, twidth )
+  //       t1 = zext( s.in1, twidth )
+  //
+  //       s.temp.value = t0 + t1 + s.cin
+
+  // logic for comb_logic()
+  always @ (*) begin
+    t0__0 = { { twidth-32 { 1'b0 } }, in0 };
+    t1__0 = { { twidth-32 { 1'b0 } }, in1 };
+    temp = ((t0__0+t1__0)+cin);
+  end
+
+
+endmodule // Adder_0x2d6e5ef952489e2
+`default_nettype wire
+
+//-----------------------------------------------------------------------------
+// ImmGenPRTL_0x6f5034674aabb7c
+//-----------------------------------------------------------------------------
+// PyMTL: dump_vcd = False
+// PyMTL: proc.ProcDpathComponentsPRTL {}
+// PyMTL: verilator_xinit = zeros
+`default_nettype none
+module ImmGenPRTL_0x6f5034674aabb7c
+(
+  input  wire [   0:0] clk,
+  output reg  [  31:0] imm,
+  input  wire [   2:0] imm_type,
+  input  wire [  31:0] inst,
+  input  wire [   0:0] reset
+);
+
+  // register declarations
+  reg    [   0:0] tmp1;
+  reg    [  11:0] tmp12;
+  reg    [   6:0] tmp7;
+
+
+
+  // PYMTL SOURCE:
+  //
+  // @s.combinational
+  // def comb_logic():
+  //       # Always sext!
+  //
+  //       if   s.imm_type == 0: # I-type
+  //
+  //         # Shunning: Nasty but this is for translation to work. I did
+  //         # create a PR in the past to handle this.
+  //         # See https://github.com/cornell-brg/pymtl/pull/158
+  //
+  //         s.tmp12.value = s.inst[ I_IMM ]
+  //
+  //         s.imm.value = concat( sext( s.tmp12, 32 ) )
+  //
+  //       elif s.imm_type == 2: # B-type
+  //
+  //         s.tmp1.value = s.inst[ B_IMM3 ]
+  //
+  //         s.imm.value = concat( sext( s.tmp1, 20 ),
+  //                                     s.inst[ B_IMM2 ],
+  //                                     s.inst[ B_IMM1 ],
+  //                                     s.inst[ B_IMM0 ],
+  //                                     Bits( 1, 0 ) )
+  //
+  //       #''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  //       # Add more immediate types
+  //       #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''\/
+  //
+  //       elif s.imm_type == 1: # S-type
+  //
+  //         s.tmp7.value = s.inst[ S_IMM1 ]
+  //
+  //         s.imm.value = concat( sext( s.tmp7, 27 ),
+  //                                     s.inst[ S_IMM0 ] )
+  //
+  //       elif s.imm_type == 3: # U-type
+  //
+  //         s.imm.value = concat(       s.inst[ U_IMM ],
+  //                                     Bits( 12, 0 ) )
+  //
+  //       elif s.imm_type == 4: # J-type
+  //
+  //         s.tmp1.value = s.inst[ J_IMM3 ]
+  //
+  //         s.imm.value = concat( sext( s.tmp1, 12 ),
+  //                                     s.inst[ J_IMM2 ],
+  //                                     s.inst[ J_IMM1 ],
+  //                                     s.inst[ J_IMM0 ],
+  //                                     Bits( 1, 0 ) )
+  //
+  //       #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''/\
+  //
+  //       else:
+  //         s.imm.value = 0
+
+  // logic for comb_logic()
+  always @ (*) begin
+    if ((imm_type == 0)) begin
+      tmp12 = inst[(32)-1:20];
+      imm = { { { 32-12 { tmp12[11] } }, tmp12 } };
+    end
+    else begin
+      if ((imm_type == 2)) begin
+        tmp1 = inst[(32)-1:31];
+        imm = { { { 20-1 { tmp1[0] } }, tmp1 },inst[(8)-1:7],inst[(31)-1:25],inst[(12)-1:8],1'd0 };
+      end
+      else begin
+        if ((imm_type == 1)) begin
+          tmp7 = inst[(32)-1:25];
+          imm = { { { 27-7 { tmp7[6] } }, tmp7 },inst[(12)-1:7] };
+        end
+        else begin
+          if ((imm_type == 3)) begin
+            imm = { inst[(32)-1:12],12'd0 };
+          end
+          else begin
+            if ((imm_type == 4)) begin
+              tmp1 = inst[(32)-1:31];
+              imm = { { { 12-1 { tmp1[0] } }, tmp1 },inst[(20)-1:12],inst[(21)-1:20],inst[(31)-1:21],1'd0 };
+            end
+            else begin
+              imm = 0;
+            end
+          end
+        end
+      end
+    end
+  end
+
+
+endmodule // ImmGenPRTL_0x6f5034674aabb7c
+`default_nettype wire
 

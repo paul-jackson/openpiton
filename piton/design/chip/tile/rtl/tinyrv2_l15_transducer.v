@@ -313,7 +313,7 @@ module tinyrv2_l15_transducer (
                 case(tinyrv2_memreq_len)
                     WORD: begin
                         transducer_l15_size = `PCX_SZ_4B;
-                        tinyrv2_wdata_flipped = {tinyrv2_memreq_data[7:0], tinyrv2_memreq_data[15:8], tinyrv2_memreq_data[23:16], tinyrv2_memreq_data[31:24]};
+                        tinyrv2_wdata_flipped = tinyrv2_memreq_data;
                     end
                     BYTE: begin
                         transducer_l15_size = `PCX_SZ_1B;
@@ -321,10 +321,10 @@ module tinyrv2_l15_transducer (
                     end
                     HALF: begin
                         transducer_l15_size = `PCX_SZ_2B; 
-                        tinyrv2_wdata_flipped = {tinyrv2_memreq_data[7:0], tinyrv2_memreq_data[15:8], tinyrv2_memreq_data[7:0], tinyrv2_memreq_data[15:8]};
+                        tinyrv2_wdata_flipped = {tinyrv2_memreq_data[15:8], tinyrv2_memreq_data[7:0], tinyrv2_memreq_data[7:0], tinyrv2_memreq_data[15:8]};
                     end
                     default: begin // this should never happen
-                        tinyrv2_wdata_flipped = {tinyrv2_memreq_data[7:0], tinyrv2_memreq_data[15:8], tinyrv2_memreq_data[23:16], tinyrv2_memreq_data[31:24]};
+                        tinyrv2_wdata_flipped = tinyrv2_memreq_data;
                         transducer_l15_size = 0;
                     end
                 endcase
@@ -349,7 +349,7 @@ module tinyrv2_l15_transducer (
     /***************** ENCODER!!!!*******************/
 
     reg [31:0] tinyrv2_memresp_rdata;
-    assign  tinyrv2_memresp_data    = (cur_memreq_type == D_TYPE) ? tinyrv2_memresp_rdata : {rdata_part[7:0], rdata_part[15:8], rdata_part[23:16], rdata_part[31:24]};
+    assign  tinyrv2_memresp_data    = (cur_memreq_type == D_TYPE) ? tinyrv2_memresp_rdata : rdata_part;
 
     assign  transducer_l15_req_ack = l15_transducer_val;
     assign  tinyrv2_memresp_type     = l15_transducer_returntype == 4'b0000 ? 1'b0 : 1'b1;
@@ -380,16 +380,16 @@ module tinyrv2_l15_transducer (
                     tinyrv2_memresp_val = 1'b1;
                     // (sub)word of interest is stored in one of 4 parts of l.15 response
                     case(transducer_l15_address[3:2])
-                        OFFSET_0: begin
+                        OFFSET_3: begin
                             rdata_part = l15_transducer_data_0[63:32];
                         end
-                        OFFSET_1: begin
+                        OFFSET_2: begin
                             rdata_part = l15_transducer_data_0[31:0];
                         end
-                        OFFSET_2: begin
+                        OFFSET_1: begin
                             rdata_part = l15_transducer_data_1[63:32];
                         end
-                        OFFSET_3: begin
+                        OFFSET_0: begin
                             rdata_part = l15_transducer_data_1[31:0];
                         end
                         default: begin
@@ -430,15 +430,15 @@ module tinyrv2_l15_transducer (
         if (l15_transducer_val && (l15_transducer_returntype == `LOAD_RET)) begin
             case (tinyrv2_memresp_len)
                 WORD: begin
-                    tinyrv2_memresp_rdata = {rdata_part[7:0], rdata_part[15:8], rdata_part[23:16], rdata_part[31:24]};
+                    tinyrv2_memresp_rdata = rdata_part;
                 end
                 HALF: begin
                     case(transducer_l15_address[1:0])
-                        OFFSET_0: begin
-                            tinyrv2_memresp_rdata = {rdata_part[23:16], rdata_part[31:24], rdata_part[23:16], rdata_part[31:24]};
-                        end
                         OFFSET_2: begin
-                            tinyrv2_memresp_rdata = {rdata_part[7:0], rdata_part[15:8], rdata_part[7:0], rdata_part[15:8]};
+                            tinyrv2_memresp_rdata = {rdata_part[31:24], rdata_part[23:16], rdata_part[23:16], rdata_part[31:24]};
+                        end
+                        OFFSET_0: begin
+                            tinyrv2_memresp_rdata = {rdata_part[15:8], rdata_part[7:0], rdata_part[7:0], rdata_part[15:8]};
                         end
                         default: begin
                             tinyrv2_memresp_rdata = 32'b0;
@@ -447,16 +447,16 @@ module tinyrv2_l15_transducer (
                 end
                 BYTE: begin
                     case(transducer_l15_address[1:0])
-                        OFFSET_0: begin
+                        OFFSET_3: begin
                             tinyrv2_memresp_rdata = {rdata_part[31:24], rdata_part[31:24], rdata_part[31:24], rdata_part[31:24]};
                         end
-                        OFFSET_1: begin
+                        OFFSET_2: begin
                             tinyrv2_memresp_rdata = {rdata_part[23:16], rdata_part[23:16], rdata_part[23:16], rdata_part[23:16]};
                         end
-                        OFFSET_2: begin
+                        OFFSET_1: begin
                             tinyrv2_memresp_rdata = {rdata_part[15:8], rdata_part[15:8], rdata_part[15:8], rdata_part[15:8]};
                         end
-                        OFFSET_3: begin
+                        OFFSET_0: begin
                             tinyrv2_memresp_rdata = {rdata_part[7:0], rdata_part[7:0], rdata_part[7:0], rdata_part[7:0]};
                         end
                         default: begin
