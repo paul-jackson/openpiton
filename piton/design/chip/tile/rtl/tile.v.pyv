@@ -1060,16 +1060,16 @@ generate if (TILE_TYPE == `TINYRV2_RV32_TILE) begin : g_tinyrv_core
     //////////////////
     // Tinyrv2 Core //
     //////////////////
-    wire [76:0]  tinyrv2_transducer_imemreq_msg;
+    wire [77:0]  tinyrv2_transducer_imemreq_msg;
     wire         tinyrv2_transducer_imemreq_val;
     wire         transducer_tinyrv2_imemreq_rdy;
-    wire [46:0]  transducer_tinyrv2_imemresp_msg;
+    wire [47:0]  transducer_tinyrv2_imemresp_msg;
     wire         transducer_tinyrv2_imemresp_val;
     wire         tinyrv2_transducer_imemresp_rdy;
-    wire [76:0]  tinyrv2_transducer_dmemreq_msg;
+    wire [77:0]  tinyrv2_transducer_dmemreq_msg;
     wire         tinyrv2_transducer_dmemreq_val;
     wire         transducer_tinyrv2_dmemreq_rdy;
-    wire [46:0]  transducer_tinyrv2_dmemresp_msg;
+    wire [47:0]  transducer_tinyrv2_dmemresp_msg;
     wire         transducer_tinyrv2_dmemresp_val;
     wire         tinyrv2_transducer_dmemresp_rdy;
     wire         tinyrv2_int;
@@ -1093,7 +1093,9 @@ generate if (TILE_TYPE == `TINYRV2_RV32_TILE) begin : g_tinyrv_core
 
         .dmemresp_msg  (transducer_tinyrv2_dmemresp_msg),
         .dmemresp_val  (transducer_tinyrv2_dmemresp_val),
-        .dmemresp_rdy  (tinyrv2_transducer_dmemresp_rdy)
+        .dmemresp_rdy  (tinyrv2_transducer_dmemresp_rdy),
+
+        .tinyrv2_int   (tinyrv2_int)
     );
 
     pico_reset pico_reset(

@@ -273,8 +273,8 @@ endtask // get_thread_status
                 end
 
                 always @(posedge clk) begin
-                    spc0_inst_done <= 1'b1; // TODO: Add real signals later
-                    spc0_phy_pc_w <= 48'b0; // TODO: Add real signals later
+                    spc0_inst_done <= `TINYRV2_CORE0.commit_inst;     //1'b1; // TODO: Add real signals later
+                    spc0_phy_pc_w <= {{16{`TINYRV2_CORE0.commit_pc[31]}}, `TINYRV2_CORE0.commit_pc[31:0]};        //48'b0; // TODO: Add real signals later
                 end
         `endif // RTL_TINYRV20
         `endif // RTL_PICO0

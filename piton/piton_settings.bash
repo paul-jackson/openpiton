@@ -36,7 +36,7 @@ fi
 
 # Please define VCS_HOME only if you have VCS, otherwise comment it out.
 
-#export VCS_HOME=
+export VCS_HOME=/opt/synopsys/packages/vcs/N-2017.12-1/
 
 # Please define NCV_HOME only if you have NC-Verilog, otherwise comment it out.
 

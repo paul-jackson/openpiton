@@ -1080,7 +1080,7 @@ ciop_fake_iob ciop_fake_iob(
         `endif
         `ifdef RTL_TINYRV20
           .spc0_inst_done    ( 1'b1  ),
-          .pc_w0             ( 49'b0 ),
+          .pc_w0             ( {17'b0, `TINYRV2_CORE0.commit_pc} ),
         `endif
         '''
 

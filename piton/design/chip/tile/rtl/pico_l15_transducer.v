@@ -38,7 +38,7 @@ module pico_l15_transducer (
     input                           l15_transducer_ack,
     input                           l15_transducer_header_ack,
 
-    // outputs pico uses                    
+    // outputs pico uses
     output [4:0]                    transducer_l15_rqtype,
     output [`L15_AMO_OP_WIDTH-1:0]  transducer_l15_amo_op,
     output [2:0]                    transducer_l15_size,
@@ -48,7 +48,7 @@ module pico_l15_transducer (
     output                          transducer_l15_nc,
 
 
-    // outputs pico doesn't use                    
+    // outputs pico doesn't use
     output [0:0]                    transducer_l15_threadid,
     output                          transducer_l15_prefetch,
     output                          transducer_l15_invalidate_cacheline,
@@ -61,13 +61,13 @@ module pico_l15_transducer (
     //--- L1.5 -> Pico
     input                           l15_transducer_val,
     input [3:0]                     l15_transducer_returntype,
-    
+
     input [63:0]                    l15_transducer_data_0,
     input [63:0]                    l15_transducer_data_1,
-   
+
     output                          transducer_pico_mem_ready,
     output [31:0]                   transducer_pico_mem_rdata,
-    
+
     output                          transducer_l15_req_ack,
     output                          pico_int
 );
@@ -79,7 +79,7 @@ module pico_l15_transducer (
 pico_decoder pico_decoder(
     .clk(clk),
     .rst_n(rst_n),
-    
+
     .pico_mem_valid                         (pico_transducer_mem_valid),
     .pico_mem_addr                          (pico_transducer_mem_addr),
     .pico_mem_wstrb                         (pico_transducer_mem_wstrb),
@@ -87,15 +87,15 @@ pico_decoder pico_decoder(
     .pico_mem_amo_op                        (pico_transducer_mem_amo_op),
     .l15_picodecoder_ack                    (l15_transducer_ack),
     .l15_picodecoder_header_ack             (l15_transducer_header_ack),
-                           
+
     .picodecoder_l15_rqtype                 (transducer_l15_rqtype),
     .picodecoder_l15_amo_op                 (transducer_l15_amo_op),
     .picodecoder_l15_size                   (transducer_l15_size),
     .picodecoder_l15_val                    (transducer_l15_val),
     .picodecoder_l15_address                (transducer_l15_address),
     .picodecoder_l15_data                   (transducer_l15_data),
-                           
-    .picodecoder_l15_nc                     (transducer_l15_nc),                          
+
+    .picodecoder_l15_nc                     (transducer_l15_nc),
     .picodecoder_l15_threadid               (transducer_l15_threadid),
     .picodecoder_l15_prefetch               (transducer_l15_prefetch),
     .picodecoder_l15_blockstore             (transducer_l15_blockstore),
@@ -110,20 +110,29 @@ pico_decoder pico_decoder(
 l15_picoencoder l15_picoencoder(
     .clk(clk),
     .rst_n(rst_n),
-    
+
     .l15_picoencoder_val        (l15_transducer_val),
     .l15_picoencoder_returntype (l15_transducer_returntype),
-    
+
     .l15_picoencoder_data_0     (l15_transducer_data_0),
     .l15_picoencoder_data_1     (l15_transducer_data_1),
-    
+
     .picodecoder_l15_address    (transducer_l15_address),
-    
+
     .pico_mem_ready             (transducer_pico_mem_ready),
     .pico_mem_rdata             (transducer_pico_mem_rdata),
-    
+
     .picoencoder_l15_req_ack    (transducer_l15_req_ack),
     .pico_int                   (pico_int)
 );
+
+always @ ( transducer_l15_address ) begin
+  $display( "transducer_l15_address = 0x%x", transducer_l15_address );
+end
+
+always @ ( l15_transducer_val ) begin
+  $display( "l15_transducer_data_0 = 0x%x", l15_transducer_data_0 );
+  $display( "l15_transducer_data_1 = 0x%x", l15_transducer_data_1 );
+end
 
 endmodule
